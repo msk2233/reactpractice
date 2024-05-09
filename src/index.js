@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import MyForm from './App';
 import FavoriteColor from './Hook';
+import MyFormex from './form';
 
 //map practice of array
 const myArray = ['Array map practice', 'apple', 'banana', 'orange'];
@@ -24,7 +25,6 @@ const myElement3 = (
 
 const x = 5;
 
-const myElement4 =() => { return(<h1>{(x) < 10 ? "Hello" : "Goodbye"}</h1>)} ;
 
 
 const root2 = ReactDOM.createRoot(document.getElementById('root2'));
@@ -34,9 +34,7 @@ const root3 = ReactDOM.createRoot(document.getElementById('root3'));
 root2.render(myList);
 rootforcopy.render(myFirstElement);
 root.render(myElement3);
-root3.render(<>
-  <myElement4 />
-</> );
+// root3.render(<myElement4 />);
 
 class Greeting extends React.Component {
   render() {
@@ -51,7 +49,6 @@ function Football() {
   const shoot = () => {
     alert("Great Shot!");
   }
-
   return (
     <button onClick={shoot}>SHOOT!</button>
   );
@@ -59,5 +56,13 @@ function Football() {
 const root5 = ReactDOM.createRoot(document.getElementById('root5'));
 root5.render(<>
   <Football />
+</>
+);
+
+function MyElement3() { 
+  return(<h1>Ternory Oprator {(x) < 10 ? "Hello" : "Goodbye"}</h1>)
+}
+root3.render(<>
+  <MyElement3 />
 </>
 );
