@@ -4,3 +4,12 @@
     text-align: center;
     background-color: blanchedalmond;
 }
+.todoinp{
+   margin:200px 0px 0px 650px;
+   font-size: 25px;
+}   
+.btn{
+    background-color: blueviolet;
+    color: white;
+    font-size: 27px;
+}

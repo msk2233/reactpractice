@@ -5,3 +5,14 @@
     text-align: center;
     background-color: blanchedalmond;
 }
+.thisisform{
+    color: white;
+    background-color: DodgerBlue;
+    padding: 50px;
+    font-family: Arial;
+    width: 400px;
+    margin: 50px;
+}
+.btn{
+    padding: 20px;
+}

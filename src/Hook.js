@@ -3,23 +3,22 @@ import ReactDOM from "react-dom/client";
 
 function FavoriteColor() {
   const [color, setColor] = useState("black");
-    
   return (
     <>
       <h1 style={{color:color}}>My favorite color is {color}! Using React Hook</h1>
-      <button style={{backgroundColor:"blue"}}
+      <button className="btn" style={{backgroundColor:"blue"}}
         type="button"
         onClick={() => setColor("blue")}
       >Blue</button>
-      <button style={{backgroundColor:"red"}}
+      <button className="btn" style={{backgroundColor:"red"}}
         type="button"
         onClick={() => setColor("red")}
       >Red</button>
-      <button style={{backgroundColor:"pink"}}
+      <button className="btn" style={{backgroundColor:"pink"}}
         type="button"
         onClick={() => setColor("pink")}
       >Pink</button>
-      <button style={{backgroundColor:"green"}}
+      <button className="btn" style={{backgroundColor:"green"}}
         type="button"
         onClick={() => setColor("green")}
       >Green</button>

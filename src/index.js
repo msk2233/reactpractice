@@ -1,68 +1,129 @@
+import { StrictMode } from "react";
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import { useState,useEffect } from "react";
 import './index.css';
-import MyForm from './App';
-import FavoriteColor from './Hook';
-import MyFormex from './form';
-
-//map practice of array
-const myArray = ['Array map practice', 'apple', 'banana', 'orange'];
-const myList = myArray.map((item) => <li>{item}</li>)
-
-//simple jsx practice
-const myFirstElement = <h1>jsx element : Hello React! 1848 × 939 <input type="text" />;</h1>
-
-// without jsx create html elements
-// const myElement2 = React.createElement('h1', {}, 'I do not use JSX!');
-const myElement2 = () =>{ return (React.createElement('h1', { className: 'greeting' }, 'without jsx : Hello'))};
-
-const myElement3 = (
-  <>
-    <p>* I am a paragraph.</p>
-    <p>* I am a paragraph too.</p>
-  </>
-);
-
-const x = 5;
 
 
-
-const root2 = ReactDOM.createRoot(document.getElementById('root2'));
-const root = ReactDOM.createRoot(document.getElementById('root'));
-const rootforcopy = ReactDOM.createRoot(document.getElementById('rootforcopy'));
-const root3 = ReactDOM.createRoot(document.getElementById('root3'));
-root2.render(myList);
-rootforcopy.render(myFirstElement);
-root.render(myElement3);
-// root3.render(<myElement4 />);
-
-class Greeting extends React.Component {
-  render() {
-    return <h1>Shruti, {this.props.name}!</h1>;
+function challenge1() {
+  function Hello() {
+    let mystyle = {
+      height:"50px",
+      width:"100px",
+      backgroundColor:"purple",
+      padding:"10px",
+      marginTop:"20px"
+    }
+    const [show, setShow] = useState(true);
+  
+    return (
+      <div className="container">
+        <button style={mystyle} onClick={() => setShow((show) => !show)}> Show / Hide</button>
+        {show ? <h1>Welcome to React Challenges</h1> : null}
+      </div>
+    );
   }
+  const container = document.getElementById('root');
+  const root = ReactDOM.createRoot(container);
+  root.render(<Hello />);
 }
+function challenge2() {
+  function Timer() {
+    const [timer,setTimer] = useState(0);
+    const [intervalId , setintervalId] = useState(null);
+    let start = {
+      padding:"25px",
+      backgroundColor:"green",
+      textAlign:"center"
+    }
+    let stop = {
+      padding:"25px",
+      backgroundColor:"red",
+      textAlign:"center"
+    }
+    let reset = {
+      padding:"25px",
+      backgroundColor:"yellow",
+      textAlign:"center"
+    }
 
-const root4 = ReactDOM.createRoot(document.getElementById('root4'));
-root4.render(<Greeting name="riya" />);
+   const starttimer = () => {
+    if (!intervalId) {
+      const id  = setInterval(() => {
+        setTimer((count) => (count + 1));
+      }, 1000);
+      setintervalId(id);
+    }
+   };
+   const stoptimer = () => {
+    if (intervalId) {
+      clearInterval(intervalId);
+      setintervalId(null);
+    }
+   }
+   const resettimer = () => {
+    if (intervalId) {
+      clearInterval(intervalId);
+    }
+    setTimer(0);
+    setintervalId(null);
+   }
+    return(
+      <>
+      <div style={{textAlign: "center",marginTop: "400px",fontSize:"30px"}}>{timer} seconds</div>
+      <div style={{textAlign:"center"}}>
+        <button style={start} onClick={starttimer}> Start </button>
+        <button style={stop} onClick={stoptimer}> Stop </button>
+        <button style={reset} onClick={resettimer}> Reset </button>
+      </div>
+      </>
+    )
+    //******************************alternative**************************************************************
+  // const [timer, setTimer] = useState(0);
 
-function Football() {
-  const shoot = () => {
-    alert("Great Shot!");
+  // const startTimer = () => {
+  //   window.mTimer = setInterval(() => {
+  //     setTimer((timer) => timer + 1);
+  //   }, 1000);
+  // };
+  // const stopTimer = () => {
+  //   clearInterval(window.mTimer);
+  // };
+  // const resetTimer = () => {
+  //   clearInterval(window.mTimer);
+  //   setTimer(0);
+  // };
+  // return (
+  //   <div className="container">
+  //     <h1>Timer</h1>
+  //     <span>{Math.trunc(timer / 60)} mins </span>
+  //     <span>{timer % 60} secs</span>
+  //     <div>
+  //       <button onClick={startTimer}>Start</button>
+  //       <button onClick={stopTimer}>Stop</button>
+  //       <button onClick={resetTimer}>Reset</button>
+  //     </div>
+  //   </div>
+  // );
   }
-  return (
-    <button onClick={shoot}>SHOOT!</button>
-  );
+  const container = document.getElementById('root');
+  const root = ReactDOM.createRoot(container);
+  root.render(<Timer />);
 }
-const root5 = ReactDOM.createRoot(document.getElementById('root5'));
-root5.render(<>
-  <Football />
-</>
-);
+function challenge3() {
+  function ToDo() {
+    const [input ,setInput] = useState();
+    return (
+      <>
+          <input placeholder="Add City" className="todoinp" type="text" value={input} onChange={(e) => setInput(e.target.value)} /><button className="btn">ADD</button>
+          <div>{input}</div>
+      </>
+    )
+  }
 
-function MyElement3() { 
-  return(<h1>Ternory Oprator {(x) < 10 ? "Hello" : "Goodbye"}</h1>)
+
+  const container = document.getElementById('root');
+  const root = ReactDOM.createRoot(container);
+  root.render(<ToDo />);
 }
-root3.render(<>
-  <MyElement3 />
-</>
-);
+challenge3();
