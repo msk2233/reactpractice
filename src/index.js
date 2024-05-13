@@ -1,129 +1,42 @@
-import { StrictMode } from "react";
 import React from 'react';
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import ReactDOM from 'react-dom/client';
-import { useState,useEffect } from "react";
+import { useState, useEffect } from "react";
+import Challenge1 from  './challanges/challenge1';
+import Challenge2 from  './challanges/challenge2';
+import Challenge3 from  './challanges/challenge3';
+import Challenge4 from  './challanges/challenge4';
+import Challenge5 from  './challanges/challenge5';
+import Challenge6 from  './challanges/challenge6';
+import Home from  './challanges/home';
 import './index.css';
+import './chalenges.css'
+import 'bootstrap/dist/css/bootstrap.min.css';
+import Challenge7 from './challanges/challenge7';
+import {Results} from './challanges/challenge7';
+import Challenge8 from './challanges/challenge8';
+import {Employee,Ids} from './challanges/challenge8';
 
-
-function challenge1() {
-  function Hello() {
-    let mystyle = {
-      height:"50px",
-      width:"100px",
-      backgroundColor:"purple",
-      padding:"10px",
-      marginTop:"20px"
-    }
-    const [show, setShow] = useState(true);
-  
-    return (
-      <div className="container">
-        <button style={mystyle} onClick={() => setShow((show) => !show)}> Show / Hide</button>
-        {show ? <h1>Welcome to React Challenges</h1> : null}
-      </div>
-    );
-  }
-  const container = document.getElementById('root');
-  const root = ReactDOM.createRoot(container);
-  root.render(<Hello />);
+export default function Application() {
+  return (
+    <BrowserRouter>
+      <Routes>
+      <Route path="/" element={<Home />}>
+          <Route path="challenge1" element={<Challenge1 />} />
+          <Route path="challenge2" element={<Challenge2 />} />
+          <Route path="challenge3" element={<Challenge3 />} />
+          <Route path="challenge4" element={<Challenge4 />} />
+          <Route path="challenge5" element={<Challenge5 />} />
+          <Route path="challenge6" element={<Challenge6 />} />
+          <Route path="challenge7" element={<Challenge7 />} />
+          <Route path="challenge8" element={<Challenge8 />} />
+          <Route path="results" element={<Results />} />
+          <Route path="/:name" element={<Employee />} />
+        <Route path="/Idss/:id" element={<Ids />} />
+        </Route>
+      </Routes>
+    </BrowserRouter>
+  );
 }
-function challenge2() {
-  function Timer() {
-    const [timer,setTimer] = useState(0);
-    const [intervalId , setintervalId] = useState(null);
-    let start = {
-      padding:"25px",
-      backgroundColor:"green",
-      textAlign:"center"
-    }
-    let stop = {
-      padding:"25px",
-      backgroundColor:"red",
-      textAlign:"center"
-    }
-    let reset = {
-      padding:"25px",
-      backgroundColor:"yellow",
-      textAlign:"center"
-    }
-
-   const starttimer = () => {
-    if (!intervalId) {
-      const id  = setInterval(() => {
-        setTimer((count) => (count + 1));
-      }, 1000);
-      setintervalId(id);
-    }
-   };
-   const stoptimer = () => {
-    if (intervalId) {
-      clearInterval(intervalId);
-      setintervalId(null);
-    }
-   }
-   const resettimer = () => {
-    if (intervalId) {
-      clearInterval(intervalId);
-    }
-    setTimer(0);
-    setintervalId(null);
-   }
-    return(
-      <>
-      <div style={{textAlign: "center",marginTop: "400px",fontSize:"30px"}}>{timer} seconds</div>
-      <div style={{textAlign:"center"}}>
-        <button style={start} onClick={starttimer}> Start </button>
-        <button style={stop} onClick={stoptimer}> Stop </button>
-        <button style={reset} onClick={resettimer}> Reset </button>
-      </div>
-      </>
-    )
-    //******************************alternative**************************************************************
-  // const [timer, setTimer] = useState(0);
-
-  // const startTimer = () => {
-  //   window.mTimer = setInterval(() => {
-  //     setTimer((timer) => timer + 1);
-  //   }, 1000);
-  // };
-  // const stopTimer = () => {
-  //   clearInterval(window.mTimer);
-  // };
-  // const resetTimer = () => {
-  //   clearInterval(window.mTimer);
-  //   setTimer(0);
-  // };
-  // return (
-  //   <div className="container">
-  //     <h1>Timer</h1>
-  //     <span>{Math.trunc(timer / 60)} mins </span>
-  //     <span>{timer % 60} secs</span>
-  //     <div>
-  //       <button onClick={startTimer}>Start</button>
-  //       <button onClick={stopTimer}>Stop</button>
-  //       <button onClick={resetTimer}>Reset</button>
-  //     </div>
-  //   </div>
-  // );
-  }
-  const container = document.getElementById('root');
-  const root = ReactDOM.createRoot(container);
-  root.render(<Timer />);
-}
-function challenge3() {
-  function ToDo() {
-    const [input ,setInput] = useState();
-    return (
-      <>
-          <input placeholder="Add City" className="todoinp" type="text" value={input} onChange={(e) => setInput(e.target.value)} /><button className="btn">ADD</button>
-          <div>{input}</div>
-      </>
-    )
-  }
-
-
-  const container = document.getElementById('root');
-  const root = ReactDOM.createRoot(container);
-  root.render(<ToDo />);
-}
-challenge3();
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<Application />);
