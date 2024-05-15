@@ -1,8 +1,7 @@
 import React from 'react';
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 const Challenge2 = () => {
-    // function Timer() {
       const [timer, setTimer] = useState(0);
       const [intervalId, setintervalId] = useState(null);
       let start = {
@@ -53,6 +52,7 @@ const Challenge2 = () => {
         </>
       )
       //******************************alternative**************************************************************
+      // function Timer() {
       // const [timer, setTimer] = useState(0);
   
       // const startTimer = () => {

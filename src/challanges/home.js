@@ -29,6 +29,15 @@ const Layout = () => {
           <li>
             <Link to="/challenge8">challenge8</Link>
           </li>
+          <li>
+            <Link to="/challenge9">Challenge9</Link>
+          </li>
+          <li>
+            <Link to="/challenge10">Challenge10</Link>
+          </li>
+          <li>
+            <Link to="/pra11">Practice 11</Link>
+          </li>
         </ul>
       </nav>
 

@@ -30,13 +30,13 @@ export default function Challenge8() {
         <h2>Customer</h2>
         <ul>
           <li>
-            <Link to="/ram">Ram</Link>
+            <Link to="/Alex">emp 1</Link>
           </li>
           <li>
-            <Link to="/rakshman">Lakshman</Link>
+            <Link to="/Nick">emp 2</Link>
           </li>
           <li>
-            <Link to="/bheem">Bheem</Link>
+            <Link to="/Ava">emp 3</Link>
           </li>
         </ul>
         <h2>Ids</h2>
@@ -49,9 +49,6 @@ export default function Challenge8() {
           </li>
           <li>
             <Link to="/Idss/3">3</Link>
-          </li>
-          <li>
-            <Link to="/Idss/4">4</Link>
           </li>
         </ul>
   
