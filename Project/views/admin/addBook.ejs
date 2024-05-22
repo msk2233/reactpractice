@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <link rel="stylesheet" href="/sweetalert2/sweetalert2.min.css">
+  <script src="/sweetalert2/sweetalert2.min.js"></script>
+
+  <style>
+    .error {
+      border: 1px solid red;
+    }
+
+    .error_message {
+      color: red;
+
+    }
+
+    #addbookid {
+      border: 2px solid #b3320b;
+      border-radius: 5px;
+      padding: 5px 10px;
+      font-size: 18px;
+      color: black;
+      text-decoration: none;
+    }
+  </style>
+</head>
+
+<body>
+  <%-include ('adminSidebar',{search : 0}) %>
+    <div class="table1 overflow-auto">
+      <div id="success"></div>
+      <h2 class="text-center">Add Book</h2>
+      <form class="d-flex justify-content-center flex-column" id="my-form" enctype="multipart/form-data">
+        <div class="form-row">
+          <div class="form-group col-md d-flex">
+            <!-- <label for="inputEmail4" style="margin-bottom: 5px;">Select Genre</label> -->
+            <span id="genreid_error" class="error_message"></span>
+            <input type="text" placeholder="Search Genre" id="myInput" onkeyup="filteroptions('optionfield',this.id,)"
+              class="d-block" value="">
+            <input type="hidden" id="setgenreid" name="genreid">
+
+            <ul id="genreid" class="form-control p-1 overflow-auto mw-100"
+              style="width: 15%;scroll-behavior: auto;max-height:150px;">
+            </ul>
+            <input type="button" value="Add category" id="categoriesbtn" class="btn btn-primary mx-4" onclick="addcategory()">
+          </div>
+       
+          <div class="form-group col-md d-flex my-3">
+            <!-- <label for="authorname">select author</label> -->
+            <span id="author_id_error" class="error_message"></span>
+            <input type="text" placeholder="Search Author" id="myInputAuthor"
+              onkeyup="filteroptions('optionfieldauthor',this.id)" class="d-block" value="">
+
+            <ul id="authorid" class="form-control w-25 p-1 h-25 overflow-auto"
+              style="overflow: scroll;max-height:150px;">
+
+            </ul>
+            <input type="button" value="Add author" id="authorsbtn" class="btn btn-primary mx-4" onclick="addAuthor()">
+            <input type="hidden" name="author_id" id="setauthorid">
+          </div>
+          <div class="form-group col-md">
+            <label for="bookTitle">Title</label>
+            <span id="bookTitle_error" class="error_message"></span>
+            <input type="text" class="form-control" name="title" id="bookTitle" placeholder="Title">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group col-md">
+            <label for="publication">Publication Name</label>
+            <span id="publication_error" class="error_message"></span>
+            <input type="text" name="publication" class="form-control" id="publication" placeholder="Publication">
+
+          </div>
+          <div class="form-group col-md">
+            <label for="inputPassword4">Published Year</label>
+            <span id="publicationYear_error" class="error_message"></span>
+            <input type="text" class="form-control" id="publicationYear" name="publicationyear" placeholder="Year">
+
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="inputAddress">ISBN</label>
+          <span id="isbn_error" class="error_message"></span>
+          <input type="text" class="form-control" name="isbn" id="isbn" placeholder="ISBN">
+
+        </div>
+        <div class="form-group">
+          <label for="inputAddress">select Language</label>
+          <select name="language" id="languageid" class="form-select w-25"></select>
+
+        </div>
+        <div class="form-group">
+          <label for="bookDescription">Description</label>
+          <span id="bookDescription_error" class="error_message"></span>
+          <textarea type="text" class="form-control" name="desc" id="bookDescription"
+            placeholder="Description"> </textarea>
+
+        </div>
+        <div class="form-group col-md">
+          <label for="imagecover">Image</label>
+          <span id="imagecover_error" class="error_message"></span>
+          <input type="file" name="image" class="form-control" id="imagecover" value="" accept="image/*"
+            onchange="previewImage(event)">
+
+        </div>
+        <div id="">
+          <img id="ImagePreview" src="#" alt="Preview" style="max-width: 100px;max-height: 100px;">
+        </div>
+
+
+        <input type="button" class="btn btn-primary mt-5 mb-5 " value="Add" onclick="return validateForm()"
+          style="width: 10%;"></input>
+      </form>
+    </div>
+    </div>
+    </div>
+
+    <script>
+      getlangueages()
+      genreselect()
+      getAuthors()
+      const input = document.getElementById("myInput");
+      let select = document.getElementById("genreid");
+      let select1 = document.getElementById("authorid");
+      let select3 = document.getElementById("languageid");
+      select.style.display = "none"
+      select1.style.display = "none"
+      input.value = ""
+
+      function onclickLi(livalue, id) {
+        select.style.display = "none"
+        document.getElementById('myInput').value = livalue
+        document.getElementById('setgenreid').value = id
+      }
+      function onclickLiauthor(livalue, id) {
+        select1.style.display = "none"
+        document.getElementById('myInputAuthor').value = livalue
+        document.getElementById('setauthorid').value = id
+      }
+      async function returnArray() {
+        let arraygenre = await genreselect()
+        return arraygenre;
+      }
+      async function returnArrayAuthor() {
+        let arrayauthor = await getAuthors();
+        return arrayauthor;
+      }
+
+      async function genreselect() {
+        let genrearray = []
+        let data = await fetch("/admin/getGenres", {
+          method: "Get",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        })
+
+        let datahh = await data.json();
+
+        let datafinal = datahh.data;
+        let temp = ""
+        for (let i = 0; i < datafinal.length; i++) {
+          genrearray.push(datafinal[i].genre_name);
+          temp += `<li class="optionfield" onclick="onclickLi('${datafinal[i].genre_name}','${datafinal[i].genre_id}')">${datafinal[i].genre_name}</li>`
+          let option = document.createElement("li");
+
+        }
+        select.innerHTML = temp
+        return genrearray;
+
+
+      }
+
+      async function addcategory() {
+        const { value: categories } = await Swal.fire({
+          title: "ADD CATEGORY",
+          input: "text",
+          inputLabel: "Add Category",
+          inputPlaceholder: "Add Category",
+        }).then(async (result) => {
+
+          if (result.isConfirmed) {
+            console.log(result.value);
+
+            const response = await fetch('/admin/addnewcategory', {
+              method: 'POST',
+              headers: { 'Content-Type': "application/json" },
+
+              body: JSON.stringify(result)
+            });
+            let data = await response.json();
+            console.log(data.message);
+            if (data.message === 'fail') {
+              console.log("hdjkfsjlk");
+              Swal.fire({
+                title: "category error!",
+                text: "category already exist",
+                icon: "error"
+              })
+            }
+            if (data.message === 'success') {
+              Swal.fire({
+                title: " add category!",
+                text: "category added succesfully",
+                icon: "success"
+              }).then(async (result) => {
+                if (result.isConfirmed) {
+                  await genreselect();
+
+
+                }
+              })
+            }
+
+          }
+        })
+      }
+
+      async function getlangueages() {
+        let data = await fetch("/admin/getLanguages", {
+          method: "Get",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        })
+
+        let datahh = await data.json();
+        let datafinal = datahh.languages;
+        console.log(datafinal);
+        for (let i = 0; i < datafinal.length; i++) {
+          let option = document.createElement("option")
+          option.text = datafinal[i].name;
+          option.value = datafinal[i].language_id;
+          select3.appendChild(option)
+
+        }
+  
+}
+
+async function getlangueages(){
+      let data=await fetch("/admin/getLanguages",{
+        method:"Get",
+        headers:{"Content-Type":"application/json",
+    },
+      })
+
+      let datahh=await data.json();
+  
+      let datafinal=datahh.languages;
+      console.log(datafinal);
+      for(let i=0;i<datafinal.length;i++){
+        let option=document.createElement("option")
+        option.text=datafinal[i].language;
+        option.value=datafinal[i].lang_id;
+        select3.appendChild(option)
+      
+      }
+      async function getAuthors() {
+        let authorarray = []
+        let data = await fetch("/admin/getAllAuthors", {
+          method: "Get",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        })
+        let dataauthor = await data.json();
+        let tempa = ""
+        let authors = dataauthor.authors;
+        for (let i = 0; i < authors.length; i++) {
+          authorarray.push(authors[i].author_name)
+          let option = document.createElement("li");
+          tempa += `<li class="optionfieldauthor" onclick="onclickLiauthor('${authors[i].author_name}','${authors[i].author_id}')">${authors[i].author_name}</li>`
+
+        }
+
+
+        select1.innerHTML = tempa;
+        return authorarray;
+      }
+
+
+
+      function previewImage(event) {
+        const input = event.target;
+        const ImagePreview = document.getElementById("ImagePreview");
+        if (input.files && input.files[0]) {
+          const reader = new FileReader();
+          reader.onload = function (e) {
+            ImagePreview.src = e.target.result;
+          }
+          reader.readAsDataURL(input.files[0]);
+        }
+      }
+
+
+      let imagecover = document.getElementById("imagecover")
+    
+     
+async function validateForm(){
+
+let errorMessagesarr=document.getElementsByClassName("error_message");
+
+for(let i=0;i<errorMessagesarr.length;i++){
+  errorMessagesarr[i].textContent=''
+}
+
+  let genrearray=await returnArray();
+  let authorarray=await returnArrayAuthor()
+  let genrename= document.getElementById("myInput");
+  let authorname=document.getElementById("myInputAuthor");
+  let bookTitle=document.getElementById("bookTitle")
+  let publication=document.getElementById("publication")
+   let publicationYear=document.getElementById("publicationYear")
+  let bookDescription=document.getElementById("bookDescription")
+  let genreid_error=document.getElementById("genreid_error")
+  let isbn=document.getElementById("isbn")
+  let bookTitle_error=document.getElementById("bookTitle_error");
+  let  author_id_error=document.getElementById("author_id_error");
+
+  let imagecover=document.getElementById("imagecover")
+  let fields=[bookTitle,publication,publicationYear,bookDescription,isbn,imagecover];
+   
+  let errorMessages=["booktitle is required","publication is required","publication year is required","book description is required","isbn is required","please upload cover photo"]
+   let isValid=true;
+
+   if(!genrearray.includes(genrename.value.trim())){
+    genreid_error.textContent="please select genre"
+    isValid=false;
+   }
+   else{
+    genreid_error.textContent=""
+   }
+
+   if(!authorarray.includes(authorname.value.trim())){
+    author_id_error.textContent="please select author"
+    isValid=false;
+   }
+
+        for (let i = 0; i < fields.length; i++) {
+          let errorElement = document.getElementById(fields[i].id + "_error");
+
+   for(let i=0;i<fields.length;i++){
+    let errorElement=document.getElementById(fields[i].id+"_error");
+  
+    if(!fields[i].value.trim()){
+      fields[i].classList.add("error");
+      errorElement.textContent=errorMessages[i];
+      isValid=false;
+    }
+    else{
+      errorElement.textContent=""
+      fields[i].classList.remove("error");
+    }
+   }
+console.log(bookTitle.value.trim());
+   if( bookTitle.value.trim()!=="" && bookTitle.value.trim().length<5 || bookTitle.value.trim().length>30){
+    bookTitle_error.textContent="title must be between 5 and 30 character"
+        isValid=false; 
+   }
+   let year=publicationYear.value.trim();
+   if(isNaN(year)){
+    publicationYear.classList.add("error");
+    document.getElementById("publicationYear_error").textContent="Enter valid year";
+    isValid=false;
+   }
+   else if(publicationYear.value.trim()!=""&& ( Number(publicationYear.value.trim())<1800 || Number(publicationYear.value.trim())>new Date().getFullYear())){
+    publicationYear.classList.add("error");
+    document.getElementById("publicationYear_error").textContent="publication year must be between 1800 and current year"
+     isValid=false;
+  }
+   if(bookDescription.value.trim()!="" && (bookDescription.value.trim().length<50 ||bookDescription.value.trim().length>250) ){
+   document.getElementById("bookDescription_error").textContent="description must be between 50 and 250 characters"
+   isValid=false;
+   }
+if(imagecover.value!=""){
+ let types=imagecover.files[0].type;
+ let typearr=types.split("/");
+ let imgtype=typearr[1];
+
+ const filTypes=/jpeg|jpg|png|gif/;
+ if(!filTypes.test(imgtype)){
+  document.getElementById("imagecover_error").textContent="invalid file type"
+ isValid=false;
+ }
+ else if((imagecover.files[0] && imagecover.files[0].size>20000)){
+  imagecover.classList.add("error");
+  document.getElementById("imagecover_error").textContent="Book cover size must be less than 20KB "
+ isValid=false;
+}
+}
+ if(isValid===true){
+  
+  addBook();
+ 
+ }
+  return isValid;
+}
+      const form = document.getElementById("my-form");
+
+      async function addBook() {
+
+        const formData = new FormData(form);
+        const params = new URLSearchParams(formData)
+        params.append('file', imagecover.files[0])
+        const response = await fetch('/admin/addBook', {
+          method: 'POST',
+          'Content-Type': "application/json",
+          body: formData,
+        });
+        let data = await response.json();
+
+        if (data.message === "success") {
+          Swal.fire({
+            title: "Add Book!",
+            text: "Your book has been added.",
+            icon: "success"
+          }).then((result) => {
+            if (result.isConfirmed) {
+              window.location.href = `/admin/addBook`
+            }
+          });
+
+        }
+
+      }
+      function filteroptions(classname, id) {
+
+        if (id === "myInput") {
+          select.style.display = "block"
+          select1.style.display = "none"
+        }
+
+        if(data.message==="error"){
+          Swal.fire({
+      title: "error!",
+      text: "error while adding book.",
+      icon: "error"
+    }).then((result)=>{
+      if(result.isConfirmed){
+         console.log(data.errors);
+         for(let i=0;i<data.errors.length;i++){
+          let errorele=data.errors[i].path;
+          console.log(errorele);
+          // document.getElementById("")
+         }
+      }
+    });
+
+        }
+
+    
+} 
+     function filteroptions(classname,id){
+  
+    if(id==="myInput"){
+      select.style.display="block"
+      select1.style.display="none"
+    }
+    else if(id==='myInputAuthor'){
+      select.style.display="none"
+      select1.style.display="block"
+    }
+      
+      let input=document.getElementById(id);
+      let nameOfClass="."+classname;
+      const filter=input.value.trim().toLowerCase();
+    
+      const options=document.querySelectorAll(nameOfClass);
+      options.forEach((option)=>{
+        const text=option.textContent.toLowerCase();
+    
+        option.style.display=text.includes(filter)?"block":"none"
+      })
+     }                     
+    async  function addAuthor(){
+      window.location.href="/admin/createAuthor"
+    }
+  }
+}
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+        font-family: Arial, sans-serif;
+    }
+
+    .header {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    table {
+        width: 90%;
+        margin: 20px auto;
+        border-collapse: collapse;
+    }
+
+    th, td {
+        border: 1px solid #dddddd;
+        padding: 8px;
+        text-align: center;
+    }
+
+    th {
+        background-color: #f2f2f2;
+    }
+
+    tbody tr:nth-child(even) {
+        background-color: #f2f2f2;
+    }
+
+    .btns {
+        text-align: center;
+        margin-top: 20px;
+    }
+
+    .btn {
+        background-color: #4CAF50;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        cursor: pointer;
+        margin: 0 5px;
+    }
+
+    .btn a {
+        text-decoration: none;
+        color: white;
+    }
+
+    .btn:disabled {
+        background-color: #cccccc;
+        cursor: not-allowed;
+    }
+
+    .a {
+        padding: 10px 20px;
+        display: inline-block;
+    }
+</style>
+ 
+  <title>Result Report</title>
+</head>
+<body>
+    <div class="header">
+        <h1>Result Report</h1>
+    </div>
+    <div>
+      <div class="btns">
+      <%= disabled=null %>
+        <% if(Number(pgno)==1){%>
+          <% disabled="disabled" }%>
+            <button class="btn" id="ltlt" onclick="changepage(1)"  <%= disabled %>  ><a>&lt;&lt;</a></button>
+            <button class="btn" onclick="changepage('<%=Number(pgno)-1%>')"  <%= disabled %>  ><a>&lt;</a></button>
+  
+            <a class="a">
+              <%= pgno %>
+            </a>
+  
+            <%= Disabled=null %>
+              <% if(Number(pgno)==10){%>
+                <% Disabled="disabled" }%>
+                  <button class="btn" onclick="changepage('<%=Number(pgno)+1%>')"  <%= Disabled %> ><a>&gt;</a></button>
+                  <button class="btn" onclick="changepage(10)"  <%= Disabled %> ><a>&gt;&gt;</a></button>
+    </div>
+  </div>
+    <table border="1" style="width: 50%;margin: auto;">
+        <thead>
+          <tr>
+            <tr>
+                <th>Student id</th>
+                <th>Name</th>
+                <th colspan="2">Prilim</th>
+                <th colspan="2">Terminal</th>
+                <th colspan="2">Final</th>
+                <th rowspan="2">Total Marks</th>
+                <th rowspan="2">View Results in detail</th>
+            </tr>
+            <tr>
+                <th></th>
+                <th></th>
+                <th>Practical</th>
+                <th>Theory</th>
+                <th>Practical</th>
+                <th>Theory</th>
+                <th>Practical</th>
+                <th>Theory</th>
+              </tr>
+        </thead>
+        <tbody>
+           
+          <% if (userData.length !=0) {%>
+            <% userData.forEach(function(data, index) { %>
+              <tr>
+                <td><%= data.stu_id %></td>
+                <td><%= data.fname %></td>
+                <td><%= data.Prilim_practical_total %></td>
+                <td><%= data.Prilim_Theory_total %></td>
+                <td><%= data.Terminal_practical_total %></td>
+                <td><%= data.Terminal_Theory_total %></td>
+                <td><%= data.Final_practical_total %></td>
+                <td><%= data.Final_Theory_total %></td>
+
+                <% totalmarks =  data.Prilim_practical_total+data.Prilim_Theory_total+data.Terminal_practical_total+data.Terminal_Theory_total +data.Final_practical_total+data.Final_Theory_total %>
+
+                <td><%=totalmarks %></td>
+                <td><a href="/dashboard/Result/detailedresult/?id=<%=data.stu_id%>">View</a></td>
+              </tr>
+              <% }); %>
+                <%} %>
+        </tbody>
+      </table>
+    <script>
+        function changepage(page) {
+          window.location.href = `/dashboard/result/?pgno=${page}`;
+        }
+      </script>
+</body>
+</html>
