@@ -1,22 +1,6 @@
-Here's an example of how you can organize your code in a folder structure with `index.ts` and `app.ts`:
+Here is the whole code for the multistep form with validation, including the schema, components, and app files:
 
-*folder structure*
-```
-src
-├── components
-│   ├── BasicDetails.tsx
-│   ├── EducationDetails.tsx
-│   ├── Preferences.tsx
-│   └── ...
-├── schema
-│   └── index.ts
-├── utils
-│   └── ...
-├── app.ts
-├── index.ts
-└── ...
-```
-*schema/index.ts*
+_schema/index.ts_
 ```
 import * as Yup from 'yup';
 
@@ -54,18 +38,18 @@ const schema: {
 
 export default schema;
 ```
-*components/BasicDetails.tsx*
+_components/BasicDetails.tsx_
 ```
 import { useForm } from 'react-hook-form';
 import { schema } from '../schema';
 
-const BasicDetails = () => {
+const BasicDetails = ({ onNext }) => {
   const { register, handleSubmit, errors } = useForm({
     schema: schema.step1,
   });
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
+    <form onSubmit={handleSubmit(onNext)}>
       <TextField
         label="Name"
         {...register('name')}
@@ -83,23 +67,85 @@ const BasicDetails = () => {
 
 export default BasicDetails;
 ```
-*app.ts*
+_components/EducationDetails.tsx_
 ```
-import React from 'react';
-import ReactDOM from 'react-dom';
-import BasicDetails from './components/BasicDetails';
+import { useForm } from 'react-hook-form';
+import { schema } from '../schema';
+
+const EducationDetails = ({ onNext }) => {
+  const { register, handleSubmit, errors } = useForm({
+    schema: schema.step2,
+  });
+
+  return (
+    <form onSubmit={handleSubmit(onNext)}>
+      <TextField
+        label="Degree"
+        {...register('degree')}
+        error={errors.degree ? true : false}
+      />
+      <TextField
+        label="University"
+        {...register('university')}
+        error={errors.university ? true : false}
+      />
+      <Button type="submit">Next</Button>
+    </form>
+  );
+};
+
+export default EducationDetails;
+```
+_components/Preferences.tsx_
+```
+import { useForm } from 'react-hook-form';
+import { schema } from '../schema';
+
+const Preferences = ({ onNext }) => {
+  const { register, handleSubmit, errors } = useForm({
+    schema: schema.step3,
+  });
+
+  return (
+    <form onSubmit={handleSubmit(onNext)}>
+      <TextField
+        label="Interests"
+        {...register('interests')}
+        error={errors.interests ? true : false}
+      />
+      <Button type="submit">Submit</Button>
+    </form>
+  );
+};
+
+export default Preferences;
+```
+_app.tsx_
+```
+import React, { useState } from 'react';
+import { BasicDetails } from './components/BasicDetails';
+import { EducationDetails } from './components/EducationDetails';
+import { Preferences } from './components/Preferences';
 
 const App = () => {
+  const [currentStep, setCurrentStep] = useState(1);
+
+  const handleNext = () => {
+    setCurrentStep(currentStep + 1);
+  };
+
   return (
     <div>
-      <BasicDetails />
+      {currentStep === 1 && <BasicDetails onNext={handleNext} />}
+      {currentStep === 2 && <EducationDetails onNext={handleNext} />}
+      {currentStep === 3 && <Preferences />}
     </div>
   );
 };
 
-ReactDOM.render(<App />, document.getElementById('root'));
+export default App;
 ```
-*index.ts*
+_index.tsx_
 ```
 import React from 'react';
 import ReactDOM from 'react-dom';
@@ -107,4 +153,6 @@ import App from './app';
 
 ReactDOM.render(<App />, document.getElementById('root'));
 ```
-This structure keeps your schema definitions separate from your components and utils, and allows you to import and use them as needed. The `app.ts` file contains the main application component, and the `index.ts` file is the entry point for the application.
+This code defines the schema for each step of the form, and uses the `react-hook-form` library to handle the form validation and submission. The `app.tsx` file contains the main application component, which renders each step of the form. The `index.tsx` file is the entry point for the application.
+
+Please note that this is just a basic example, and you will likely need to add additional functionality and error handling to your application.
