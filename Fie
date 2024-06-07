@@ -1,8 +1,8 @@
-Here is the whole code for the multistep form with validation, including the schema, components, and app files:
+Here is the app without MUI and using only React Hook Form and TypeScript:
 
 _schema/index.ts_
 ```
-import * as Yup from 'yup';
+import { object, string } from 'yup';
 
 interface BasicDetails {
   name: string;
@@ -18,21 +18,17 @@ interface Preferences {
   interests: string;
 }
 
-const schema: {
-  step1: Yup.SchemaOf<BasicDetails>;
-  step2: Yup.SchemaOf<EducationDetails>;
-  step3: Yup.SchemaOf<Preferences>;
-} = {
-  step1: Yup.object().shape({
-    name: Yup.string().required('Name is required'),
-    email: Yup.string().email('Invalid email').required('Email is required'),
+const schema = {
+  step1: object().shape({
+    name: string().required('Name is required'),
+    email: string().email('Invalid email').required('Email is required'),
   }),
-  step2: Yup.object().shape({
-    degree: Yup.string().required('Degree is required'),
-    university: Yup.string().required('University is required'),
+  step2: object().shape({
+    degree: string().required('Degree is required'),
+    university: string().required('University is required'),
   }),
-  step3: Yup.object().shape({
-    interests: Yup.string().required('Interests are required'),
+  step3: object().shape({
+    interests: string().required('Interests are required'),
   }),
 };
 
@@ -50,17 +46,19 @@ const BasicDetails = ({ onNext }) => {
 
   return (
     <form onSubmit={handleSubmit(onNext)}>
-      <TextField
-        label="Name"
+      <input
+        type="text"
         {...register('name')}
+        placeholder="Name"
         error={errors.name ? true : false}
       />
-      <TextField
-        label="Email"
+      <input
+        type="email"
         {...register('email')}
+        placeholder="Email"
         error={errors.email ? true : false}
       />
-      <Button type="submit">Next</Button>
+      <button type="submit">Next</button>
     </form>
   );
 };
@@ -79,17 +77,19 @@ const EducationDetails = ({ onNext }) => {
 
   return (
     <form onSubmit={handleSubmit(onNext)}>
-      <TextField
-        label="Degree"
+      <input
+        type="text"
         {...register('degree')}
+        placeholder="Degree"
         error={errors.degree ? true : false}
       />
-      <TextField
-        label="University"
+      <input
+        type="text"
         {...register('university')}
+        placeholder="University"
         error={errors.university ? true : false}
       />
-      <Button type="submit">Next</Button>
+      <button type="submit">Next</button>
     </form>
   );
 };
@@ -108,12 +108,13 @@ const Preferences = ({ onNext }) => {
 
   return (
     <form onSubmit={handleSubmit(onNext)}>
-      <TextField
-        label="Interests"
+      <input
+        type="text"
         {...register('interests')}
+        placeholder="Interests"
         error={errors.interests ? true : false}
       />
-      <Button type="submit">Submit</Button>
+      <button type="submit">Submit</button>
     </form>
   );
 };
@@ -145,14 +146,6 @@ const App = () => {
 
 export default App;
 ```
-_index.tsx_
-```
-import React from 'react';
-import ReactDOM from 'react-dom';
-import App from './app';
-
-ReactDOM.render(<App />, document.getElementById('root'));
-```
-This code defines the schema for each step of the form, and uses the `react-hook-form` library to handle the form validation and submission. The `app.tsx` file contains the main application component, which renders each step of the form. The `index.tsx` file is the entry point for the application.
+This app uses React Hook Form to handle the form validation and submission, and TypeScript to define the schema and interfaces for the form data.
 
 Please note that this is just a basic example, and you will likely need to add additional functionality and error handling to your application.
