@@ -1,0 +1,106 @@
+Here's the same example, but in TypeScript:
+```
+import { useForm } from 'react-hook-form';
+import { yupSchema } from './schema';
+import { TextField, Button } from '@mui/material';
+
+interface BasicDetails {
+  name: string;
+  email: string;
+}
+
+const BasicDetails = () => {
+  const { register, handleSubmit, errors } = useForm<BasicDetails>({
+    schema: yupSchema.step1,
+  });
+
+  return (
+    <form onSubmit={handleSubmit(onSubmit)}>
+      <TextField
+        label="Name"
+        {...register('name')}
+        error={errors.name ? true : false}
+      />
+      <TextField
+        label="Email"
+        {...register('email')}
+        error={errors.email ? true : false}
+      />
+      <Button type="submit">Next</Button>
+    </form>
+  );
+};
+
+interface EducationDetails {
+  degree: string;
+  university: string;
+}
+
+const EducationDetails = () => {
+  const { register, handleSubmit, errors } = useForm<EducationDetails>({
+    schema: yupSchema.step2,
+  });
+
+  return (
+    <form onSubmit={handleSubmit(onSubmit)}>
+      <TextField
+        label="Degree"
+        {...register('degree')}
+        error={errors.degree ? true : false}
+      />
+      <TextField
+        label="University"
+        {...register('university')}
+        error={errors.university ? true : false}
+      />
+      <Button type="submit">Next</Button>
+    </form>
+  );
+};
+
+interface Preferences {
+  interests: string;
+}
+
+const Preferences = () => {
+  const { register, handleSubmit, errors } = useForm<Preferences>({
+    schema: yupSchema.step3,
+  });
+
+  return (
+    <form onSubmit={handleSubmit(onSubmit)}>
+      <TextField
+        label="Interests"
+        {...register('interests')}
+        error={errors.interests ? true : false}
+      />
+      <Button type="submit">Submit</Button>
+    </form>
+  );
+};
+
+import * as Yup from 'yup';
+
+interface Schema {
+  step1: Yup.SchemaOf<BasicDetails>;
+  step2: Yup.SchemaOf<EducationDetails>;
+  step3: Yup.SchemaOf<Preferences>;
+}
+
+const schema: Schema = {
+  step1: Yup.object().shape({
+    name: Yup.string().required('Name is required'),
+    email: Yup.string().email('Invalid email').required('Email is required'),
+  }),
+  step2: Yup.object().shape({
+    degree: Yup.string().required('Degree is required'),
+    university: Yup.string().required('University is required'),
+  }),
+  step3: Yup.object().shape({
+    interests: Yup.string().required('Interests are required'),
+  }),
+};
+
+export default schema;
+```
+Note that I've added type annotations for the `BasicDetails`, `EducationDetails`, and `Preferences` interfaces, as well as the `schema` object. I've also updated the `useForm` hook to use these interfaces as type arguments.
