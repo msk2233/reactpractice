@@ -1,106 +1,101 @@
-Here's the same example, but in TypeScript:
+To maintain the state of a multi-step form in React, you can use the `useState` hook in the parent component (App.tsx) to store the form data. Then, you can pass the state and a callback function to each step component to update the state.
+
+Here's an example of how you can do this:
 ```
-import { useForm } from 'react-hook-form';
-import { yupSchema } from './schema';
-import { TextField, Button } from '@mui/material';
+// App.tsx
+import React, { useState } from 'react';
+import BasicDetails from './BasicDetails';
+import EducationDetails from './EducationDetails';
+import Preferences from './Preferences';
 
-interface BasicDetails {
-  name: string;
-  email: string;
-}
-
-const BasicDetails = () => {
-  const { register, handleSubmit, errors } = useForm<BasicDetails>({
-    schema: yupSchema.step1,
+const App = () => {
+  const [formData, setFormData] = useState({
+    basicDetails: {},
+    educationDetails: {},
+    preferences: {},
   });
 
+  const handleNext = (data) => {
+    setFormData((prevData) => ({ ...prevData, ...data }));
+  };
+
+  const handleBack = () => {
+    // implement logic to go back to previous step
+  };
+
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
-      <TextField
-        label="Name"
-        {...register('name')}
-        error={errors.name ? true : false}
-      />
-      <TextField
-        label="Email"
-        {...register('email')}
-        error={errors.email ? true : false}
-      />
-      <Button type="submit">Next</Button>
-    </form>
+    <div>
+      {currentStep === 1 && (
+        <BasicDetails
+          formData={formData.basicDetails}
+          handleNext={handleNext}
+          handleBack={handleBack}
+        />
+      )}
+      {currentStep === 2 && (
+        <EducationDetails
+          formData={formData.educationDetails}
+          handleNext={handleNext}
+          handleBack={handleBack}
+        />
+      )}
+      {currentStep === 3 && (
+        <Preferences
+          formData={formData.preferences}
+          handleNext={handleNext}
+          handleBack={handleBack}
+        />
+      )}
+    </div>
   );
 };
 
-interface EducationDetails {
-  degree: string;
-  university: string;
-}
-
-const EducationDetails = () => {
-  const { register, handleSubmit, errors } = useForm<EducationDetails>({
-    schema: yupSchema.step2,
-  });
-
-  return (
-    <form onSubmit={handleSubmit(onSubmit)}>
-      <TextField
-        label="Degree"
-        {...register('degree')}
-        error={errors.degree ? true : false}
-      />
-      <TextField
-        label="University"
-        {...register('university')}
-        error={errors.university ? true : false}
-      />
-      <Button type="submit">Next</Button>
-    </form>
-  );
-};
-
-interface Preferences {
-  interests: string;
-}
-
-const Preferences = () => {
-  const { register, handleSubmit, errors } = useForm<Preferences>({
-    schema: yupSchema.step3,
-  });
-
-  return (
-    <form onSubmit={handleSubmit(onSubmit)}>
-      <TextField
-        label="Interests"
-        {...register('interests')}
-        error={errors.interests ? true : false}
-      />
-      <Button type="submit">Submit</Button>
-    </form>
-  );
-};
-
-import * as Yup from 'yup';
-
-interface Schema {
-  step1: Yup.SchemaOf<BasicDetails>;
-  step2: Yup.SchemaOf<EducationDetails>;
-  step3: Yup.SchemaOf<Preferences>;
-}
-
-const schema: Schema = {
-  step1: Yup.object().shape({
-    name: Yup.string().required('Name is required'),
-    email: Yup.string().email('Invalid email').required('Email is required'),
-  }),
-  step2: Yup.object().shape({
-    degree: Yup.string().required('Degree is required'),
-    university: Yup.string().required('University is required'),
-  }),
-  step3: Yup.object().shape({
-    interests: Yup.string().required('Interests are required'),
-  }),
-};
-
-export default schema;
+export default App;
 ```
-Note that I've added type annotations for the `BasicDetails`, `EducationDetails`, and `Preferences` interfaces, as well as the `schema` object. I've also updated the `useForm` hook to use these interfaces as type arguments.
+In each step component, you can access the form data and update it using the `handleNext` callback function. For example:
+```
+// BasicDetails.tsx
+import React from 'react';
+
+const BasicDetails = ({ formData, handleNext, handleBack }) => {
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+
+  const handleSubmit = () => {
+    handleNext({ basicDetails: { name, email } });
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <input type="text" value={name} onChange={(e) => setName(e.target.value)} />
+      <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+      <button type="submit">Next</button>
+      <button type="button" onClick={handleBack}>Back</button>
+    </form>
+  );
+};
+
+export default BasicDetails;
+```
+Similarly, you can implement the `EducationDetails` and `Preferences` components.
+
+To submit the form data and store it for the previous button, you can add a submit handler in the `App` component that collects the form data from each step and submits it to the server or stores it in local storage. For example:
+```
+// App.tsx
+const handleSubmit = () => {
+  const formData = {
+    basicDetails: formData.basicDetails,
+    educationDetails: formData.educationDetails,
+    preferences: formData.preferences,
+  };
+  // submit form data to server or store it in local storage
+};
+
+return (
+  <div>
+    {/* form steps */}
+    <button type="submit" onClick={handleSubmit}>Submit</button>
+  </div>
+);
+```
+I hope this helps! Let me know if you have any further questions.
