@@ -1,0 +1,106 @@
+Here is the updated code for the `BasicDetails` form and other forms in TypeScript:
+```
+// BasicDetails.tsx
+import React from 'react';
+
+interface BasicDetailsForm {
+  fname: string;
+  lname: string;
+  email: string;
+}
+
+const BasicDetails: React.FC<BasicDetailsForm> = ({ formData, handleNext, handleBack }) => {
+  const [fname, setFname] = useState(formData.fname);
+  const [lname, setLname] = useState(formData.lname);
+  const [email, setEmail] = useState(formData.email);
+
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    handleNext({ fname, lname, email });
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <label>First Name:</label>
+      <input type="text" value={fname} onChange={(event) => setFname(event.target.value)} />
+      <br />
+      <label>Last Name:</label>
+      <input type="text" value={lname} onChange={(event) => setLname(event.target.value)} />
+      <br />
+      <label>Email:</label>
+      <input type="email" value={email} onChange={(event) => setEmail(event.target.value)} />
+      <br />
+      <button type="submit">Next</button>
+      <button type="button" onClick={handleBack}>Back</button>
+    </form>
+  );
+};
+
+export default BasicDetails;
+```
+```
+// EducationDetails.tsx
+import React from 'react';
+
+interface EducationDetailsForm {
+  degree: string;
+  university: string;
+}
+
+const EducationDetails: React.FC<EducationDetailsForm> = ({ formData, handleNext, handleBack }) => {
+  const [degree, setDegree] = useState(formData.degree);
+  const [university, setUniversity] = useState(formData.university);
+
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    handleNext({ degree, university });
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <label>Degree:</label>
+      <input type="text" value={degree} onChange={(event) => setDegree(event.target.value)} />
+      <br />
+      <label>University:</label>
+      <input type="text" value={university} onChange={(event) => setUniversity(event.target.value)} />
+      <br />
+      <button type="submit">Next</button>
+      <button type="button" onClick={handleBack}>Back</button>
+    </form>
+  );
+};
+
+export default EducationDetails;
+```
+```
+// Preferences.tsx
+import React from 'react';
+
+interface PreferencesForm {
+  interests: string;
+}
+
+const Preferences: React.FC<PreferencesForm> = ({ formData, handleNext, handleBack }) => {
+  const [interests, setInterests] = useState(formData.interests);
+
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    handleNext({ interests });
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <label>Interests:</label>
+      <input type="text" value={interests} onChange={(event) => setInterests(event.target.value)} />
+      <br />
+      <button type="submit">Next</button>
+      <button type="button" onClick={handleBack}>Back</button>
+    </form>
+  );
+};
+
+export default Preferences;
+```
+Each form component has its own state and handlers for submitting and going back. The `handleNext` function is called when the user submits the form, and it passes the form data to the next step. The `handleBack` function is called when the user clicks the back button, and it goes back to the previous step.
+
+I hope this helps! Let me know if you have any further questions.
