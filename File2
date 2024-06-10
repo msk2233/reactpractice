@@ -1,101 +1,144 @@
-To maintain the state of a multi-step form in React, you can use the `useState` hook in the parent component (App.tsx) to store the form data. Then, you can pass the state and a callback function to each step component to update the state.
-
-Here's an example of how you can do this:
-```
-// App.tsx
-import React, { useState } from 'react';
-import BasicDetails from './BasicDetails';
-import EducationDetails from './EducationDetails';
-import Preferences from './Preferences';
-
-const App = () => {
-  const [formData, setFormData] = useState({
-    basicDetails: {},
-    educationDetails: {},
-    preferences: {},
-  });
-
-  const handleNext = (data) => {
-    setFormData((prevData) => ({ ...prevData, ...data }));
-  };
-
-  const handleBack = () => {
-    // implement logic to go back to previous step
-  };
-
-  return (
-    <div>
-      {currentStep === 1 && (
-        <BasicDetails
-          formData={formData.basicDetails}
-          handleNext={handleNext}
-          handleBack={handleBack}
-        />
-      )}
-      {currentStep === 2 && (
-        <EducationDetails
-          formData={formData.educationDetails}
-          handleNext={handleNext}
-          handleBack={handleBack}
-        />
-      )}
-      {currentStep === 3 && (
-        <Preferences
-          formData={formData.preferences}
-          handleNext={handleNext}
-          handleBack={handleBack}
-        />
-      )}
-    </div>
-  );
-};
-
-export default App;
-```
-In each step component, you can access the form data and update it using the `handleNext` callback function. For example:
-```
-// BasicDetails.tsx
 import React from 'react';
+import { useForm, SubmitHandler } from 'react-hook-form';
 
-const BasicDetails = ({ formData, handleNext, handleBack }) => {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
+interface Step1Props {
+  onNext: (data: Step1Data) => void;
+}
 
-  const handleSubmit = () => {
-    handleNext({ basicDetails: { name, email } });
+interface Step1Data {
+  firstName: string;
+  lastName: string;
+}
+
+const Step1: React.FC<Step1Props> = ({ onNext }) => {
+  const { register, handleSubmit } = useForm<Step1Data>();
+
+  const onSubmit: SubmitHandler<Step1Data> = data => {
+    onNext(data);
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <input type="text" value={name} onChange={(e) => setName(e.target.value)} />
-      <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+    <form onSubmit={handleSubmit(onSubmit)}>
+      <div>
+        <label>First Name</label>
+        <input {...register('firstName', { required: true })} />
+      </div>
+      <div>
+        <label>Last Name</label>
+        <input {...register('lastName', { required: true })} />
+      </div>
       <button type="submit">Next</button>
-      <button type="button" onClick={handleBack}>Back</button>
     </form>
   );
 };
 
-export default BasicDetails;
-```
-Similarly, you can implement the `EducationDetails` and `Preferences` components.
+export default Step1;
+import React from 'react';
+import { useForm, SubmitHandler } from 'react-hook-form';
 
-To submit the form data and store it for the previous button, you can add a submit handler in the `App` component that collects the form data from each step and submits it to the server or stores it in local storage. For example:
-```
-// App.tsx
-const handleSubmit = () => {
-  const formData = {
-    basicDetails: formData.basicDetails,
-    educationDetails: formData.educationDetails,
-    preferences: formData.preferences,
+interface Step2Props {
+  onNext: (data: Step2Data) => void;
+}
+
+interface Step2Data {
+  email: string;
+  phoneNumber: string;
+}
+
+const Step2: React.FC<Step2Props> = ({ onNext }) => {
+  const { register, handleSubmit } = useForm<Step2Data>();
+
+  const onSubmit: SubmitHandler<Step2Data> = data => {
+    onNext(data);
   };
-  // submit form data to server or store it in local storage
+
+  return (
+    <form onSubmit={handleSubmit(onSubmit)}>
+      <div>
+        <label>Email</label>
+        <input {...register('email', { required: true })} />
+      </div>
+      <div>
+        <label>Phone Number</label>
+        <input {...register('phoneNumber', { required: true })} />
+      </div>
+      <button type="submit">Next</button>
+    </form>
+  );
 };
 
-return (
-  <div>
-    {/* form steps */}
-    <button type="submit" onClick={handleSubmit}>Submit</button>
-  </div>
-);
-```
-I hope this helps! Let me know if you have any further questions.
+export default Step2;
+import React from 'react';
+import { useForm, SubmitHandler } from 'react-hook-form';
+
+interface Step3Props {
+  onSubmit: (data: Step3Data) => void;
+}
+
+interface Step3Data {
+  address: string;
+  city: string;
+}
+
+const Step3: React.FC<Step3Props> = ({ onSubmit }) => {
+  const { register, handleSubmit } = useForm<Step3Data>();
+
+  const handleFinalSubmit: SubmitHandler<Step3Data> = data => {
+    onSubmit(data);
+  };
+
+  return (
+    <form onSubmit={handleSubmit(handleFinalSubmit)}>
+      <div>
+        <label>Address</label>
+        <input {...register('address', { required: true })} />
+      </div>
+      <div>
+        <label>City</label>
+        <input {...register('city', { required: true })} />
+      </div>
+      <button type="submit">Submit</button>
+    </form>
+  );
+};
+
+export default Step3;
+import React, { useState } from 'react';
+import Step1 from './Step1';
+import Step2 from './Step2';
+import Step3 from './Step3';
+
+interface FormData {
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  phoneNumber?: string;
+  address?: string;
+  city?: string;
+}
+
+const MultiStepForm: React.FC = () => {
+  const [step, setStep] = useState(1);
+  const [formData, setFormData] = useState<FormData>({});
+
+  const handleNext = (data: any) => {
+    setFormData(prev => ({ ...prev, ...data }));
+    setStep(prev => prev + 1);
+  };
+
+  const handleFinalSubmit = (data: any) => {
+    const finalData = { ...formData, ...data };
+    localStorage.setItem('formData', JSON.stringify(finalData));
+    alert('Form Submitted!');
+  };
+
+  return (
+    <div>
+      {step === 1 && <Step1 onNext={handleNext} />}
+      {step === 2 && <Step2 onNext={handleNext} />}
+      {step === 3 && <Step3 onSubmit={handleFinalSubmit} />}
+    </div>
+  );
+};
+
+export default MultiStepForm;
