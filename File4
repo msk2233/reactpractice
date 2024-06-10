@@ -1,106 +1,145 @@
-Here is the updated code for the `BasicDetails` form and other forms in TypeScript:
-```
-// BasicDetails.tsx
-import React from 'react';
+import React, { useState } from 'react';
+import Step1 from './Step1';
+import Step2 from './Step2';
+import Step3 from './Step3';
 
-interface BasicDetailsForm {
-  fname: string;
-  lname: string;
+interface FormData {
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  phoneNumber?: string;
+  address?: string;
+  city?: string;
+}
+
+const MultiStepForm: React.FC = () => {
+  const [step, setStep] = useState(1);
+  const [formData, setFormData] = useState<FormData>({});
+
+  const handleNext = (data: any) => {
+    setFormData(prev => ({ ...prev, ...data }));
+    setStep(prev => prev + 1);
+  };
+
+  const handleFinalSubmit = (data: any) => {
+    const finalData = { ...formData, ...data };
+    localStorage.setItem('formData', JSON.stringify(finalData));
+    alert('Form Submitted!');
+  };
+
+  return (
+    <div>
+      {step === 1 && <Step1 onNext={handleNext} />}
+      {step === 2 && <Step2 onNext={handleNext} />}
+      {step === 3 && <Step3 onSubmit={handleFinalSubmit} />}
+    </div>
+  );
+};
+
+export default MultiStepForm;
+
+import React from 'react';
+import { useForm, SubmitHandler } from 'react-hook-form';
+
+interface Step2Props {
+  onNext: (data: Step2Data) => void;
+}
+
+interface Step2Data {
   email: string;
+  phoneNumber: string;
 }
 
-const BasicDetails: React.FC<BasicDetailsForm> = ({ formData, handleNext, handleBack }) => {
-  const [fname, setFname] = useState(formData.fname);
-  const [lname, setLname] = useState(formData.lname);
-  const [email, setEmail] = useState(formData.email);
+const Step2: React.FC<Step2Props> = ({ onNext }) => {
+  const { register, handleSubmit } = useForm<Step2Data>();
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    handleNext({ fname, lname, email });
+  const onSubmit: SubmitHandler<Step2Data> = data => {
+    onNext(data);
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <label>First Name:</label>
-      <input type="text" value={fname} onChange={(event) => setFname(event.target.value)} />
-      <br />
-      <label>Last Name:</label>
-      <input type="text" value={lname} onChange={(event) => setLname(event.target.value)} />
-      <br />
-      <label>Email:</label>
-      <input type="email" value={email} onChange={(event) => setEmail(event.target.value)} />
-      <br />
+    <form onSubmit={handleSubmit(onSubmit)}>
+      <div>
+        <label>Email</label>
+        <input {...register('email', { required: true })} />
+      </div>
+      <div>
+        <label>Phone Number</label>
+        <input {...register('phoneNumber', { required: true })} />
+      </div>
       <button type="submit">Next</button>
-      <button type="button" onClick={handleBack}>Back</button>
     </form>
   );
 };
 
-export default BasicDetails;
-```
-```
-// EducationDetails.tsx
+export default Step2;
 import React from 'react';
+import { useForm, SubmitHandler } from 'react-hook-form';
 
-interface EducationDetailsForm {
-  degree: string;
-  university: string;
+interface Step1Props {
+  onNext: (data: Step1Data) => void;
 }
 
-const EducationDetails: React.FC<EducationDetailsForm> = ({ formData, handleNext, handleBack }) => {
-  const [degree, setDegree] = useState(formData.degree);
-  const [university, setUniversity] = useState(formData.university);
+interface Step1Data {
+  firstName: string;
+  lastName: string;
+}
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    handleNext({ degree, university });
+const Step1: React.FC<Step1Props> = ({ onNext }) => {
+  const { register, handleSubmit } = useForm<Step1Data>();
+
+  const onSubmit: SubmitHandler<Step1Data> = data => {
+    onNext(data);
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <label>Degree:</label>
-      <input type="text" value={degree} onChange={(event) => setDegree(event.target.value)} />
-      <br />
-      <label>University:</label>
-      <input type="text" value={university} onChange={(event) => setUniversity(event.target.value)} />
-      <br />
+    <form onSubmit={handleSubmit(onSubmit)}>
+      <div>
+        <label>First Name</label>
+        <input {...register('firstName', { required: true })} />
+      </div>
+      <div>
+        <label>Last Name</label>
+        <input {...register('lastName', { required: true })} />
+      </div>
       <button type="submit">Next</button>
-      <button type="button" onClick={handleBack}>Back</button>
     </form>
   );
 };
 
-export default EducationDetails;
-```
-```
-// Preferences.tsx
+export default Step1;
 import React from 'react';
+import { useForm, SubmitHandler } from 'react-hook-form';
 
-interface PreferencesForm {
-  interests: string;
+interface Step3Props {
+  onSubmit: (data: Step3Data) => void;
 }
 
-const Preferences: React.FC<PreferencesForm> = ({ formData, handleNext, handleBack }) => {
-  const [interests, setInterests] = useState(formData.interests);
+interface Step3Data {
+  address: string;
+  city: string;
+}
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    handleNext({ interests });
+const Step3: React.FC<Step3Props> = ({ onSubmit }) => {
+  const { register, handleSubmit } = useForm<Step3Data>();
+
+  const handleFinalSubmit: SubmitHandler<Step3Data> = data => {
+    onSubmit(data);
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <label>Interests:</label>
-      <input type="text" value={interests} onChange={(event) => setInterests(event.target.value)} />
-      <br />
-      <button type="submit">Next</button>
-      <button type="button" onClick={handleBack}>Back</button>
+    <form onSubmit={handleSubmit(handleFinalSubmit)}>
+      <div>
+        <label>Address</label>
+        <input {...register('address', { required: true })} />
+      </div>
+      <div>
+        <label>City</label>
+        <input {...register('city', { required: true })} />
+      </div>
+      <button type="submit">Submit</button>
     </form>
   );
 };
 
-export default Preferences;
-```
-Each form component has its own state and handlers for submitting and going back. The `handleNext` function is called when the user submits the form, and it passes the form data to the next step. The `handleBack` function is called when the user clicks the back button, and it goes back to the previous step.
-
-I hope this helps! Let me know if you have any further questions.
+export default Step3;
