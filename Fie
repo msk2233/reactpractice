@@ -1,151 +1,343 @@
-Here is the app without MUI and using only React Hook Form and TypeScript:
+// Step1.tsx
 
-_schema/index.ts_
-```
-import { object, string } from 'yup';
+import React from 'react';
+import { TextField, Button, FormControl, FormLabel, RadioGroup, FormControlLabel, Radio } from '@mui/material';
 
-interface BasicDetails {
-  name: string;
-  email: string;
+interface Step1Props {
+  formData: {
+    firstName: string;
+    lastName: string;
+    designation: string;
+    address1: string;
+    address2: string;
+    email: string;
+    phoneNumber: string;
+    gender: string;
+    dateOfBirth: string;
+  };
+  onChange: (data: {
+    firstName: string;
+    lastName: string;
+    designation: string;
+    address1: string;
+    address2: string;
+    email: string;
+    phoneNumber: string;
+    gender: string;
+    dateOfBirth: string;
+  }) => void;
+  onNext: () => void;
 }
 
-interface EducationDetails {
-  degree: string;
-  university: string;
-}
+const Step1: React.FC<Step1Props> = ({ formData, onChange, onNext }) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    onChange({ ...formData, [name]: value });
+  };
 
-interface Preferences {
-  interests: string;
-}
-
-const schema = {
-  step1: object().shape({
-    name: string().required('Name is required'),
-    email: string().email('Invalid email').required('Email is required'),
-  }),
-  step2: object().shape({
-    degree: string().required('Degree is required'),
-    university: string().required('University is required'),
-  }),
-  step3: object().shape({
-    interests: string().required('Interests are required'),
-  }),
-};
-
-export default schema;
-```
-_components/BasicDetails.tsx_
-```
-import { useForm } from 'react-hook-form';
-import { schema } from '../schema';
-
-const BasicDetails = ({ onNext }) => {
-  const { register, handleSubmit, errors } = useForm({
-    schema: schema.step1,
-  });
+  const handleRadioChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    onChange({ ...formData, gender: e.target.value });
+  };
 
   return (
-    <form onSubmit={handleSubmit(onNext)}>
-      <input
-        type="text"
-        {...register('name')}
-        placeholder="Name"
-        error={errors.name ? true : false}
+    <div>
+      <TextField
+        label="First Name"
+        name="firstName"
+        value={formData.firstName}
+        onChange={handleChange}
       />
-      <input
-        type="email"
-        {...register('email')}
-        placeholder="Email"
-        error={errors.email ? true : false}
+      <TextField
+        label="Last Name"
+        name="lastName"
+        value={formData.lastName}
+        onChange={handleChange}
       />
-      <button type="submit">Next</button>
-    </form>
+      <TextField
+        label="Designation"
+        name="designation"
+        value={formData.designation}
+        onChange={handleChange}
+      />
+      <TextField
+        label="Address Line 1"
+        name="address1"
+        value={formData.address1}
+        onChange={handleChange}
+      />
+      <TextField
+        label="Address Line 2"
+        name="address2"
+        value={formData.address2}
+        onChange={handleChange}
+      />
+      <TextField
+        label="Email"
+        name="email"
+        value={formData.email}
+        onChange={handleChange}
+      />
+      <TextField
+        label="Phone Number"
+        name="phoneNumber"
+        value={formData.phoneNumber}
+        onChange={handleChange}
+      />
+      <FormControl component="fieldset">
+        <FormLabel component="legend">Gender</FormLabel>
+        <RadioGroup row aria-label="gender" name="gender" value={formData.gender} onChange={handleRadioChange}>
+          <FormControlLabel value="male" control={<Radio />} label="Male" />
+          <FormControlLabel value="female" control={<Radio />} label="Female" />
+          <FormControlLabel value="other" control={<Radio />} label="Other" />
+        </RadioGroup>
+      </FormControl>
+      <TextField
+        label="Date of Birth"
+        type="date"
+        name="dateOfBirth"
+        value={formData.dateOfBirth}
+        onChange={handleChange}
+        InputLabelProps={{
+          shrink: true,
+        }}
+      />
+      <Button onClick={onNext}>Next</Button>
+    </div>
   );
 };
 
-export default BasicDetails;
-```
-_components/EducationDetails.tsx_
-```
-import { useForm } from 'react-hook-form';
-import { schema } from '../schema';
+export default Step1;
+// Step2.tsx
 
-const EducationDetails = ({ onNext }) => {
-  const { register, handleSubmit, errors } = useForm({
-    schema: schema.step2,
-  });
+import React from 'react';
+import { TextField, Button } from '@mui/material';
+
+interface Step2Props {
+  formData: { degree: string; institution: string };
+  onChange: (data: { degree: string; institution: string }) => void;
+  onNext: () => void;
+  onBack: () => void;
+}
+
+const Step2: React.FC<Step2Props> = ({
+  formData,
+  onChange,
+  onNext,
+  onBack,
+}) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    onChange({ ...formData, [name]: value });
+  };
 
   return (
-    <form onSubmit={handleSubmit(onNext)}>
-      <input
-        type="text"
-        {...register('degree')}
-        placeholder="Degree"
-        error={errors.degree ? true : false}
+    <div>
+      <TextField
+        label="Degree"
+        name="degree"
+        value={formData.degree}
+        onChange={handleChange}
       />
-      <input
-        type="text"
-        {...register('university')}
-        placeholder="University"
-        error={errors.university ? true : false}
+      <TextField
+        label="Institution"
+        name="institution"
+        value={formData.institution}
+        onChange={handleChange}
       />
-      <button type="submit">Next</button>
-    </form>
+      <Button onClick={onBack}>Back</Button>
+      <Button onClick={onNext}>Next</Button>
+    </div>
   );
 };
 
-export default EducationDetails;
-```
-_components/Preferences.tsx_
-```
-import { useForm } from 'react-hook-form';
-import { schema } from '../schema';
+export default Step2;
+// Step3.tsx
 
-const Preferences = ({ onNext }) => {
-  const { register, handleSubmit, errors } = useForm({
-    schema: schema.step3,
-  });
+import React from 'react';
+import { TextField, Button } from '@mui/material';
+
+interface Step3Props {
+  formData: { language: string; interest: string };
+  onChange: (data: { language: string; interest: string }) => void;
+  onBack: () => void;
+  onSubmit: () => void;
+}
+
+const Step3: React.FC<Step3Props> = ({
+  formData,
+  onChange,
+  onBack,
+  onSubmit,
+}) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    onChange({ ...formData, [name]: value });
+  };
 
   return (
-    <form onSubmit={handleSubmit(onNext)}>
-      <input
-        type="text"
-        {...register('interests')}
-        placeholder="Interests"
-        error={errors.interests ? true : false}
+    <div>
+      <TextField
+        label="Language"
+        name="language"
+        value={formData.language}
+        onChange={handleChange}
       />
-      <button type="submit">Submit</button>
-    </form>
+      <TextField
+        label="Interest"
+        name="interest"
+        value={formData.interest}
+        onChange={handleChange}
+      />
+      <Button onClick={onBack}>Back</Button>
+      <Button onClick={onSubmit}>Submit</Button>
+    </div>
   );
 };
 
-export default Preferences;
-```
-_app.tsx_
-```
+export default Step3;
+// ParentComponent.tsx
+
 import React, { useState } from 'react';
-import { BasicDetails } from './components/BasicDetails';
-import { EducationDetails } from './components/EducationDetails';
-import { Preferences } from './components/Preferences';
+import { Container, Paper, Stepper, Step, StepLabel, Button, Typography } from '@mui/material';
+import Step1 from './comp/Step1';
+import Step2 from './comp/Step2';
+import Step3 from './comp/Step3';
 
-const App = () => {
-  const [currentStep, setCurrentStep] = useState(1);
+const ParentComponent: React.FC = () => {
+  const [formData, setFormData] = useState({
+    basicDetails: {
+      firstName: '',
+      lastName: '',
+      designation: '',
+      address1: '',
+      address2: '',
+      email: '',
+      phoneNumber: '',
+      gender: '',
+      dateOfBirth: '',
+    },
+    education: {
+      degree: '',
+      institution: '',
+    },
+    preferences: {
+      language: '',
+      interest: '',
+    },
+  });
+  const [currentStep, setCurrentStep] = useState(0);
+
+  const steps = ['Basic Details', 'Education', 'Preferences'];
+
+  const handleStepChange = (step: number) => {
+    setCurrentStep(step);
+  };
 
   const handleNext = () => {
     setCurrentStep(currentStep + 1);
   };
 
+  const handleBack = () => {
+    setCurrentStep(currentStep - 1);
+  };
+
+  const handleReset = () => {
+    setCurrentStep(0);
+    setFormData({
+      basicDetails: {
+        firstName: '',
+        lastName: '',
+        designation: '',
+        address1: '',
+        address2: '',
+        email: '',
+        phoneNumber: '',
+        gender: '',
+        dateOfBirth: '',
+      },
+      education: {
+        degree: '',
+        institution: '',
+      },
+      preferences: {
+        language: '',
+        interest: '',
+      },
+    });
+  };
+
+  const handleSubmit = () => {
+    // Store form data in local storage
+    localStorage.setItem('formData', JSON.stringify(formData));
+    // Or you can perform any other actions like sending data to a server
+    console.log(formData);
+  };
+
   return (
-    <div>
-      {currentStep === 1 && <BasicDetails onNext={handleNext} />}
-      {currentStep === 2 && <EducationDetails onNext={handleNext} />}
-      {currentStep === 3 && <Preferences />}
-    </div>
+    <Container maxWidth="sm">
+      <Paper style={{ padding: '20px', marginTop: '20px' }}>
+        <Typography variant="h5" align="center" gutterBottom>
+          Multi-Step Form
+        </Typography>
+        <Stepper activeStep={currentStep} alternativeLabel>
+          {steps.map((label, index) => (
+            <Step key={label}>
+              <StepLabel>{label}</StepLabel>
+            </Step>
+          ))}
+        </Stepper>
+        <div>
+          {currentStep === steps.length ? (
+            <div>
+              <Typography variant="h6" align="center" gutterBottom>
+                All steps completed - submit the form
+              </Typography>
+              <div style={{ display: 'flex', justifyContent: 'center' }}>
+                <Button onClick={handleReset}>Reset</Button>
+                <Button onClick={handleSubmit} variant="contained" color="primary">
+                  Submit
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div>
+              {currentStep === 0 && (
+                <Step1
+                  formData={formData.basicDetails}
+                  onChange={(data) => setFormData({ ...formData, basicDetails: data })}
+                  onNext={handleNext}
+                />
+              )}
+              {currentStep === 1 && (
+                <Step2
+                  formData={formData.education}
+                  onChange={(data) => setFormData({ ...formData, education: data })}
+                  onNext={handleNext}
+                  onBack={handleBack}
+                />
+              )}
+              {currentStep === 2 && (
+                <Step3
+                  formData={formData.preferences}
+                  onChange={(data) => setFormData({ ...formData, preferences: data })}
+                  onBack={handleBack}
+                  onSubmit={handleSubmit}
+                />
+              )}
+              <div style={{ marginTop: '20px', display: 'flex', justifyContent: 'space-between' }}>
+                <Button disabled={currentStep === 0} onClick={handleBack}>
+                  Back
+                </Button>
+                <Button variant="contained" color="primary" onClick={handleNext}>
+                  {currentStep === steps.length - 1 ? 'Finish' : 'Next'}
+                </Button>
+              </div>
+            </div>
+          )}
+        </div>
+      </Paper>
+    </Container>
   );
 };
 
-export default App;
-```
-This app uses React Hook Form to handle the form validation and submission, and TypeScript to define the schema and interfaces for the form data.
-
-Please note that this is just a basic example, and you will likely need to add additional functionality and error handling to your application.
+export default ParentComponent;
