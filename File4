@@ -1,3 +1,77 @@
+import React from 'react';
+import { useForm, SubmitHandler } from 'react-hook-form';
+
+interface Step2Props {
+  onNext: (data: Step2Data) => void;
+  onPrevious: () => void;
+}
+
+interface Step2Data {
+  email: string;
+  phoneNumber: string;
+}
+
+const Step2: React.FC<Step2Props> = ({ onNext, onPrevious }) => {
+  const { register, handleSubmit } = useForm<Step2Data>();
+
+  const onSubmit: SubmitHandler<Step2Data> = data => {
+    onNext(data);
+  };
+
+  return (
+    <form onSubmit={handleSubmit(onSubmit)}>
+      <div>
+        <label>Email</label>
+        <input {...register('email', { required: true })} />
+      </div>
+      <div>
+        <label>Phone Number</label>
+        <input {...register('phoneNumber', { required: true })} />
+      </div>
+      <button type="button" onClick={onPrevious}>Previous</button>
+      <button type="submit">Next</button>
+    </form>
+  );
+};
+
+export default Step2;
+import React from 'react';
+import { useForm, SubmitHandler } from 'react-hook-form';
+
+interface Step3Props {
+  onSubmit: (data: Step3Data) => void;
+  onPrevious: () => void;
+}
+
+interface Step3Data {
+  address: string;
+  city: string;
+}
+
+const Step3: React.FC<Step3Props> = ({ onSubmit, onPrevious }) => {
+  const { register, handleSubmit } = useForm<Step3Data>();
+
+  const handleFinalSubmit: SubmitHandler<Step3Data> = data => {
+    onSubmit(data);
+  };
+
+  return (
+    <form onSubmit={handleSubmit(handleFinalSubmit)}>
+      <div>
+        <label>Address</label>
+        <input {...register('address', { required: true })} />
+      </div>
+      <div>
+        <label>City</label>
+        <input {...register('city', { required: true })} />
+      </div>
+      <button type="button" onClick={onPrevious}>Previous</button>
+      <button type="submit">Submit</button>
+    </form>
+  );
+};
+
+export default Step3;
 import React, { useState } from 'react';
 import Step1 from './Step1';
 import Step2 from './Step2';
@@ -21,6 +95,10 @@ const MultiStepForm: React.FC = () => {
     setStep(prev => prev + 1);
   };
 
+  const handlePrevious = () => {
+    setStep(prev => prev - 1);
+  };
+
   const handleFinalSubmit = (data: any) => {
     const finalData = { ...formData, ...data };
     localStorage.setItem('formData', JSON.stringify(finalData));
@@ -30,116 +108,10 @@ const MultiStepForm: React.FC = () => {
   return (
     <div>
       {step === 1 && <Step1 onNext={handleNext} />}
-      {step === 2 && <Step2 onNext={handleNext} />}
-      {step === 3 && <Step3 onSubmit={handleFinalSubmit} />}
+      {step === 2 && <Step2 onNext={handleNext} onPrevious={handlePrevious} />}
+      {step === 3 && <Step3 onSubmit={handleFinalSubmit} onPrevious={handlePrevious} />}
     </div>
   );
 };
 
 export default MultiStepForm;
-
-import React from 'react';
-import { useForm, SubmitHandler } from 'react-hook-form';
-
-interface Step2Props {
-  onNext: (data: Step2Data) => void;
-}
-
-interface Step2Data {
-  email: string;
-  phoneNumber: string;
-}
-
-const Step2: React.FC<Step2Props> = ({ onNext }) => {
-  const { register, handleSubmit } = useForm<Step2Data>();
-
-  const onSubmit: SubmitHandler<Step2Data> = data => {
-    onNext(data);
-  };
-
-  return (
-    <form onSubmit={handleSubmit(onSubmit)}>
-      <div>
-        <label>Email</label>
-        <input {...register('email', { required: true })} />
-      </div>
-      <div>
-        <label>Phone Number</label>
-        <input {...register('phoneNumber', { required: true })} />
-      </div>
-      <button type="submit">Next</button>
-    </form>
-  );
-};
-
-export default Step2;
-import React from 'react';
-import { useForm, SubmitHandler } from 'react-hook-form';
-
-interface Step1Props {
-  onNext: (data: Step1Data) => void;
-}
-
-interface Step1Data {
-  firstName: string;
-  lastName: string;
-}
-
-const Step1: React.FC<Step1Props> = ({ onNext }) => {
-  const { register, handleSubmit } = useForm<Step1Data>();
-
-  const onSubmit: SubmitHandler<Step1Data> = data => {
-    onNext(data);
-  };
-
-  return (
-    <form onSubmit={handleSubmit(onSubmit)}>
-      <div>
-        <label>First Name</label>
-        <input {...register('firstName', { required: true })} />
-      </div>
-      <div>
-        <label>Last Name</label>
-        <input {...register('lastName', { required: true })} />
-      </div>
-      <button type="submit">Next</button>
-    </form>
-  );
-};
-
-export default Step1;
-import React from 'react';
-import { useForm, SubmitHandler } from 'react-hook-form';
-
-interface Step3Props {
-  onSubmit: (data: Step3Data) => void;
-}
-
-interface Step3Data {
-  address: string;
-  city: string;
-}
-
-const Step3: React.FC<Step3Props> = ({ onSubmit }) => {
-  const { register, handleSubmit } = useForm<Step3Data>();
-
-  const handleFinalSubmit: SubmitHandler<Step3Data> = data => {
-    onSubmit(data);
-  };
-
-  return (
-    <form onSubmit={handleSubmit(handleFinalSubmit)}>
-      <div>
-        <label>Address</label>
-        <input {...register('address', { required: true })} />
-      </div>
-      <div>
-        <label>City</label>
-        <input {...register('city', { required: true })} />
-      </div>
-      <button type="submit">Submit</button>
-    </form>
-  );
-};
-
-export default Step3;
