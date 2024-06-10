@@ -1,9 +1,53 @@
 import React from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
 
+interface Step1Props {
+  onNext: (data: Step1Data) => void;
+  initialValues: Step1Data;
+}
+
+interface Step1Data {
+  firstName: string;
+  lastName: string;
+}
+
+const Step1: React.FC<Step1Props> = ({ onNext, initialValues }) => {
+  const { register, handleSubmit, reset } = useForm<Step1Data>({
+    defaultValues: initialValues,
+  });
+
+  // Reset the form values when the initial values change
+  React.useEffect(() => {
+    reset(initialValues);
+  }, [initialValues, reset]);
+
+  const onSubmit: SubmitHandler<Step1Data> = data => {
+    onNext(data);
+  };
+
+  return (
+    <form onSubmit={handleSubmit(onSubmit)}>
+      <div>
+        <label>First Name</label>
+        <input {...register('firstName', { required: true })} />
+      </div>
+      <div>
+        <label>Last Name</label>
+        <input {...register('lastName', { required: true })} />
+      </div>
+      <button type="submit">Next</button>
+    </form>
+  );
+};
+
+export default Step1;
+import React from 'react';
+import { useForm, SubmitHandler } from 'react-hook-form';
+
 interface Step2Props {
   onNext: (data: Step2Data) => void;
   onPrevious: () => void;
+  initialValues: Step2Data;
 }
 
 interface Step2Data {
@@ -11,8 +55,15 @@ interface Step2Data {
   phoneNumber: string;
 }
 
-const Step2: React.FC<Step2Props> = ({ onNext, onPrevious }) => {
-  const { register, handleSubmit } = useForm<Step2Data>();
+const Step2: React.FC<Step2Props> = ({ onNext, onPrevious, initialValues }) => {
+  const { register, handleSubmit, reset } = useForm<Step2Data>({
+    defaultValues: initialValues,
+  });
+
+  // Reset the form values when the initial values change
+  React.useEffect(() => {
+    reset(initialValues);
+  }, [initialValues, reset]);
 
   const onSubmit: SubmitHandler<Step2Data> = data => {
     onNext(data);
@@ -41,6 +92,7 @@ import { useForm, SubmitHandler } from 'react-hook-form';
 interface Step3Props {
   onSubmit: (data: Step3Data) => void;
   onPrevious: () => void;
+  initialValues: Step3Data;
 }
 
 interface Step3Data {
@@ -48,8 +100,15 @@ interface Step3Data {
   city: string;
 }
 
-const Step3: React.FC<Step3Props> = ({ onSubmit, onPrevious }) => {
-  const { register, handleSubmit } = useForm<Step3Data>();
+const Step3: React.FC<Step3Props> = ({ onSubmit, onPrevious, initialValues }) => {
+  const { register, handleSubmit, reset } = useForm<Step3Data>({
+    defaultValues: initialValues,
+  });
+
+  // Reset the form values when the initial values change
+  React.useEffect(() => {
+    reset(initialValues);
+  }, [initialValues, reset]);
 
   const handleFinalSubmit: SubmitHandler<Step3Data> = data => {
     onSubmit(data);
@@ -107,9 +166,9 @@ const MultiStepForm: React.FC = () => {
 
   return (
     <div>
-      {step === 1 && <Step1 onNext={handleNext} />}
-      {step === 2 && <Step2 onNext={handleNext} onPrevious={handlePrevious} />}
-      {step === 3 && <Step3 onSubmit={handleFinalSubmit} onPrevious={handlePrevious} />}
+      {step === 1 && <Step1 onNext={handleNext} initialValues={formData} />}
+      {step === 2 && <Step2 onNext={handleNext} onPrevious={handlePrevious} initialValues={formData} />}
+      {step === 3 && <Step3 onSubmit={handleFinalSubmit} onPrevious={handlePrevious} initialValues={formData} />}
     </div>
   );
 };
