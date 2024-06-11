@@ -1,342 +1,5 @@
 import * as React from "react";
-import { useForm, SubmitHandler, Controller } from "react-hook-form";
-import { useState } from "react";
-import Grid from "@mui/material/Grid";
-import Typography from "@mui/material/Typography";
-import TextField from "@mui/material/TextField";
-import Box from "@mui/material/Box";
-import Paper from "@mui/material/Paper";
-import InputLabel from "@mui/material/InputLabel";
-import MenuItem from "@mui/material/MenuItem";
-import FormControl from "@mui/material/FormControl";
-import Select from "@mui/material/Select";
-import Button from "@mui/material/Button";
-import { states } from '../services/constValues';
-import { BasicDetail_interface } from "../services/interfaces";
-
-interface BasicProps {
-  onNext: (data: BasicDetail_interface) => void;
-  initialValues: BasicDetail_interface;
-}
-
-const Step1: React.FC<BasicProps> = ({ onNext, initialValues }) => {
-  const { register, handleSubmit, control, formState: { errors } } = useForm<BasicDetail_interface>({
-    defaultValues: initialValues,
-  });
-
-  const todayDate = new Date().toISOString().split("T")[0];
-  const onSubmit: SubmitHandler<BasicDetail_interface> = data => {
-    console.log(data);
-    
-    onNext(data);
-  };
-
-  return (
-    <React.Fragment>
-      <Paper elevation={3} sx={{ marginRight: "15%", marginLeft: "15%" }}>
-        <Box component="form" onSubmit={handleSubmit(onSubmit)} sx={{ padding: 5 }}>
-          <Typography variant="h6" gutterBottom sx={{ paddingBottom: 5 }}>
-            BASIC DETAILS
-          </Typography>
-          <Grid container spacing={3}>
-            <Grid item xs={12} sm={2}>
-              <InputLabel
-                sx={{
-                  display: "flex",
-                  justifyContent: "center",
-                  fontWeight: 700
-                }}
-              >
-                First Name
-              </InputLabel>
-            </Grid>
-            <Grid item xs={12} sm={4}>
-              <Controller
-                control={control}
-                name="fname"
-                rules={{ required: "First name is required", minLength: { value: 3, message: "First name must be at least 3 characters long" } }}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    fullWidth
-                    sx={{ maxWidth: 600 }}
-                    label="First Name"
-                    margin="dense"
-                    error={!!errors.fname}
-                    helperText={errors.fname ? errors.fname.message : null}
-                  />
-                )}
-              />
-            </Grid>
-            <Grid item xs={12} sm={2}>
-              <InputLabel
-                sx={{
-                  display: "flex",
-                  justifyContent: "center",
-                  fontWeight: 700
-                }}
-              >
-                Last Name
-              </InputLabel>
-            </Grid>
-            <Grid item xs={12} sm={4}>
-              <Controller
-                control={control}
-                name="lname"
-                rules={{ required: "Last name is required", minLength: { value: 3, message: "Last name must be at least 3 characters long" } }}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    fullWidth
-                    sx={{ maxWidth: 600 }}
-                    label="Last Name"
-                    margin="dense"
-                    error={!!errors.lname}
-                    helperText={errors.lname ? errors.lname.message : null}
-                  />
-                )}
-              />
-            </Grid>
-            <Grid item xs={12} sm={2}>
-              <InputLabel
-                sx={{
-                  display: "flex",
-                  justifyContent: "center",
-                  fontWeight: 700
-                }}
-              >
-                Designation
-              </InputLabel>
-            </Grid>
-            <Grid item xs={12} sm={4}>
-              <FormControl fullWidth size="small">
-                <TextField
-                  {...register("designation", { required: "Designation is required" })}
-                  id="Designation"
-                  label="Designation"
-                  error={!!errors.designation}
-                  helperText={errors.designation ? errors.designation.message : null}
-                />
-              </FormControl>
-            </Grid>
-            <Grid item xs={12} sm={2} />
-            <Grid item xs={12} sm={4} />
-            <Grid item xs={12} sm={2}>
-              <InputLabel
-                sx={{
-                  display: "flex",
-                  justifyContent: "center",
-                  fontWeight: 700
-                }}
-              >
-                Address 1
-              </InputLabel>
-            </Grid>
-            <Grid item xs={12} sm={4}>
-              <FormControl fullWidth size="small">
-                <TextField
-                  id="add1"
-                  {...register("add1", { required: "Address 1 is required" })}
-                  label="plot no:123,down street,..."
-                  error={!!errors.add1}
-                  helperText={errors.add1 ? errors.add1.message : null}
-                />
-              </FormControl>
-            </Grid>
-            <Grid item xs={12} sm={2}>
-              <InputLabel
-                sx={{
-                  display: "flex",
-                  justifyContent: "center",
-                  fontWeight: 700
-                }}
-              >
-                Address 2
-              </InputLabel>
-            </Grid>
-            <Grid item xs={12} sm={4}>
-              <TextField
-                
-                id="add2"
-                {...register("add2", { required: "Address 2 is required" })}
-                label="plot no:567,war street,..."
-                fullWidth
-                error={!!errors.add2}
-                helperText={errors.add2 ? errors.add2.message : null}
-              />
-            </Grid>
-            {/*--------------------------mail phno --------------------------- */}
-            <Grid item xs={12} sm={2}>
-              <InputLabel
-                sx={{
-                  display: "flex",
-                  justifyContent: "center",
-                  fontWeight: 700
-                }}
-              >
-                Email
-              </InputLabel>
-            </Grid>
-            <Grid item xs={12} sm={4}>
-              <FormControl fullWidth size="small">
-                <TextField
-                  
-                  type="email"
-                  id="mail"
-                  {...register("email", { required: "Email is required", pattern: { value: /^\S+@\S+\.\S+$/, message: "Enter a valid email address" } })}
-                  label="abc@gmail.com"
-                  error={!!errors.email}
-                  helperText={errors.email ? errors.email.message : null}
-                />
-              </FormControl>
-            </Grid>
-            <Grid item xs={12} sm={2}>
-              <InputLabel
-                sx={{
-                  display: "flex",
-                  justifyContent: "center",
-                  fontWeight: 700
-                }}
-              >
-                Phone Number
-              </InputLabel>
-            </Grid>
-            <Grid item xs={12} sm={4}>
-              <TextField
-                
-                type="tel"
-                id="phno"
-                {...register("phno", { required: "Phone number is required", pattern: { value: /^[789]\d{9}$/, message: "Enter a valid 10-digit phone number starting with 7, 8, or 9" } })}
-                label="XXXXXXXXXX"
-                fullWidth
-                error={!!errors.phno}
-                helperText={errors.phno ? errors.phno.message : null}
-              />
-            </Grid>
-            {/*------------------------city state ----------------------*/}
-            <Grid item xs={12} sm={2}>
-              <InputLabel
-                sx={{
-                  display: "flex",
-                  justifyContent: "center",
-                  fontWeight: 700
-                }}
-              >
-                State
-              </InputLabel>
-            </Grid>
-            <Grid item xs={12} sm={4}>
-              <FormControl fullWidth size="small">
-                <InputLabel id="demo-simple-select-label">State</InputLabel>
-                <Select
-                  labelId="demo-simple-select-label"
-                  id="demo-simple-select"
-                  label="State"
-                  {...register("state", { required: "State is required" })}
-                  error={!!errors.state}
-                >
-                  {states.map((item) => (
-                    <MenuItem key={item} value={item}>{item}</MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-              {errors.state && (
-                <span style={{ color: "red" }}>{errors.state.message}</span>
-              )}
-            </Grid>
-            <Grid item xs={12} sm={2}>
-              <InputLabel
-                sx={{
-                  display: "flex",
-                  justifyContent: "center",
-                  fontWeight: 700
-                }}
-              >
-                City
-              </InputLabel>
-            </Grid>
-            <Grid item xs={12} sm={4}>
-              <TextField
-                
-                id="city"
-                {...register("city", { required: "City is required" })}
-                label="City"
-                fullWidth
-                size="small"
-                autoComplete="off"
-                variant="outlined"
-                error={!!errors.city}
-                helperText={errors.city ? errors.city.message : null}
-              />
-            </Grid>
-            <Grid item xs={12} sm={2}>
-              <InputLabel
-                sx={{
-                  display: "flex",
-                  justifyContent: "center",
-                  fontWeight: 700
-                }}
-              >
-                Gender
-              </InputLabel>
-            </Grid>
-            <Grid item xs={12} sm={4}>
-              <Grid item xs={12} sm={8}>
-                Female
-                <input {...register("gender", { required: "Gender is required" })} type="radio" value="female" checked />
-                Male <input {...register("gender", { required: "Gender is required" })} type="radio" value="male" />
-                Other <input {...register("gender", { required: "Gender is required" })} type="radio" value="other" />
-              </Grid>
-              {errors.gender && (
-                <span style={{ color: "red" }}>{errors.gender.message}</span>
-              )}
-            </Grid>
-            <Grid item xs={12} sm={2}>
-              <InputLabel
-                sx={{
-                  display: "flex",
-                  justifyContent: "center",
-                  fontWeight: 700
-                }}
-              >
-                DOB
-              </InputLabel>
-            </Grid>
-            <Grid item xs={12} sm={4}>
-              <TextField
-                id="date"
-                label="Birthday"
-                type="date"
-                {...register("dob", { required: "Date of Birth is required" })}
-                InputLabelProps={{
-                  shrink: true,
-                }}
-                inputProps={{
-                  max: todayDate,
-                }}
-                error={!!errors.dob}
-                helperText={errors.dob ? errors.dob.message : null}
-              />
-            </Grid>
-
-            <Grid item xs={12} sm={6} />
-            <Grid item xs={12} sm={5} />
-            <Grid item xs={12} sm={4}>
-              <Button type="submit" variant="contained" sx={{ color: "#ff781f" }}>
-                NEXT
-              </Button>
-            </Grid>
-            <Grid item xs={12} sm={5} />
-          </Grid>
-        </Box>
-      </Paper>
-    </React.Fragment>
-  );
-};
-
-export default Step1;
-import * as React from "react";
-import { useForm, SubmitHandler, Controller } from "react-hook-form";
+import { useForm, SubmitHandler, useFieldArray, Controller } from "react-hook-form";
 import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
 import TextField from "@mui/material/TextField";
@@ -344,545 +7,41 @@ import Box from "@mui/material/Box";
 import Paper from "@mui/material/Paper";
 import InputLabel from "@mui/material/InputLabel";
 import Button from "@mui/material/Button";
-import MenuItem from "@mui/material/MenuItem";
-import Select from "@mui/material/Select";
-import FormControl from "@mui/material/FormControl";
-import { getValue } from "@testing-library/user-event/dist/utils";
-
-interface EduProps {
-  onNext: (data: Step2Data) => void;
-  initialValues: Step2Data;
-  onPrev: (data:Step2Data) => void;
-}
-
-interface Step2Data {
-  nob_ssc?: string;
-  pass_year_ssc?: number;
-  per_ssc?: number;
-  nob_hsc?: string;
-  pass_year_hsc?: number;
-  per_hsc?: number;
-  cource_bach?: string;
-  uni_bach?: string;
-  pass_year_bach?: number;
-  per_bach?: number;
-  cource_mas?: string;
-  uni_mas?: string;
-  pass_year_mas?: number;
-  per_mas?: number;
-}
-
-const Step2: React.FC<EduProps> = ({ onNext, initialValues, onPrev }) => {
-  const { register, handleSubmit, control,getValues, formState: { errors } } = useForm<Step2Data>({
-    defaultValues: initialValues
-  });
-
-  const years = Array.from({ length: 100 }, (_, index) => new Date().getFullYear() - index);
-
-  const previous = () =>{
-    const data= getValues(); 
-      onPrev(data);
-  }
-  const onSubmit: SubmitHandler<Step2Data> = data => {
-    onNext(data);
-  };
-
-  return (
-    <React.Fragment>
-      <Paper elevation={3} sx={{ marginRight: "10%", marginLeft: "10%" }}>
-        <Box component="form" onSubmit={handleSubmit(onSubmit)} sx={{ padding: 5 }}>
-          <Typography variant="h6" gutterBottom sx={{ paddingBottom: 5 }}>
-            EDUCATION DETAILS
-          </Typography>
-          <Grid container spacing={1}>
-            <Grid item xs={12}>SSC</Grid>
-            <Grid item xs={6} sm={3}>
-              <InputLabel>Name of Board</InputLabel>
-              <TextField {...register("nob_ssc", { required: "Name of Board is required" })} error={!!errors.nob_ssc} />
-              {errors.nob_ssc && <span style={{ color: "red" }}>{errors.nob_ssc.message}</span>}
-            </Grid>
-            <Grid item xs={6} sm={3}>
-              <InputLabel>Passing Year</InputLabel>
-              <Controller
-                name="pass_year_ssc"
-                control={control}
-                rules={{ required: "Passing Year is required" }}
-                render={({ field }) => (
-                  <FormControl fullWidth>
-                    <InputLabel id="year-label">Year</InputLabel>
-                    <Select
-                      labelId="year-label"
-                      id="year"
-                      label="Year"
-                      {...field}
-                      error={!!errors.pass_year_ssc}
-                    >
-                      {years.map((year) => (
-                        <MenuItem key={year} value={year}>
-                          {year}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                    {errors.pass_year_ssc && (
-                      <span style={{ color: "red" }}>{errors.pass_year_ssc.message}</span>
-                    )}
-                  </FormControl>
-                )}
-              />
-            </Grid>
-            <Grid item xs={6} sm={3}>
-              <InputLabel>Percentage</InputLabel>
-              <TextField {...register("per_ssc", { required: "Percentage is required" })} error={!!errors.per_ssc} />
-              {errors.per_ssc && <span style={{ color: "red" }}>{errors.per_ssc.message}</span>}
-            </Grid>
-            {/* HSC */}
-            <Grid item xs={12}>HSC</Grid>
-            <Grid item xs={6} sm={3}>
-              <InputLabel>Name of Board</InputLabel>
-              <TextField {...register("nob_hsc", { required: "Name of Board is required" })} error={!!errors.nob_hsc} />
-              {errors.nob_hsc && <span style={{ color: "red" }}>{errors.nob_hsc.message}</span>}
-            </Grid>
-            <Grid item xs={6} sm={3}>
-              <InputLabel>Passing Year</InputLabel>
-              <TextField {...register("pass_year_hsc", { required: "Passing Year is required" })} error={!!errors.pass_year_hsc} />
-              {errors.pass_year_hsc && <span style={{ color: "red" }}>{errors.pass_year_hsc.message}</span>}
-            </Grid>
-            <Grid item xs={6} sm={3}>
-              <InputLabel>Percentage</InputLabel>
-              <TextField {...register("per_hsc", { required: "Percentage is required" })} error={!!errors.per_hsc} />
-              {errors.per_hsc && <span style={{ color: "red" }}>{errors.per_hsc.message}</span>}
-            </Grid>
-            {/* Bachelor's */}
-            <Grid item xs={12}>BACHELOR DEGREE</Grid>
-            <Grid item xs={6} sm={3}>
-              <InputLabel>Course Name</InputLabel>
-              <TextField {...register("cource_bach", { required: "Course Name is required" })} error={!!errors.cource_bach} />
-              {errors.cource_bach && <span style={{ color: "red" }}>{errors.cource_bach.message}</span>}
-            </Grid>
-            <Grid item xs={6} sm={3}>
-              <InputLabel>University</InputLabel>
-              <TextField {...register("uni_bach", { required: "University is required" })} error={!!errors.uni_bach} />
-              {errors.uni_bach && <span style={{ color: "red" }}>{errors.uni_bach.message}</span>}
-            </Grid>
-            <Grid item xs={6} sm={3}>
-              <InputLabel>Passing Year</InputLabel>
-              <TextField {...register("pass_year_bach", { required: "Passing Year is required" })} error={!!errors.pass_year_bach} />
-              {errors.pass_year_bach && <span style={{ color: "red" }}>{errors.pass_year_bach.message}</span>}
-            </Grid>
-            <Grid item xs={6} sm={3}>
-              <InputLabel>Percentage</InputLabel>
-              <TextField {...register("per_bach", { required: "Percentage is required" })} error={!!errors.per_bach} />
-              {errors.per_bach && <span style={{ color: "red" }}>{errors.per_bach.message}</span>}
-            </Grid>
-              <Grid item xs={12}>MASTER DEGREE</Grid>
-              <Grid item xs={6} sm={3}>
-              <InputLabel
-                sx={{
-                  textAlign:"left",
-                  fontWeight: 700
-                }}
-              >
-                Course Name
-              </InputLabel>
-                <TextField
-                  id="course_name_mas"
-                  {...register("cource_mas")}
-                >
-                </TextField>
-            </Grid>
-            <Grid item xs={6} sm={3}>
-              <InputLabel
-                sx={{
-                  textAlign:"left",
-                  fontWeight: 700
-                }}
-              >
-                University
-              </InputLabel>
-                <TextField
-                  id="uni_mas"
-                  {...register("uni_mas")}
-                >
-                </TextField>
-            </Grid>
-            <Grid item xs={6} sm={3}>
-              <InputLabel
-                sx={{
-                  textAlign:"left",
-                  fontWeight: 700
-                }}
-              >
-                passing Year
-              </InputLabel>
-                <TextField
-                  id="pass_year_mas"
-                  {...register("pass_year_mas")}
-                >
-                </TextField>
-            </Grid>
-            <Grid item xs={6} sm={3}>
-            <InputLabel
-                sx={{
-                  textAlign:"left",
-                  fontWeight: 700
-                }}
-              >
-                Percentage
-              </InputLabel>
-                <TextField
-                  id="per_mas"
-                  {...register("per_mas")}
-                >
-                </TextField>
-              </Grid>
-            <Grid item xs={12} sm={6} />
-            <Grid item xs={12} sm={5} />
-            <Grid item xs={12} sm={4}>
-              <Button onClick={previous} variant="contained" sx={{marginRight:5 }}>
-                Previous
-              </Button>
-              <Button type="submit" variant="contained" >
-                NEXT
-              </Button>
-              </Grid>
-          </Grid>
-        </Box>
-      </Paper>
-    </React.Fragment>
-  );
-};
-
-export default Step2;import * as React from 'react';
-import { SxProps } from '@mui/system';
-import { OverridableStringUnion } from '@mui/types';
-import { InternalStandardProps as StandardProps } from '..';
-import { FormControlProps } from '../FormControl';
-import { FormHelperTextProps } from '../FormHelperText';
-import { InputBaseProps } from '../InputBase';
-import { InputProps as StandardInputProps } from '../Input';
-import { FilledInputProps } from '../FilledInput';
-import { OutlinedInputProps } from '../OutlinedInput';
-import { InputLabelProps } from '../InputLabel';
-import { SelectProps } from '../Select';
-import { Theme } from '../styles';
-import { TextFieldClasses } from './textFieldClasses';
-
-export interface TextFieldPropsColorOverrides {}
-export interface TextFieldPropsSizeOverrides {}
-
-export interface BaseTextFieldProps
-  extends StandardProps<
-    FormControlProps,
-    // event handlers are declared on derived interfaces
-    'onChange' | 'onBlur' | 'onFocus' | 'defaultValue'
-  > {
-  /**
-   * This prop helps users to fill forms faster, especially on mobile devices.
-   * The name can be confusing, as it's more like an autofill.
-   * You can learn more about it [following the specification](https://html.spec.whatwg.org/multipage/form-control-infrastructure.html#autofill).
-   */
-  autoComplete?: string;
-  /**
-   * If `true`, the `input` element is focused during the first mount.
-   * @default false
-   */
-  autoFocus?: boolean;
-  /**
-   * @ignore
-   */
-  children?: FormControlProps['children'];
-  /**
-   * Override or extend the styles applied to the component.
-   */
-  classes?: Partial<TextFieldClasses>;
-  /**
-   * The color of the component.
-   * It supports both default and custom theme colors, which can be added as shown in the
-   * [palette customization guide](https://mui.com/material-ui/customization/palette/#custom-colors).
-   * @default 'primary'
-   */
-  color?: OverridableStringUnion<
-    'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning',
-    TextFieldPropsColorOverrides
-  >;
-  /**
-   * The default value. Use when the component is not controlled.
-   */
-  defaultValue?: unknown;
-  /**
-   * If `true`, the component is disabled.
-   * @default false
-   */
-  disabled?: boolean;
-  /**
-   * If `true`, the label is displayed in an error state.
-   * @default false
-   */
-  error?: boolean;
-  /**
-   * Props applied to the [`FormHelperText`](/material-ui/api/form-helper-text/) element.
-   */
-  FormHelperTextProps?: Partial<FormHelperTextProps>;
-  /**
-   * If `true`, the input will take up the full width of its container.
-   * @default false
-   */
-  fullWidth?: boolean;
-  /**
-   * The helper text content.
-   */
-  helperText?: React.ReactNode;
-  /**
-   * The id of the `input` element.
-   * Use this prop to make `label` and `helperText` accessible for screen readers.
-   */
-  id?: string;
-  /**
-   * Props applied to the [`InputLabel`](/material-ui/api/input-label/) element.
-   * Pointer events like `onClick` are enabled if and only if `shrink` is `true`.
-   */
-  InputLabelProps?: Partial<InputLabelProps>;
-  /**
-   * [Attributes](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input#Attributes) applied to the `input` element.
-   */
-  inputProps?: InputBaseProps['inputProps'];
-  /**
-   * Pass a ref to the `input` element.
-   */
-  inputRef?: React.Ref<any>;
-  /**
-   * The label content.
-   */
-  label?: React.ReactNode;
-  /**
-   * If `true`, a `textarea` element is rendered instead of an input.
-   * @default false
-   */
-  multiline?: boolean;
-  /**
-   * Name attribute of the `input` element.
-   */
-  name?: string;
-  onBlur?: InputBaseProps['onBlur'];
-  onFocus?: StandardInputProps['onFocus'];
-  /**
-   * The short hint displayed in the `input` before the user enters a value.
-   */
-  placeholder?: string;
-  /**
-   * If `true`, the label is displayed as required and the `input` element is required.
-   * @default false
-   */
-  required?: boolean;
-  /**
-   * Number of rows to display when multiline option is set to true.
-   */
-  rows?: string | number;
-  /**
-   * Maximum number of rows to display when multiline option is set to true.
-   */
-  maxRows?: string | number;
-  /**
-   * Minimum number of rows to display when multiline option is set to true.
-   */
-  minRows?: string | number;
-  /**
-   * Render a [`Select`](/material-ui/api/select/) element while passing the Input element to `Select` as `input` parameter.
-   * If this option is set you must pass the options of the select as children.
-   * @default false
-   */
-  select?: boolean;
-  /**
-   * Props applied to the [`Select`](/material-ui/api/select/) element.
-   */
-  SelectProps?: Partial<SelectProps>;
-  /**
-   * The size of the component.
-   */
-  size?: OverridableStringUnion<'small' | 'medium', TextFieldPropsSizeOverrides>;
-  /**
-   * The system prop that allows defining system overrides as well as additional CSS styles.
-   */
-  sx?: SxProps<Theme>;
-  /**
-   * Type of the `input` element. It should be [a valid HTML5 input type](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input#Form_%3Cinput%3E_types).
-   */
-  type?: React.InputHTMLAttributes<unknown>['type'];
-  /**
-   * The value of the `input` element, required for a controlled component.
-   */
-  value?: unknown;
-}
-
-export interface StandardTextFieldProps extends BaseTextFieldProps {
-  /**
-   * Callback fired when the value is changed.
-   *
-   * @param {object} event The event source of the callback.
-   * You can pull out the new value by accessing `event.target.value` (string).
-   */
-  onChange?: StandardInputProps['onChange'];
-  /**
-   * The variant to use.
-   * @default 'outlined'
-   */
-  variant?: 'standard';
-  /**
-   * Props applied to the Input element.
-   * It will be a [`FilledInput`](/material-ui/api/filled-input/),
-   * [`OutlinedInput`](/material-ui/api/outlined-input/) or [`Input`](/material-ui/api/input/)
-   * component depending on the `variant` prop value.
-   */
-  InputProps?: Partial<StandardInputProps>;
-}
-
-export interface FilledTextFieldProps extends BaseTextFieldProps {
-  /**
-   * Callback fired when the value is changed.
-   *
-   * @param {object} event The event source of the callback.
-   * You can pull out the new value by accessing `event.target.value` (string).
-   */
-  onChange?: FilledInputProps['onChange'];
-  /**
-   * The variant to use.
-   * @default 'outlined'
-   */
-  variant: 'filled';
-  /**
-   * Props applied to the Input element.
-   * It will be a [`FilledInput`](/material-ui/api/filled-input/),
-   * [`OutlinedInput`](/material-ui/api/outlined-input/) or [`Input`](/material-ui/api/input/)
-   * component depending on the `variant` prop value.
-   */
-  InputProps?: Partial<FilledInputProps>;
-}
-
-export interface OutlinedTextFieldProps extends BaseTextFieldProps {
-  /**
-   * Callback fired when the value is changed.
-   *
-   * @param {object} event The event source of the callback.
-   * You can pull out the new value by accessing `event.target.value` (string).
-   */
-  onChange?: OutlinedInputProps['onChange'];
-  /**
-   * The variant to use.
-   * @default 'outlined'
-   */
-  variant: 'outlined';
-  /**
-   * Props applied to the Input element.
-   * It will be a [`FilledInput`](/material-ui/api/filled-input/),
-   * [`OutlinedInput`](/material-ui/api/outlined-input/) or [`Input`](/material-ui/api/input/)
-   * component depending on the `variant` prop value.
-   */
-  InputProps?: Partial<OutlinedInputProps>;
-}
-
-export type TextFieldVariants = 'outlined' | 'standard' | 'filled';
-
-export type TextFieldProps<Variant extends TextFieldVariants = TextFieldVariants> =
-  Variant extends 'filled'
-    ? FilledTextFieldProps
-    : Variant extends 'standard'
-      ? StandardTextFieldProps
-      : OutlinedTextFieldProps;
-
-/**
- * The `TextField` is a convenience wrapper for the most common cases (80%).
- * It cannot be all things to all people, otherwise the API would grow out of control.
- *
- * ## Advanced Configuration
- *
- * It's important to understand that the text field is a simple abstraction
- * on top of the following components:
- *
- * *   [FormControl](https://mui.com/material-ui/api/form-control/)
- * *   [InputLabel](https://mui.com/material-ui/api/input-label/)
- * *   [FilledInput](https://mui.com/material-ui/api/filled-input/)
- * *   [OutlinedInput](https://mui.com/material-ui/api/outlined-input/)
- * *   [Input](https://mui.com/material-ui/api/input/)
- * *   [FormHelperText](https://mui.com/material-ui/api/form-helper-text/)
- *
- * If you wish to alter the props applied to the `input` element, you can do so as follows:
- *
- * ```jsx
- * const inputProps = {
- *   step: 300,
- * };
- *
- * return <TextField id="time" type="time" inputProps={inputProps} />;
- * ```
- *
- * For advanced cases, please look at the source of TextField by clicking on the
- * "Edit this page" button above. Consider either:
- *
- * *   using the upper case props for passing values directly to the components
- * *   using the underlying components directly as shown in the demos
- *
- * Demos:
- *
- * - [Autocomplete](https://mui.com/material-ui/react-autocomplete/)
- * - [Text Field](https://mui.com/material-ui/react-text-field/)
- *
- * API:
- *
- * - [TextField API](https://mui.com/material-ui/api/text-field/)
- * - inherits [FormControl API](https://mui.com/material-ui/api/form-control/)
- */
-export default function TextField<Variant extends TextFieldVariants>(
-  props: {
-    /**
-     * The variant to use.
-     * @default 'outlined'
-     */
-    variant?: Variant;
-  } & Omit<TextFieldProps, 'variant'>,
-): JSX.Element;
-import * as React from "react";
-import { useForm, SubmitHandler } from "react-hook-form";
-import Grid from "@mui/material/Grid";
-import Typography from "@mui/material/Typography";
-import TextField from "@mui/material/TextField";
-import Box from "@mui/material/Box";
-import Paper from "@mui/material/Paper";
-import InputLabel from "@mui/material/InputLabel";
-import Button from "@mui/material/Button";
-import IconButton from "@mui/material/IconButton";
-import AddIcon from "@mui/icons-material/Add";
-import RemoveIcon from "@mui/icons-material/Remove";
+import IconButton from '@mui/material/IconButton';
+import AddIcon from '@mui/icons-material/Add';
+import RemoveIcon from '@mui/icons-material/Remove';
 
 interface Step3Props {
   onNext: (data: Step3Data) => void;
   initialValues: Step3Data;
-  onPrev: () => void;
+  onPrev: (data: Step3Data) => void;
+}
+
+interface WorkExperience {
+  company_name: string;
+  designation: string;
+  from_date: string;
+  to_date: string;
 }
 
 interface Step3Data {
-  company_name: string[];
-  designation: string[];
-  from_date: Date[];
-  to_date: Date[];
+  work_experience: WorkExperience[];
 }
 
 const Step3: React.FC<Step3Props> = ({ onNext, initialValues, onPrev }) => {
-  const { register, handleSubmit, control, formState: { errors }, getValues } = useForm<Step3Data>({
-    defaultValues: initialValues
+  const { register, handleSubmit, control, getValues } = useForm<Step3Data>({ defaultValues: initialValues });
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "work_experience",
   });
-
-  const [workExperiences, setWorkExperiences] = React.useState(initialValues.company_name.length > 0 ? initialValues.company_name.map((_, index) => index) : [0]);
-
-  const addRow = () => {
-    setWorkExperiences([...workExperiences, workExperiences.length]);
-  };
-
-  const removeRow = (index: number) => {
-    setWorkExperiences(workExperiences.filter((_, i) => i !== index));
-  };
 
   const onSubmit: SubmitHandler<Step3Data> = data => {
     onNext(data);
+  };
+
+  const handlePrevious = () => {
+    const data = getValues();
+    onPrev(data);
   };
 
   return (
@@ -892,67 +51,63 @@ const Step3: React.FC<Step3Props> = ({ onNext, initialValues, onPrev }) => {
           <Typography variant="h6" gutterBottom sx={{ paddingBottom: 5 }}>
             WORK EXPERIENCE
           </Typography>
-          <Grid container spacing={2}>
-            {workExperiences.map((index) => (
-              <React.Fragment key={index}>
-                <Grid item xs={12} sm={3}>
-                  <InputLabel>Company Name</InputLabel>
-                  <TextField
-                    {...register(`company_name.${index}` as const)}
-                    fullWidth
-                    error={!!errors.company_name?.[index]}
-                  />
-                </Grid>
-                <Grid item xs={12} sm={3}>
-                  <InputLabel>Designation</InputLabel>
-                  <TextField
-                    {...register(`designation.${index}` as const)}
-                    fullWidth
-                    error={!!errors.designation?.[index]}
-                  />
-                </Grid>
-                <Grid item xs={12} sm={3}>
-                  <InputLabel>From</InputLabel>
-                  <TextField
-                    type="date"
-                    {...register(`from_date.${index}` as const)}
-                    fullWidth
-                    error={!!errors.from_date?.[index]}
-                  />
-                </Grid>
-                <Grid item xs={12} sm={3}>
-                  <InputLabel>To</InputLabel>
-                  <TextField
-                    type="date"
-                    {...register(`to_date.${index}` as const)}
-                    fullWidth
-                    error={!!errors.to_date?.[index]}
-                  />
-                </Grid>
-                <Grid item xs={12} sm={3}>
-                  <IconButton onClick={() => removeRow(index)}>
-                    <RemoveIcon />
-                  </IconButton>
-                  {index === workExperiences.length - 1 && (
-                    <IconButton onClick={addRow}>
-                      <AddIcon />
-                    </IconButton>
-                  )}
-                </Grid>
-              </React.Fragment>
-            ))}
+          {fields.map((item, index) => (
+            <Grid container spacing={1} key={item.id}>
+              <Grid item xs={6} sm={3}>
+                <InputLabel sx={{ textAlign: "left", fontWeight: 700 }}>
+                  Company Name
+                </InputLabel>
+                <TextField
+                  {...register(`work_experience.${index}.company_name`)}
+                  defaultValue={item.company_name}
+                />
+              </Grid>
+              <Grid item xs={6} sm={3}>
+                <InputLabel sx={{ textAlign: "left", fontWeight: 700 }}>
+                  Designation
+                </InputLabel>
+                <TextField
+                  {...register(`work_experience.${index}.designation`)}
+                  defaultValue={item.designation}
+                />
+              </Grid>
+              <Grid item xs={6} sm={3}>
+                <InputLabel sx={{ textAlign: "left", fontWeight: 700 }}>
+                  From
+                </InputLabel>
+                <TextField
+                  {...register(`work_experience.${index}.from_date`)}
+                  defaultValue={item.from_date}
+                />
+              </Grid>
+              <Grid item xs={6} sm={3}>
+                <InputLabel sx={{ textAlign: "left", fontWeight: 700 }}>
+                  To
+                </InputLabel>
+                <TextField
+                  {...register(`work_experience.${index}.to_date`)}
+                  defaultValue={item.to_date}
+                />
+              </Grid>
+              <Grid item xs={12} sm={1}>
+                <IconButton onClick={() => remove(index)}>
+                  <RemoveIcon />
+                </IconButton>
+              </Grid>
+            </Grid>
+          ))}
+          <Grid item xs={12} sm={4}>
+            <Button onClick={handlePrevious} variant="contained" sx={{ marginRight: 5 }}>
+              Previous
+            </Button>
+            <Button type="submit" variant="contained">
+              NEXT
+            </Button>
           </Grid>
-          <Grid container spacing={2} justifyContent="flex-end" sx={{ marginTop: 3 }}>
-            <Grid item>
-              <Button onClick={onPrev} variant="contained">
-                Previous
-              </Button>
-            </Grid>
-            <Grid item>
-              <Button type="submit" variant="contained">
-                NEXT
-              </Button>
-            </Grid>
+          <Grid item xs={12} sm={4}>
+            <Button onClick={() => append({ company_name: "", designation: "", from_date: "", to_date: "" })} variant="contained" startIcon={<AddIcon />}>
+              Add Work Experience
+            </Button>
           </Grid>
         </Box>
       </Paper>
@@ -961,63 +116,3 @@ const Step3: React.FC<Step3Props> = ({ onNext, initialValues, onPrev }) => {
 };
 
 export default Step3;
-
-import React, { useState } from 'react';
-import BasicForm from './components/BasicDetails'
-import EducationForm from './components/EducationDetails'
-import WorkExpForm from './components/WorkExp'
-import TechlanForm from './components/Tech_Lan'
-import PreferenceForm from './components/Preferences'
-import {formdata} from './services/interfaces'
-import {BasicDetail_initials} from './services/constValues'
-import { BasicDetail_interface } from './services/interfaces';
-import { EducationDetail_initials } from './services/constValues';
-import { EducationDetails } from './services/interfaces';
-
-const MultiStepForm: React.FC = () => {
-  const [step, setStep] = useState(1);
-  const [formData, setFormData] = useState<formdata>({});
-
-  const [basicDetails, setBasicDetails] = useState<BasicDetail_interface>(BasicDetail_initials);
-  const [educationdetail,setEducationDetail] = useState<EducationDetails>(EducationDetail_initials);
-  
-  const handleNext = (data: any) => {
-    if (step === 1) {
-        setBasicDetails(data)
-    }
-    else if( step === 2){
-      setEducationDetail(data);
-    }
-    setFormData(prev => ({ ...prev, ...data }));
-    setStep(prev => prev + 1);
-  };
-
-  const handlePrevious = (data:any) => {
-    if (step === 1) {
-      setBasicDetails(data)
-  }
-  else if( step === 2){
-    setEducationDetail(data);
-  }
-      setStep(prev => prev - 1);
-      setFormData({});
-  }
-
-  const handleFinalSubmit = (data: any) => {
-    const finalData = { ...formData, ...data };
-    localStorage.setItem('formData', JSON.stringify(finalData));
-    alert('Form Submitted!');
-  };
-
-  return (
-    <div>
-      {step === 1 && <BasicForm onNext={handleNext} initialValues={basicDetails} />}
-      {step === 2 && <EducationForm onNext={handleNext} initialValues={educationdetail} onPrev={handlePrevious} />}
-      {step === 3 && <WorkExpForm initialValues={formData} onNext={handleNext} />}
-      {/* {step === 4 && <TechlanForm initialValues={formData} onPrev={handlePrevious} onNext={handleNext} />}
-      {step === 5 && <PreferenceForm initialValues={formData} onPrev={handlePrevious} onSubmit={handleFinalSubmit} />} */}
-    </div>
-  );
-};
-
-export default MultiStepForm;
