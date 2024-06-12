@@ -1,4 +1,942 @@
 import * as React from "react";
+import { useForm, SubmitHandler, Controller } from "react-hook-form";
+import { useState,useEffect } from "react";
+import Grid from "@mui/material/Grid";
+import Typography from "@mui/material/Typography";
+import TextField from "@mui/material/TextField";
+import Box from "@mui/material/Box";
+import Paper from "@mui/material/Paper";
+import InputLabel from "@mui/material/InputLabel";
+import MenuItem from "@mui/material/MenuItem";
+import FormControl from "@mui/material/FormControl";
+import Select from "@mui/material/Select";
+import Button from "@mui/material/Button";
+import { states } from '../services/constValues';
+import { formdata } from "../services/interfaces";
+
+interface BasicProps {
+  onNext: (data: formdata) => void;
+  initialValues: formdata;
+}
+
+const Step1: React.FC<BasicProps> = ({ onNext, initialValues }) => {
+  const { register, handleSubmit, control,reset, formState: { errors } } = useForm<formdata>({
+    defaultValues: initialValues,
+  });
+
+  useEffect(() => {
+    reset(initialValues); // Reset the form with initial values
+  }, [initialValues, reset]);
+  
+  const todayDate = new Date().toISOString().split("T")[0];
+  const onSubmit: SubmitHandler<formdata> = data => {
+    onNext(data);
+  };
+  return (
+    <React.Fragment>
+      <Paper elevation={3} sx={{ marginRight: "15%", marginLeft: "15%" }}>
+        <Box component="form" onSubmit={handleSubmit(onSubmit)} sx={{ padding: 5 }}>
+          <Typography variant="h6" gutterBottom sx={{ paddingBottom: 5 }}>
+            BASIC DETAILS
+          </Typography>
+          <Grid container spacing={3}>
+            <Grid item xs={12} sm={2}>
+              <InputLabel
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  fontWeight: 700
+                }}
+              >
+                First Name
+              </InputLabel>
+            </Grid>
+            <Grid item xs={12} sm={4}>
+              <Controller
+                control={control}
+                name="fname"
+                rules={{ required: "First name is required",pattern:{value:/^[a-zA-Z]+$/,message:"invalida input"} }}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    fullWidth
+                    sx={{ maxWidth: 600 }}
+                    label="First Name"
+                    margin="dense"
+                    error={!!errors.fname}
+                    helperText={errors.fname ? errors.fname.message : null}
+                  />
+                )}
+              />
+            </Grid>
+            <Grid item xs={12} sm={2}>
+              <InputLabel
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  fontWeight: 700
+                }}
+              >
+                Last Name
+              </InputLabel>
+            </Grid>
+            <Grid item xs={12} sm={4}>
+              <Controller
+                control={control}
+                name="lname"
+                rules={{ required: "Last name is required",pattern:{value:/^[a-zA-Z]+$/,message:"invalida input"} }}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    fullWidth
+                    sx={{ maxWidth: 600 }}
+                    label="Last Name"
+                    margin="dense"
+                    error={!!errors.lname}
+                    helperText={errors.lname ? errors.lname.message : null}
+                  />
+                )}
+              />
+            </Grid>
+            <Grid item xs={12} sm={2}>
+              <InputLabel
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  fontWeight: 700
+                }}
+              >
+                Designation
+              </InputLabel>
+            </Grid>
+            <Grid item xs={12} sm={4}>
+              <FormControl fullWidth size="small">
+                <TextField
+                  {...register("designation", { required: "Designation is required" })}
+                  id="Designation"
+                  label="Designation"
+                  error={!!errors.designation}
+                  helperText={errors.designation ? errors.designation.message : null}
+                />
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} sm={2} />
+            <Grid item xs={12} sm={4} />
+            <Grid item xs={12} sm={2}>
+              <InputLabel
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  fontWeight: 700
+                }}
+              >
+                Address 1
+              </InputLabel>
+            </Grid>
+            <Grid item xs={12} sm={4}>
+              <FormControl fullWidth size="small">
+                <TextField
+                  id="add1"
+                  {...register("add1", { required: "Address 1 is required" })}
+                  label="plot no:123,down street,..."
+                  error={!!errors.add1}
+                  helperText={errors.add1 ? errors.add1.message : null}
+                />
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} sm={2}>
+              <InputLabel
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  fontWeight: 700
+                }}
+              >
+                Address 2
+              </InputLabel>
+            </Grid>
+            <Grid item xs={12} sm={4}>
+              <TextField
+                
+                id="add2"
+                {...register("add2", { required: "Address 2 is required" })}
+                label="plot no:567,war street,..."
+                fullWidth
+                error={!!errors.add2}
+                helperText={errors.add2 ? errors.add2.message : null}
+              />
+            </Grid>
+            {/*--------------------------mail phno --------------------------- */}
+            <Grid item xs={12} sm={2}>
+              <InputLabel
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  fontWeight: 700
+                }}
+              >
+                Email
+              </InputLabel>
+            </Grid>
+            <Grid item xs={12} sm={4}>
+              <FormControl fullWidth size="small">
+                <TextField
+                  
+                  type="email"
+                  id="mail"
+                  {...register("email", { required: "Email is required", pattern: { value: /^\S+@\S+\.\S+$/, message: "Enter a valid email address" } })}
+                  label="abc@gmail.com"
+                  error={!!errors.email}
+                  helperText={errors.email ? errors.email.message : null}
+                />
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} sm={2}>
+              <InputLabel
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  fontWeight: 700
+                }}
+              >
+                Phone Number
+              </InputLabel>
+            </Grid>
+            <Grid item xs={12} sm={4}>
+              <TextField
+                
+                type="tel"
+                id="phno"
+                {...register("phno", { required: "Phone number is required", pattern: { value: /^[6789]\d{9}$/, message: "Enter a valid 10-digit phone number starting with 6,7, 8, or 9" } })}
+                label="XXXXXXXXXX"
+                fullWidth
+                error={!!errors.phno}
+                helperText={errors.phno ? errors.phno.message : null}
+              />
+            </Grid>
+            {/*------------------------city state ----------------------*/}
+            <Grid item xs={12} sm={2}>
+              <InputLabel
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  fontWeight: 700
+                }}
+              >
+                State
+              </InputLabel>
+            </Grid>
+            <Grid item xs={12} sm={4}>
+            <Controller
+                name="state"
+                control={control}
+                rules={{ required: "Passing Year is required" }}
+                render={({ field }) => (
+                  <FormControl fullWidth>
+                    <InputLabel id="year-label">Year</InputLabel>
+                    <Select
+                      labelId="year-label"
+                      id="year"
+                      label="Year"
+                      {...field}
+                      error={!!errors.state}
+                    >
+                      {states.map((st) => (
+                        <MenuItem key={st} value={st}>
+                          {st}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                    {errors.state && (
+                      <span style={{ color: "#d32f2f", fontSize: "0.75rem", padding: "0.2rem", fontWeight: "400" }}>{errors.state.message}</span>
+                    )}
+                  </FormControl>
+                )}
+              />
+            </Grid>
+            <Grid item xs={12} sm={2}>
+              <InputLabel
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  fontWeight: 700
+                }}
+              >
+                City
+              </InputLabel>
+            </Grid>
+            <Grid item xs={12} sm={4}>
+              <TextField
+                
+                id="city"
+                {...register("city", { required: "City is required" })}
+                label="City"
+                fullWidth
+                size="small"
+                autoComplete="off"
+                variant="outlined"
+                error={!!errors.city}
+                helperText={errors.city ? errors.city.message : null}
+              />
+            </Grid>
+            <Grid item xs={12} sm={2}>
+              <InputLabel
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  fontWeight: 700
+                }}
+              >
+                Gender
+              </InputLabel>
+            </Grid>
+            <Grid item xs={12} sm={4}>
+              <Grid item xs={12} sm={8}>
+                Female
+                <input {...register("gender", { required: "Gender is required" })} type="radio" value="female" />
+                Male <input {...register("gender", { required: "Gender is required" })} type="radio" value="male" />
+                Other <input {...register("gender", { required: "Gender is required" })} type="radio" value="other" />
+              </Grid>
+              {errors.gender && (
+                <span style={{ color: "red" }}>{errors.gender.message}</span>
+              )}
+            </Grid>
+            <Grid item xs={12} sm={2}>
+              <InputLabel
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  fontWeight: 700
+                }}
+              >
+                DOB
+              </InputLabel>
+            </Grid>
+            <Grid item xs={12} sm={4}>
+              <TextField
+                id="date"
+                label="Birthday"
+                type="date"
+                {...register("dob", { required: "Date of Birth is required" })}
+                InputLabelProps={{
+                  shrink: true,
+                }}
+                inputProps={{
+                  max: todayDate,
+                }}
+                error={!!errors.dob}
+                helperText={errors.dob ? errors.dob.message : null}
+              />
+            </Grid>
+
+            <Grid item xs={12} sm={6} />
+            <Grid item xs={12} sm={5} />
+            <Grid item xs={12} sm={4}>
+              <Button type="submit" variant="contained" sx={{ color: "#ff781f" }}>
+                NEXT
+              </Button>
+            </Grid>
+            <Grid item xs={12} sm={5} />
+          </Grid>
+        </Box>
+      </Paper>
+    </React.Fragment>
+  );
+};
+
+export default Step1;
+
+import * as React from "react";
+import { useEffect } from "react";
+import { useForm, SubmitHandler, Controller } from "react-hook-form";
+import Grid from "@mui/material/Grid";
+import Typography from "@mui/material/Typography";
+import TextField from "@mui/material/TextField";
+import Box from "@mui/material/Box";
+import Paper from "@mui/material/Paper";
+import InputLabel from "@mui/material/InputLabel";
+import Button from "@mui/material/Button";
+import MenuItem from "@mui/material/MenuItem";
+import Select from "@mui/material/Select";
+import FormControl from "@mui/material/FormControl";
+import { getValue } from "@testing-library/user-event/dist/utils";
+import { formdata } from "../services/interfaces";
+
+interface EduProps {
+  onNext: (data: formdata) => void;
+  initialValues: formdata;
+  onPrev: (data: formdata) => void;
+}
+
+
+const Step2: React.FC<EduProps> = ({ onNext, initialValues, onPrev }) => {
+  const { register, handleSubmit,reset, control, getValues, formState: { errors } } = useForm<formdata>({
+    defaultValues: initialValues
+  });
+
+  const years = Array.from({ length: 30 }, (_, index) => new Date().getFullYear() - index);
+
+  const handlePrevious = () => {
+    const data = getValues();
+    onPrev(data);
+  }
+  const onSubmit: SubmitHandler<formdata> = data => {
+    onNext(data);
+  };
+  return (
+    <React.Fragment>
+      <Paper elevation={3} sx={{ marginRight: "10%", marginLeft: "10%" }}>
+        <Box component="form" onSubmit={handleSubmit(onSubmit)} sx={{ padding: 5 }}>
+          <Typography variant="h6" gutterBottom sx={{ paddingBottom: 5 }}>
+            EDUCATION DETAILS
+          </Typography>
+          <Grid container spacing={1}>
+            <Grid item xs={12}>SSC</Grid>
+            <Grid item xs={6} sm={3}>
+              <InputLabel>Name of Board</InputLabel>
+              <TextField {...register("nob_ssc", { required: "Name of Board is required" })} error={!!errors.nob_ssc} helperText={errors.nob_ssc && errors.nob_ssc.message} />
+            </Grid>
+            <Grid item xs={6} sm={3}>
+              <InputLabel>Passing Year</InputLabel>
+              <Controller
+                name="pass_year_ssc"
+                control={control}
+                rules={{ required: "Passing Year is required" }}
+                render={({ field }) => (
+                  <FormControl fullWidth>
+                    <InputLabel id="year-label">Year</InputLabel>
+                    <Select
+                      labelId="year-label"
+                      id="year"
+                      label="Year"
+                      {...field}
+                      error={!!errors.pass_year_ssc}
+                    >
+                      {years.map((year) => (
+                        <MenuItem key={year} value={year}>
+                          {year}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                    {errors.pass_year_ssc && (
+                      <span style={{ color: "#d32f2f", fontSize: "0.75rem", padding: "0.2rem", fontWeight: "400" }}>{errors.pass_year_ssc.message}</span>
+                    )}
+                  </FormControl>
+                )}
+              />
+            </Grid>
+            <Grid item xs={6} sm={3}>
+              <InputLabel>Percentage</InputLabel>
+              <TextField placeholder="XX or XX.XX" {...register("per_ssc", { required: "Percentage is required",pattern:{value:/^([1-9][0-9]?|([1-9][0-9])?\.[0-9]{1,2})$/,message:"invalid input"} })} error={!!errors.per_ssc} helperText={errors.per_ssc && errors.per_ssc.message} />
+            </Grid>
+            {/* HSC */}
+            <Grid item xs={12}>HSC</Grid>
+            <Grid item xs={6} sm={3}>
+              <InputLabel>Name of Board</InputLabel>
+              <TextField {...register("nob_hsc", { required: "Name of Board is required" })} error={!!errors.nob_hsc} helperText={errors.nob_hsc && errors.nob_hsc.message} />
+            </Grid>
+            <Grid item xs={6} sm={3}>
+              <InputLabel>Passing Year</InputLabel>
+              <Controller
+                name="pass_year_hsc"
+                control={control}
+                rules={{ required: "Passing Year is required" }}
+                render={({ field }) => (
+                  <FormControl fullWidth>
+                    <InputLabel id="year-label">Year</InputLabel>
+                    <Select
+                      labelId="year-label"
+                      id="year"
+                      label="Year"
+                      {...field}
+                      error={!!errors.pass_year_hsc}
+                    >
+                      {years.map((year) => (
+                        <MenuItem key={year} value={year}>
+                          {year}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                    {errors.pass_year_hsc && (
+                      <span style={{ color: "#d32f2f", fontSize: "0.75rem", padding: "0.2rem", fontWeight: "400" }}>{errors.pass_year_hsc.message}</span>
+                    )}
+                  </FormControl>
+                )}
+              />
+            </Grid>
+            <Grid item xs={6} sm={3}>
+              <InputLabel>Percentage</InputLabel>
+              <TextField placeholder="XX or XX.XX" {...register("per_hsc", { required: "Percentage is required",pattern:{value:/^([1-9][0-9]?|([1-9][0-9])?\.[0-9]{1,2})$/,message:"invalid input\ "} })} error={!!errors.per_hsc} helperText={errors.per_hsc && errors.per_hsc.message} />
+            </Grid>
+            {/* Bachelor's */}
+            <Grid item xs={12}>BACHELOR DEGREE</Grid>
+            <Grid item xs={6} sm={3}>
+              <InputLabel>Course Name</InputLabel>
+              <TextField {...register("cource_bach", { required: "Course Name is required" })} error={!!errors.cource_bach} helperText={errors.cource_bach && errors.cource_bach.message} />
+            </Grid>
+            <Grid item xs={6} sm={3}>
+              <InputLabel>University</InputLabel>
+              <TextField {...register("uni_bach", { required: "University is required" })} error={!!errors.uni_bach} helperText={errors.uni_bach && errors.uni_bach.message} />
+            </Grid>
+            <Grid item xs={6} sm={3}>
+              <InputLabel>Passing Year</InputLabel>
+              <Controller
+                name="pass_year_bach"
+                control={control}
+                rules={{ required: "Passing Year is required" }}
+                render={({ field }) => (
+                  <FormControl fullWidth>
+                    <InputLabel id="year-label">Year</InputLabel>
+                    <Select
+                      labelId="year-label"
+                      id="year"
+                      label="Year"
+                      {...field}
+                      error={!!errors.pass_year_bach}
+                    >
+                      {years.map((year) => (
+                        <MenuItem key={year} value={year}>
+                          {year}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                    {errors.pass_year_bach && (
+                      <span style={{ color: "#d32f2f", fontSize: "0.75rem", padding: "0.2rem", fontWeight: "400" }}>{errors.pass_year_bach.message}</span>
+                    )}
+                  </FormControl>
+                )}
+              />
+            </Grid>
+            <Grid item xs={6} sm={3}>
+              <InputLabel>Percentage</InputLabel>
+              <TextField placeholder="XX or XX.XX" {...register("per_bach", { required: "Percentage is required",pattern:{value:/^([1-9][0-9]?|([1-9][0-9])?\.[0-9]{1,2})$/,message:"invalid input\ "} })} error={!!errors.per_bach} helperText={errors.per_bach && errors.per_bach.message} />
+            </Grid>
+            <Grid item xs={12}>BACHELOR DEGREE</Grid>
+            <Grid item xs={6} sm={3}>
+              <InputLabel>Course Name</InputLabel>
+              <TextField {...register("cource_mas")} />
+            </Grid>
+            <Grid item xs={6} sm={3}>
+              <InputLabel>University</InputLabel>
+              <TextField {...register("uni_mas")} />
+            </Grid>
+            <Grid item xs={6} sm={3}>
+              <InputLabel>Passing Year</InputLabel>
+                  <FormControl fullWidth>
+                    <InputLabel id="year-label">Year</InputLabel>
+                    <Select
+                      labelId="year-label"
+                      id="year"
+                      label="Year"
+                      {...register}
+                      error={!!errors.pass_year_mas}
+                    >
+                      {years.map((year) => (
+                        <MenuItem key={year} value={year}>
+                          {year}
+                        </MenuItem>
+                      ))}
+                    </Select>
+          
+                  </FormControl>
+            </Grid>
+            <Grid item xs={6} sm={3}>
+              <InputLabel>Percentage</InputLabel>
+              <TextField placeholder="XX or XX.XX" {...register("per_mas")}/>
+            </Grid>
+            <Grid item xs={12} sm={6} />
+            <Grid item xs={12} sm={5} />
+            <Grid item xs={12} sm={4}>
+              <Button onClick={handlePrevious} variant="contained" sx={{ marginRight: 5 }}>
+                Previous
+              </Button>
+              <Button type="submit" variant="contained" >
+                NEXT
+              </Button>
+            </Grid>
+          </Grid>
+        </Box>
+      </Paper>
+    </React.Fragment>
+  );
+};
+
+export default Step2;
+
+
+import * as React from "react";
+import { useEffect } from "react";
+import { useForm, Controller } from "react-hook-form";
+import Grid from "@mui/material/Grid";
+import Typography from "@mui/material/Typography";
+import MenuItem from "@mui/material/MenuItem";
+import Box from "@mui/material/Box";
+import Paper from "@mui/material/Paper";
+import InputLabel from "@mui/material/InputLabel";
+import Button from "@mui/material/Button";
+import FormControl from "@mui/material/FormControl";
+import Select from "@mui/material/Select";
+import TextField from "@mui/material/TextField";
+import { formdata } from "../services/interfaces";
+
+interface PrefProps {
+    onSubmit: (data: formdata) => void;
+    initialValues: formdata;
+    onPrev: (data: formdata) => void;
+}
+
+const Pref: React.FC<PrefProps> = ({ onSubmit, initialValues, onPrev }) => {
+    const { register, handleSubmit, reset, getValues, control, formState: { errors } } = useForm<formdata>({ defaultValues: initialValues });
+
+    const handlePrevious = () => {
+        const data = getValues();
+        onPrev(data);
+    };
+
+    useEffect(() => {
+        reset(initialValues); // Reset the form with initial values
+    }, [initialValues, reset]);
+
+    return (
+        <React.Fragment>
+            <Paper elevation={3} sx={{ marginRight: "10%", marginLeft: "10%" }}>
+                <Box component="form" onSubmit={handleSubmit(onSubmit)} sx={{ padding: 5 }}>
+                    <Typography variant="h6" gutterBottom sx={{ paddingBottom: 5 }}>
+                        PREFERENCES
+                    </Typography>
+                    <Grid container spacing={3}>
+                        <Grid item xs={12} sm={2}>
+                            <InputLabel sx={{ display: "flex", justifyContent: "center", fontWeight: 700 }}>
+                                Preferred Location
+                            </InputLabel>
+                        </Grid>
+                        <Grid item xs={12} sm={4}>
+                            <FormControl fullWidth size="small">
+                                <InputLabel id="demo-simple-select-label">State</InputLabel>
+                                <Select labelId="demo-simple-select-label" id="demo-simple-select" label="City" {...register("location")}>
+                                    <MenuItem value="ahmedabad">AHMEDABAD</MenuItem>
+                                    <MenuItem value="gandhinagar">GANDHINAGAR</MenuItem>
+                                    <MenuItem value="bhavnagar">BHAVNAGAR</MenuItem>
+                                    <MenuItem value="rajkot">RAJKOT</MenuItem>
+                                </Select>
+                            </FormControl>
+                        </Grid>
+                        <Grid item xs={12} sm={2} />
+                        <Grid item xs={12} sm={4} />
+                        <Grid item xs={12} sm={2}>
+                            <InputLabel sx={{ display: "flex", justifyContent: "center", fontWeight: 700 }}>
+                                Notice Period
+                            </InputLabel>
+                        </Grid>
+                        <Grid item xs={12} sm={4}>
+                            <TextField id="notice" label="Notice Period" {...register("notice")} />
+                        </Grid>
+                        <Grid item xs={12} sm={2} />
+                        <Grid item xs={12} sm={4} />
+                        <Grid item xs={12} sm={2}>
+                            <InputLabel sx={{ display: "flex", justifyContent: "center", fontWeight: 700 }}>
+                                Expected CTC
+                            </InputLabel>
+                        </Grid>
+                        <Grid item xs={6} sm={3}>
+                            <Controller
+                                control={control}
+                                name="expected_ctc"
+                                rules={{ required: "This field is required", pattern: { value: /^(3\.[6-9]|4\.[0-9]|5\.[0])$/, message: "Enter valid input" }}}
+                                render={({ field }) => (
+                                    <TextField
+                                        {...field}
+                                        placeholder="3.0 to 5.0 lpa"
+                                        fullWidth
+                                        sx={{ maxWidth: 600 }}
+                                        label="Expected CTC"
+                                        margin="dense"
+                                        error={!!errors.expected_ctc}
+                                        helperText={errors.expected_ctc ? errors.expected_ctc.message : null}
+                                    />
+                                )}
+                            />
+                        </Grid>
+                        <Grid item xs={12} sm={2}>
+                            <InputLabel sx={{ display: "flex", justifyContent: "center", fontWeight: 700 }}>
+                                Current CTC
+                            </InputLabel>
+                        </Grid>
+                        <Grid item xs={6} sm={3}>
+                            <TextField id="curr_ctc" label="Current CTC" {...register("curr_ctc")} />
+                        </Grid>
+                        <Grid item xs={6} sm={1} />
+                        <Grid item xs={12} sm={2}>
+                            <InputLabel sx={{ display: "flex", justifyContent: "center", fontWeight: 700 }}>
+                                Preferred Department
+                            </InputLabel>
+                        </Grid>
+                        <Grid item xs={12} sm={4}>
+                            <FormControl fullWidth size="small">
+                                <InputLabel id="deve">Department</InputLabel>
+                                <Select labelId="deve" id="deve" label="Department" {...register("department")}>
+                                    <MenuItem value="development">Development</MenuItem>
+                                    <MenuItem value="marketing">Marketing</MenuItem>
+                                    <MenuItem value="hr">HR</MenuItem>
+                                </Select>
+                            </FormControl>
+                        </Grid>
+                        <Grid item xs={12} sm={6} />
+                        <Grid item xs={12} sm={5} />
+                        <Grid item xs={12} sm={4}>
+                            <Button onClick={handlePrevious} variant="contained" sx={{ marginRight: 5 }}>
+                                Previous
+                            </Button>
+                            <Button type="submit" variant="contained">
+                                SUBMIT
+                            </Button>
+                        </Grid>
+                        <Grid item xs={12} sm={5} />
+                    </Grid>
+                </Box>
+            </Paper>
+        </React.Fragment>
+    );
+};
+
+export default Pref;
+
+
+import * as React from "react";
+import { useForm, SubmitHandler } from "react-hook-form";
+import Grid from "@mui/material/Grid";
+import Typography from "@mui/material/Typography";
+import Checkbox from "@mui/material/Checkbox";
+import Box from "@mui/material/Box";
+import Paper from "@mui/material/Paper";
+import InputLabel from "@mui/material/InputLabel";
+import Button from "@mui/material/Button";
+import { formdata } from "../services/interfaces";
+
+interface TechlanPropes {
+    onNext: (data: formdata) => void;
+    initialValues: formdata;
+    onPrev: (data: formdata) => void;
+}
+const Techlan: React.FC<TechlanPropes> = ({ onNext, initialValues, onPrev }) => {
+    const { register, handleSubmit, getValues, formState: { errors } } = useForm({ defaultValues: initialValues });
+
+    const handlePrevious = () => {
+        const data = getValues();
+        onPrev(data);
+    }
+
+    const onSubmit: SubmitHandler<formdata> = data => {
+        onNext(data);
+    }
+    const Values = getValues();
+    const [tech_check, setTechcheck] = React.useState<Array<boolean|undefined>>([Values.php, Values.php, Values.php, Values.php]);
+    return (
+        <React.Fragment>
+            <Paper elevation={3} sx={{ marginRight: "10%", marginLeft: "10%" }}>
+                <Box component="form" onSubmit={handleSubmit(onSubmit)} sx={{ padding: 5 }}>
+                    <Typography variant="h6" gutterBottom sx={{ paddingBottom: 1 }}>
+                        KNOWN LANGUAGE
+                    </Typography>
+                    <Grid container spacing={1} sx={{ marginBottom: 5, maxWidth: "600px" }}>
+                        <Grid item xs={6} sm={3}>
+                            <InputLabel
+                                sx={{
+                                    fontWeight: 700,
+                                    textAlign: "center"
+                                }}
+                            >
+                                GUJARATI :
+                            </InputLabel>
+                        </Grid>
+                        <Grid item xs={6} sm={3}> Read <Checkbox {...register("guj_read")} defaultChecked={Values.guj_read} /></Grid>
+                        <Grid item xs={6} sm={3}> Write <Checkbox {...register("guj_write")} defaultChecked={Values.guj_write} /></Grid>
+                        <Grid item xs={6} sm={3}> Speak <Checkbox {...register("guj_speak")} defaultChecked={Values.guj_speak} /></Grid>
+
+                        <Grid item xs={6} sm={3}>
+                            <InputLabel
+                                sx={{
+                                    fontWeight: 700,
+                                    textAlign: "center"
+                                }}
+                            >
+                                HINDI :
+                            </InputLabel>
+                        </Grid>
+                        <Grid item xs={6} sm={3}> Read <Checkbox {...register("hin_read")} defaultChecked={Values.hin_read} /></Grid>
+                        <Grid item xs={6} sm={3}> Write <Checkbox {...register("hin_write")} defaultChecked={Values.hin_write} /></Grid>
+                        <Grid item xs={6} sm={3}> Speak <Checkbox {...register("hin_speak")} defaultChecked={Values.hin_speak} /></Grid>
+
+                        <Grid item xs={6} sm={3}>
+                            <InputLabel
+                                sx={{
+                                    fontWeight: 700,
+                                    textAlign: "center"
+                                }}
+                            >
+                                ENGLISH :
+                            </InputLabel>
+                        </Grid>
+                        <Grid item xs={6} sm={3}> Read <Checkbox {...register("eng_read")} defaultChecked={Values.eng_read} /></Grid>
+                        <Grid item xs={6} sm={3}> Write <Checkbox {...register("eng_write")} defaultChecked={Values.eng_write} /></Grid>
+                        <Grid item xs={6} sm={3}> Speak <Checkbox  {...register("eng_speak")} defaultChecked={Values.eng_speak} /></Grid>
+                    </Grid>
+
+                    <Typography variant="h6" gutterBottom sx={{ paddingBottom: 5 }}>
+                        KNOWN TECHNOLOGIES
+                    </Typography>
+                    <Grid container spacing={1} sx={{ marginBottom: 5, maxWidth: "900px" }}>
+                        <Grid item xs={6} sm={3}>
+                            <InputLabel
+                                sx={{
+                                    fontWeight: 700,
+                                    textAlign: "center"
+                                }}
+                            >
+                                <Checkbox {...register("php")} defaultChecked={Values.php} onClick={() => setTechcheck([!tech_check[0], tech_check[1], tech_check[2], tech_check[3]])} />
+                                PHP :
+                            </InputLabel>
+                        </Grid>
+                         <Grid item xs={12} sm={2} sx={{ fontSize: "18px" }}> Begginer <input {...register("php_level",{required:Values.php})} type="radio" value="begginer" disabled={!tech_check[0]} /></Grid>
+                        <Grid item xs={12} sm={2} sx={{ fontSize: "18px" }}> Mediator <input {...register("php_level",{required:Values.php})} type="radio" value="mediator" disabled={!tech_check[0]} /></Grid>
+                        <Grid item xs={12} sm={2} sx={{ fontSize: "18px" }}> Expert <input {...register("php_level",{required:Values.php})} type="radio" value="expert" disabled={!tech_check[0]} /></Grid>
+                        <Grid item xs={12} sm={2}> {errors.php_level && <span style={{color: "#d32f2f", fontSize: "0.75rem", padding: "0.2rem", fontWeight: "400"}}>This field is required</span>} </Grid>
+                    
+
+                        <Grid item xs={6} sm={3}>
+                            <InputLabel
+                                sx={{
+                                    fontWeight: 700,
+                                    textAlign: "center"
+                                }}
+                            >
+                                <Checkbox {...register("mysql")} defaultChecked={Values.mysql} onClick={() => setTechcheck([tech_check[0], !tech_check[1], tech_check[2], tech_check[3]])} />
+                                MYSQL :
+                            </InputLabel>
+                        </Grid>
+                        <Grid item xs={12} sm={2} sx={{ fontSize: "18px" }}> Begginer <input {...register("mysql_level",{required:Values.mysql})} type="radio" value="begginer" disabled={!tech_check[1]} /></Grid>
+                        <Grid item xs={12} sm={2} sx={{ fontSize: "18px" }}> Mediator <input {...register("mysql_level",{required:Values.mysql})} type="radio" value="mediator" disabled={!tech_check[1]} /></Grid>
+                        <Grid item xs={12} sm={2} sx={{ fontSize: "18px" }}> Expert <input {...register("mysql_level",{required:Values.mysql})} type="radio" value="expert" disabled={!tech_check[1]} /></Grid>
+                        <Grid item xs={12} sm={2}> {errors.mysql_level && <span style={{color: "#d32f2f", fontSize: "0.75rem", padding: "0.2rem", fontWeight: "400"}}>This field is required</span>} </Grid>
+
+                        <Grid item xs={6} sm={3}>
+                            <InputLabel
+                                sx={{
+                                    fontWeight: 700,
+                                    textAlign: "center"
+                                }}
+                            >
+                                <Checkbox {...register("laravel")} defaultChecked={Values.laravel} onClick={() => setTechcheck([tech_check[0], tech_check[1], !tech_check[2], tech_check[3]])} />
+                                LARAVEL :
+                            </InputLabel>
+                        </Grid>
+                        <Grid item xs={12} sm={2} sx={{ fontSize: "18px" }}> Begginer <input {...register("laravel_level",{required:Values.laravel})} type="radio" value="begginer" disabled={!tech_check[2]} /></Grid>
+                        <Grid item xs={12} sm={2} sx={{ fontSize: "18px" }}> Mediator <input {...register("laravel_level",{required:Values.laravel})} type="radio" value="mediator" disabled={!tech_check[2]} /></Grid>
+                        <Grid item xs={12} sm={2} sx={{ fontSize: "18px" }}> Expert <input {...register("laravel_level",{required:Values.laravel})} type="radio" value="expert" disabled={!tech_check[2]} /></Grid>
+                        <Grid item xs={12} sm={2}> {errors.laravel_level && <span style={{color: "#d32f2f", fontSize: "0.75rem", padding: "0.2rem", fontWeight: "400"}}>This field is required</span>} </Grid>
+
+                        <Grid item xs={6} sm={3}>
+                            <InputLabel
+                                sx={{
+                                    fontWeight: 700,
+                                    textAlign: "center"
+                                }}
+                            >
+                                <Checkbox {...register("oracle")} defaultChecked={Values.oracle} onClick={() => setTechcheck([tech_check[0], tech_check[1], tech_check[2], !tech_check[3]])} />
+                                ORACLE :
+                            </InputLabel>
+                        </Grid>
+                        <Grid item xs={12} sm={2} sx={{ fontSize: "18px" }}> Begginer <input {...register("oracle_level",{required:Values.oracle})} type="radio" value="begginer" disabled={!tech_check[3]} /></Grid>
+                        <Grid item xs={12} sm={2} sx={{ fontSize: "18px" }}> Mediator <input {...register("oracle_level",{required:Values.oracle})} type="radio" value="mediator" disabled={!tech_check[3]} /></Grid>
+                        <Grid item xs={12} sm={2} sx={{ fontSize: "18px" }}> Expert <input {...register("oracle_level",{required:Values.oracle})} type="radio" value="expert" disabled={!tech_check[3]} /></Grid>
+                        <Grid item xs={12} sm={2}> {errors.oracle_level && <span style={{color: "#d32f2f", fontSize: "0.75rem", padding: "0.2rem", fontWeight: "400"}}>This field is required</span>} </Grid>
+                    </Grid>
+                    <Grid item xs={12} sm={4}>
+                        <Button onClick={handlePrevious} variant="contained" sx={{ marginRight: 5 }}>
+                            Previous
+                        </Button>
+                        <Button type="submit" variant="contained" >
+                            NEXT
+                        </Button>
+                    </Grid>
+                </Box>
+            </Paper>
+        </React.Fragment>
+    )
+}
+export default Techlan;
+
+
+
+import { useEffect, useState } from 'react';
+import {getUsers,initDB} from '../db'
+import { formdata } from '../services/interfaces';
+import { NavigateFunction, useNavigate} from "react-router-dom";
+import * as React from 'react';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
+import Paper from '@mui/material/Paper';
+import Button from '@mui/material/Button';
+
+
+const Userdata = () =>{
+    const [data,Setdata] = useState<formdata[]>();
+    const Navigate:NavigateFunction = useNavigate();
+    
+    const list =async () =>{
+        await initDB();
+        const alldata:formdata[] = await getUsers() as formdata[];
+        Setdata(alldata);
+    }
+    useEffect(() => {list()},[])
+
+    const edituser = (id:number | undefined) =>{
+       Navigate(`/form?id=${id}`) 
+    }
+    
+    return(
+        <>
+           <h1 style={{textAlign:"center"}}>USERDATA</h1>
+<TableContainer component={Paper} elevation={5} style={{width:"70%",margin:"auto"}}>
+      <Table size="medium" aria-label="a dense table">
+        <TableHead>
+          <TableRow>
+            <TableCell>ID</TableCell>
+            <TableCell >First Name</TableCell>
+            <TableCell >Last Name</TableCell>
+            <TableCell >Email</TableCell>
+            <TableCell >ACTION</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {data?.map((row) => (
+            <TableRow
+              key={row.fname}
+              sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+            >
+              <TableCell component="th" scope="row">
+                {row.id}
+              </TableCell>
+              <TableCell >{row.fname}</TableCell>
+              <TableCell >{row.lname}</TableCell>
+              <TableCell >{row.email}</TableCell>
+              <Button variant="outlined" onClick={() => edituser(row.id)}>EDIT</Button>
+              <Button variant="outlined" color="error">DELETE</Button>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </TableContainer>
+        </>
+    )
+}
+export default Userdata
+
+import * as React from "react";
 import { useForm, SubmitHandler, useFieldArray, Controller } from "react-hook-form";
 import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
@@ -8,34 +946,23 @@ import Paper from "@mui/material/Paper";
 import InputLabel from "@mui/material/InputLabel";
 import Button from "@mui/material/Button";
 import IconButton from '@mui/material/IconButton';
-import AddIcon from '@mui/icons-material/Add';
-import RemoveIcon from '@mui/icons-material/Remove';
+// import AddIcon from '@mui/icons-material/Add';
+// import RemoveIcon from '@mui/icons-material/Remove';
+import { formdata } from "../services/interfaces";
 
 interface Step3Props {
-  onNext: (data: Step3Data) => void;
-  initialValues: Step3Data;
-  onPrev: (data: Step3Data) => void;
+  onNext: (data: formdata) => void;
+  initialValues: formdata;
+  onPrev: (data: formdata) => void;
 }
-
-interface WorkExperience {
-  company_name: string;
-  designation: string;
-  from_date: string;
-  to_date: string;
-}
-
-interface Step3Data {
-  work_experience: WorkExperience[];
-}
-
 const Step3: React.FC<Step3Props> = ({ onNext, initialValues, onPrev }) => {
-  const { register, handleSubmit, control, getValues } = useForm<Step3Data>({ defaultValues: initialValues });
+  const { register, handleSubmit, control, getValues } = useForm<formdata>({ defaultValues: initialValues });
   const { fields, append, remove } = useFieldArray({
     control,
     name: "work_experience",
   });
 
-  const onSubmit: SubmitHandler<Step3Data> = data => {
+  const onSubmit: SubmitHandler<formdata> = data => {
     onNext(data);
   };
 
@@ -91,22 +1018,22 @@ const Step3: React.FC<Step3Props> = ({ onNext, initialValues, onPrev }) => {
               </Grid>
               <Grid item xs={12} sm={1}>
                 <IconButton onClick={() => remove(index)}>
-                  <RemoveIcon />
+                  Remove
                 </IconButton>
               </Grid>
             </Grid>
           ))}
+          <Grid item xs={12} sm={4}>
+            <Button onClick={() => append({ company_name: "", designation: "", from_date: "", to_date: "" })} variant="contained" >
+              Add Work Experience
+            </Button>
+          </Grid>
           <Grid item xs={12} sm={4}>
             <Button onClick={handlePrevious} variant="contained" sx={{ marginRight: 5 }}>
               Previous
             </Button>
             <Button type="submit" variant="contained">
               NEXT
-            </Button>
-          </Grid>
-          <Grid item xs={12} sm={4}>
-            <Button onClick={() => append({ company_name: "", designation: "", from_date: "", to_date: "" })} variant="contained" startIcon={<AddIcon />}>
-              Add Work Experience
             </Button>
           </Grid>
         </Box>
@@ -116,3 +1043,69 @@ const Step3: React.FC<Step3Props> = ({ onNext, initialValues, onPrev }) => {
 };
 
 export default Step3;
+
+
+import React, { useEffect, useState } from 'react';
+import { NavigateFunction, useNavigate, useSearchParams } from "react-router-dom";
+import BasicForm from './components/BasicDetails'
+import EducationForm from './components/EducationDetails'
+import WorkExpForm from './components/WorkExp'
+import TechlanForm from './components/Tech_Lan'
+import PreferenceForm from './components/Preferences'
+import { formdata } from './services/interfaces'
+import { initDB, getUserbyid, addUser, updateUser } from './db';
+
+const MultiStepForm: React.FC = () => {
+  const navigate: NavigateFunction = useNavigate();
+  const [searchParams] = useSearchParams();
+  const idForUpdate: number | null = Number(searchParams.get('id'));
+  const [step, setStep] = useState(1);
+  const [formData, setFormData] = useState<formdata>({});
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    (async () => {
+      await initDB();
+      if (idForUpdate) {
+        const userData: formdata = await getUserbyid(idForUpdate) as formdata;
+        setFormData(userData);
+      }
+      setLoading(false);
+    })();
+  }, [idForUpdate]);
+
+  const handleNext = (data: formdata) => {
+    setFormData(prevData => ({ ...prevData, ...data }));
+    setStep(prev => prev + 1);
+  };
+
+  const handlePrevious = (data: formdata) => {
+    setFormData(prevData => ({ ...prevData, ...data }));
+    setStep(prev => prev - 1);
+  };
+
+  const handleFinalSubmit = async (data: formdata) => {
+    const finalData = { ...formData, ...data };
+
+    if (idForUpdate == null) {
+      await addUser(finalData);
+      alert('Form Submitted!');
+    } else {
+      await updateUser(finalData);
+      alert('Updated!');
+    }
+    navigate('/');
+  };
+
+  return (
+    <>
+      {step === 1 && <BasicForm onNext={handleNext} initialValues={formData} />}
+      {step === 2 && <EducationForm onNext={handleNext} initialValues={formData} onPrev={handlePrevious} />}
+      {step === 3 && <TechlanForm initialValues={formData} onPrev={handlePrevious} onNext={handleNext} />}
+      {step === 4 && <WorkExpForm initialValues={formData} onNext={handleNext} onPrev={handlePrevious} />}
+      {step === 5 && <PreferenceForm initialValues={formData} onPrev={handlePrevious} onSubmit={handleFinalSubmit} />}
+    </>
+  );
+};
+
+export default MultiStepForm;
