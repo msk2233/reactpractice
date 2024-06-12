@@ -1,83 +1,216 @@
-Here is the updated code for TypeScript:
-```
-// App.tsx
-import React, { useState } from 'react';
-import BasicDetails from './BasicDetails';
-import EducationDetails from './EducationDetails';
-import Preferences from './Preferences';
+import * as React from "react";
+import { useForm, SubmitHandler, Controller } from "react-hook-form";
+import { useState, useEffect } from "react";
+import Grid from "@mui/material/Grid";
+import Typography from "@mui/material/Typography";
+import TextField from "@mui/material/TextField";
+import Box from "@mui/material/Box";
+import Paper from "@mui/material/Paper";
+import InputLabel from "@mui/material/InputLabel";
+import MenuItem from "@mui/material/MenuItem";
+import FormControl from "@mui/material/FormControl";
+import Select from "@mui/material/Select";
+import Button from "@mui/material/Button";
+import { states } from '../services/constValues';
+import { BasicDetail_interface } from "../services/interfaces";
+import { addUser, initDB, getUserbyid } from '../db';
 
-interface FormData {
-  basicDetails: {
-    name: string;
-    email: string;
-  };
-  educationDetails: {
-    degree: string;
-    university: string;
-  };
-  preferences: {
-    interests: string;
-  };
+interface BasicProps {
+  onNext: (data: BasicDetail_interface) => void;
+  initialValues: BasicDetail_interface;
 }
 
-const App = () => {
-  const [formData, setFormData] = useState<FormData>({
-    basicDetails: {},
-    educationDetails: {},
-    preferences: {},
+const Step1: React.FC<BasicProps> = ({ onNext, initialValues }) => {
+  const [dataaaa, setdata] = useState<BasicDetail_interface>({});
+
+  const getData = async () => {
+    await initDB();
+    const userdata: BasicDetail_interface = await getUserbyid(1) as BasicDetail_interface;
+    const Data = {
+      fname: userdata.fname,
+      lname: userdata.lname,
+      designation: userdata.designation,
+      add1: userdata.add1,
+      add2: userdata.add2,
+      email: userdata.email,
+      phno: userdata.phno,
+      city: userdata.city,
+      state: userdata.state,
+      gender: userdata.gender,
+      dob: userdata.dob
+    };
+
+    setdata(Data);
+  }
+
+  useEffect(() => {
+    (async () => {
+      await getData();
+    })();
+  }, []);
+
+  const { register, handleSubmit, control, reset, formState: { errors } } = useForm<BasicDetail_interface>({
+    defaultValues: initialValues,
   });
 
-  const handleNext = (data: FormData) => {
-    setFormData((prevData) => ({ ...prevData, ...data }));
-  };
+  useEffect(() => {
+    reset(dataaaa);
+  }, [dataaaa, reset]);
 
-  const handleBack = () => {
-    // implement logic to go back to previous step
-  };
-
-  const handleSubmit = () => {
-    const formData = {
-      basicDetails: formData.basicDetails,
-      educationDetails: formData.educationDetails,
-      preferences: formData.preferences,
-    };
-    // submit form data to server or store it in local storage
+  const todayDate = new Date().toISOString().split("T")[0];
+  const onSubmit: SubmitHandler<BasicDetail_interface> = data => {
+    onNext(data);
   };
 
   return (
-    <div>
-      {currentStep === 1 && (
-        <BasicDetails
-          formData={formData.basicDetails}
-          handleNext={handleNext}
-          handleBack={handleBack}
-        />
-      )}
-      {currentStep === 2 && (
-        <EducationDetails
-          formData={formData.educationDetails}
-          handleNext={handleNext}
-          handleBack={handleBack}
-        />
-      )}
-      {currentStep === 3 && (
-        <Preferences
-          formData={formData.preferences}
-          handleNext={handleNext}
-          handleBack={handleBack}
-        />
-      )}
-      <button type="submit" onClick={handleSubmit}>Submit</button>
-    </div>
-  );
-};
-
-export default App;
-```
-In this code, I've added type annotations for the `formData` state and the `handleNext` and `handleBack` functions. I've also added an interface `FormData` to define the shape of the form data.
-
-Note that I've assumed that the `basicDetails`, `educationDetails`, and `preferences` objects have the same shape as the `FormData` interface. If this is not the case, you may need to modify the interface accordingly.
-
-Also, I've added a `handleSubmit` function that collects the form data from each step and submits it to the server or stores it in local storage. This function is called when the user clicks the submit button.
-
-I hope this helps! Let me know if you have any further questions.
+    <React.Fragment>
+      <Paper elevation={3} sx={{ marginRight: "15%", marginLeft: "15%" }}>
+        <Box component="form" onSubmit={handleSubmit(onSubmit)} sx={{ padding: 5 }}>
+          <Typography variant="h6" gutterBottom sx={{ paddingBottom: 5 }}>
+            BASIC DETAILS
+          </Typography>
+          <Grid container spacing={3}>
+            <Grid item xs={12} sm={2}>
+              <InputLabel
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  fontWeight: 700
+                }}
+              >
+                First Name
+              </InputLabel>
+            </Grid>
+            <Grid item xs={12} sm={4}>
+              <Controller
+                control={control}
+                name="fname"
+                rules={{ required: "First name is required", pattern: { value: /^[a-zA-Z]+$/, message: "Invalid input" } }}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    fullWidth
+                    sx={{ maxWidth: 600 }}
+                    label="First Name"
+                    margin="dense"
+                    error={!!errors.fname}
+                    helperText={errors.fname ? errors.fname.message : null}
+                  />
+                )}
+              />
+            </Grid>
+            <Grid item xs={12} sm={2}>
+              <InputLabel
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  fontWeight: 700
+                }}
+              >
+                Last Name
+              </InputLabel>
+            </Grid>
+            <Grid item xs={12} sm={4}>
+              <Controller
+                control={control}
+                name="lname"
+                rules={{ required: "Last name is required", pattern: { value: /^[a-zA-Z]+$/, message: "Invalid input" } }}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    fullWidth
+                    sx={{ maxWidth: 600 }}
+                    label="Last Name"
+                    margin="dense"
+                    error={!!errors.lname}
+                    helperText={errors.lname ? errors.lname.message : null}
+                  />
+                )}
+              />
+            </Grid>
+            <Grid item xs={12} sm={2}>
+              <InputLabel
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  fontWeight: 700
+                }}
+              >
+                Designation
+              </InputLabel>
+            </Grid>
+            <Grid item xs={12} sm={4}>
+              <FormControl fullWidth size="small">
+                <TextField
+                  {...register("designation", { required: "Designation is required" })}
+                  id="Designation"
+                  label="Designation"
+                  error={!!errors.designation}
+                  helperText={errors.designation ? errors.designation.message : null}
+                />
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} sm={2} />
+            <Grid item xs={12} sm={4} />
+            <Grid item xs={12} sm={2}>
+              <InputLabel
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  fontWeight: 700
+                }}
+              >
+                Address 1
+              </InputLabel>
+            </Grid>
+            <Grid item xs={12} sm={4}>
+              <FormControl fullWidth size="small">
+                <TextField
+                  id="add1"
+                  {...register("add1", { required: "Address 1 is required" })}
+                  label="plot no:123,down street,..."
+                  error={!!errors.add1}
+                  helperText={errors.add1 ? errors.add1.message : null}
+                />
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} sm={2}>
+              <InputLabel
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  fontWeight: 700
+                }}
+              >
+                Address 2
+              </InputLabel>
+            </Grid>
+            <Grid item xs={12} sm={4}>
+              <TextField
+                id="add2"
+                {...register("add2", { required: "Address 2 is required" })}
+                label="plot no:567,war street,..."
+                fullWidth
+                error={!!errors.add2}
+                helperText={errors.add2 ? errors.add2.message : null}
+              />
+            </Grid>
+            {/*--------------------------mail phno --------------------------- */}
+            <Grid item xs={12} sm={2}>
+              <InputLabel
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  fontWeight: 700
+                }}
+              >
+                Email
+              </InputLabel>
+            </Grid>
+            <Grid item xs={12} sm={4}>
+              <FormControl fullWidth size="small">
+                <TextField
+                  type="email"
+                  id="mail"
+                  {...register("email", { required: "Email is required", pattern: { value: /^\S+@\S+\.\S+$/, message: "Enter a valid email address" } })}
+                  label="abc@gmail.com"
