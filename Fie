@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useForm, SubmitHandler, useFieldArray, Controller } from "react-hook-form";
+import { useForm, SubmitHandler, useFieldArray } from "react-hook-form";
 import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
 import TextField from "@mui/material/TextField";
@@ -8,34 +8,29 @@ import Paper from "@mui/material/Paper";
 import InputLabel from "@mui/material/InputLabel";
 import Button from "@mui/material/Button";
 import IconButton from '@mui/material/IconButton';
-import AddIcon from '@mui/icons-material/Add';
-import RemoveIcon from '@mui/icons-material/Remove';
+import { formdata } from "../services/interfaces";
 
 interface Step3Props {
-  onNext: (data: Step3Data) => void;
-  initialValues: Step3Data;
-  onPrev: (data: Step3Data) => void;
-}
-
-interface WorkExperience {
-  company_name: string;
-  designation: string;
-  from_date: string;
-  to_date: string;
-}
-
-interface Step3Data {
-  work_experience: WorkExperience[];
+  onNext: (data: formdata) => void;
+  initialValues: formdata;
+  onPrev: (data: formdata) => void;
 }
 
 const Step3: React.FC<Step3Props> = ({ onNext, initialValues, onPrev }) => {
-  const { register, handleSubmit, control, getValues } = useForm<Step3Data>({ defaultValues: initialValues });
+  const { register, handleSubmit, control, getValues, formState: { errors } } = useForm<formdata>({ defaultValues: initialValues });
   const { fields, append, remove } = useFieldArray({
     control,
     name: "work_experience",
   });
 
-  const onSubmit: SubmitHandler<Step3Data> = data => {
+  // Custom validation function to check if to_date is less than today's date
+  const isDateLessThanToday = (value: string) => {
+    const toDate = new Date(value);
+    const today = new Date();
+    return toDate < today || "To date must be less than today's date";
+  };
+
+  const onSubmit: SubmitHandler<formdata> = data => {
     onNext(data);
   };
 
@@ -58,8 +53,10 @@ const Step3: React.FC<Step3Props> = ({ onNext, initialValues, onPrev }) => {
                   Company Name
                 </InputLabel>
                 <TextField
-                  {...register(`work_experience.${index}.company_name`)}
+                  {...register(`work_experience.${index}.company_name`, { required: "Company Name is required" })}
                   defaultValue={item.company_name}
+                  error={!!errors.work_experience?.[index]?.company_name}
+                  helperText={errors.work_experience?.[index]?.company_name?.message}
                 />
               </Grid>
               <Grid item xs={6} sm={3}>
@@ -67,8 +64,10 @@ const Step3: React.FC<Step3Props> = ({ onNext, initialValues, onPrev }) => {
                   Designation
                 </InputLabel>
                 <TextField
-                  {...register(`work_experience.${index}.designation`)}
+                  {...register(`work_experience.${index}.designation`, { required: "Designation is required" })}
                   defaultValue={item.designation}
+                  error={!!errors.work_experience?.[index]?.designation}
+                  helperText={errors.work_experience?.[index]?.designation?.message}
                 />
               </Grid>
               <Grid item xs={6} sm={3}>
@@ -76,8 +75,17 @@ const Step3: React.FC<Step3Props> = ({ onNext, initialValues, onPrev }) => {
                   From
                 </InputLabel>
                 <TextField
-                  {...register(`work_experience.${index}.from_date`)}
+                  placeholder="DD-MM-YYYY"
+                  {...register(`work_experience.${index}.from_date`, {
+                    required: "From date is required",
+                    pattern: {
+                      value: /^(0[1-9]|[12][0-9]|3[01])-(0[1-9]|1[0-2])-\d{4}$/,
+                      message: "Invalid date format, use DD-MM-YYYY"
+                    }
+                  })}
                   defaultValue={item.from_date}
+                  error={!!errors.work_experience?.[index]?.from_date}
+                  helperText={errors.work_experience?.[index]?.from_date?.message}
                 />
               </Grid>
               <Grid item xs={6} sm={3}>
@@ -85,28 +93,38 @@ const Step3: React.FC<Step3Props> = ({ onNext, initialValues, onPrev }) => {
                   To
                 </InputLabel>
                 <TextField
-                  {...register(`work_experience.${index}.to_date`)}
+                  placeholder="DD-MM-YYYY"
+                  {...register(`work_experience.${index}.to_date`, {
+                    required: "To date is required",
+                    pattern: {
+                      value: /^(0[1-9]|[12][0-9]|3[01])-(0[1-9]|1[0-2])-\d{4}$/,
+                      message: "Invalid date format, use DD-MM-YYYY"
+                    },
+                    validate: isDateLessThanToday  // Custom validation function
+                  })}
                   defaultValue={item.to_date}
+                  error={!!errors.work_experience?.[index]?.to_date}
+                  helperText={errors.work_experience?.[index]?.to_date?.message}
                 />
               </Grid>
               <Grid item xs={12} sm={1}>
                 <IconButton onClick={() => remove(index)}>
-                  <RemoveIcon />
+                  Remove
                 </IconButton>
               </Grid>
             </Grid>
           ))}
+          <Grid item xs={12} sm={4}>
+            <Button onClick={() => append({ company_name: "", designation: "", from_date: "", to_date: "" })} variant="contained">
+              Add Work Experience
+            </Button>
+          </Grid>
           <Grid item xs={12} sm={4}>
             <Button onClick={handlePrevious} variant="contained" sx={{ marginRight: 5 }}>
               Previous
             </Button>
             <Button type="submit" variant="contained">
               NEXT
-            </Button>
-          </Grid>
-          <Grid item xs={12} sm={4}>
-            <Button onClick={() => append({ company_name: "", designation: "", from_date: "", to_date: "" })} variant="contained" startIcon={<AddIcon />}>
-              Add Work Experience
             </Button>
           </Grid>
         </Box>
