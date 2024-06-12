@@ -1,144 +1,374 @@
-import React from 'react';
-import { useForm, SubmitHandler } from 'react-hook-form';
+import * as React from "react";
+import { useForm, SubmitHandler, Controller } from "react-hook-form";
+import { useState,useEffect } from "react";
+import Grid from "@mui/material/Grid";
+import Typography from "@mui/material/Typography";
+import TextField from "@mui/material/TextField";
+import Box from "@mui/material/Box";
+import Paper from "@mui/material/Paper";
+import InputLabel from "@mui/material/InputLabel";
+import MenuItem from "@mui/material/MenuItem";
+import FormControl from "@mui/material/FormControl";
+import Select from "@mui/material/Select";
+import Button from "@mui/material/Button";
+import { states } from '../services/constValues';
+import { BasicDetail_interface } from "../services/interfaces";
+import { addUser, initDB ,getUserbyid} from '../db'
 
-interface Step1Props {
-  onNext: (data: Step1Data) => void;
+interface BasicProps {
+  onNext: (data: BasicDetail_interface) => void;
+  initialValues: BasicDetail_interface;
 }
 
-interface Step1Data {
-  firstName: string;
-  lastName: string;
-}
+const Step1: React.FC<BasicProps> = ({ onNext, initialValues }) => {
+  const [dataaaa,setdata] = useState<BasicDetail_interface>({});
+  
+  const getData =async () =>{
+    await initDB();
+   const userdata:BasicDetail_interface =  await getUserbyid(1) as BasicDetail_interface;
+   const Data = 
+    {
+      fname : userdata.fname,
+      lname : userdata.lname,
+      designation : userdata.designation,
+      add1 : userdata.add1,
+      add2 : userdata.add2,
+      email : userdata.email,
+      phno : userdata.phno,
+      city : userdata.city,
+      state : userdata.state,
+      gender : userdata.gender,
+      dob: userdata.dob};
 
-const Step1: React.FC<Step1Props> = ({ onNext }) => {
-  const { register, handleSubmit } = useForm<Step1Data>();
+      setdata(Data);
+  }
 
-  const onSubmit: SubmitHandler<Step1Data> = data => {
+  useEffect(() => {
+    (async () => {
+      await getData();
+    })();
+  }, []);
+
+  const todayDate = new Date().toISOString().split("T")[0];
+  const onSubmit: SubmitHandler<BasicDetail_interface> = data => {
     onNext(data);
   };
+  const { register, handleSubmit, control, formState: { errors } } = useForm<BasicDetail_interface>({
+    defaultValues: dataaaa,
+  });
 
+  {console.log(dataaaa);
+  }
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
-      <div>
-        <label>First Name</label>
-        <input {...register('firstName', { required: true })} />
-      </div>
-      <div>
-        <label>Last Name</label>
-        <input {...register('lastName', { required: true })} />
-      </div>
-      <button type="submit">Next</button>
-    </form>
+    <React.Fragment>
+      <Paper elevation={3} sx={{ marginRight: "15%", marginLeft: "15%" }}>
+        <Box component="form" onSubmit={handleSubmit(onSubmit)} sx={{ padding: 5 }}>
+          <Typography variant="h6" gutterBottom sx={{ paddingBottom: 5 }}>
+            BASIC DETAILS
+          </Typography>
+          <Grid container spacing={3}>
+            <Grid item xs={12} sm={2}>
+              <InputLabel
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  fontWeight: 700
+                }}
+              >
+                First Name
+              </InputLabel>
+            </Grid>
+            <Grid item xs={12} sm={4}>
+              <Controller
+                control={control}
+                name="fname"
+                rules={{ required: "First name is required",pattern:{value:/^[a-zA-Z]+$/,message:"invalida input"} }}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    fullWidth
+                    sx={{ maxWidth: 600 }}
+                    label="First Name"
+                    margin="dense"
+                    error={!!errors.fname}
+                    helperText={errors.fname ? errors.fname.message : null}
+                  />
+                )}
+              />
+            </Grid>
+            <Grid item xs={12} sm={2}>
+              <InputLabel
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  fontWeight: 700
+                }}
+              >
+                Last Name
+              </InputLabel>
+            </Grid>
+            <Grid item xs={12} sm={4}>
+              <Controller
+                control={control}
+                name="lname"
+                rules={{ required: "Last name is required",pattern:{value:/^[a-zA-Z]+$/,message:"invalida input"} }}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    fullWidth
+                    sx={{ maxWidth: 600 }}
+                    label="Last Name"
+                    margin="dense"
+                    error={!!errors.lname}
+                    helperText={errors.lname ? errors.lname.message : null}
+                  />
+                )}
+              />
+            </Grid>
+            <Grid item xs={12} sm={2}>
+              <InputLabel
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  fontWeight: 700
+                }}
+              >
+                Designation
+              </InputLabel>
+            </Grid>
+            <Grid item xs={12} sm={4}>
+              <FormControl fullWidth size="small">
+                <TextField
+                  {...register("designation", { required: "Designation is required" })}
+                  id="Designation"
+                  label="Designation"
+                  error={!!errors.designation}
+                  helperText={errors.designation ? errors.designation.message : null}
+                />
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} sm={2} />
+            <Grid item xs={12} sm={4} />
+            <Grid item xs={12} sm={2}>
+              <InputLabel
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  fontWeight: 700
+                }}
+              >
+                Address 1
+              </InputLabel>
+            </Grid>
+            <Grid item xs={12} sm={4}>
+              <FormControl fullWidth size="small">
+                <TextField
+                  id="add1"
+                  {...register("add1", { required: "Address 1 is required" })}
+                  label="plot no:123,down street,..."
+                  error={!!errors.add1}
+                  helperText={errors.add1 ? errors.add1.message : null}
+                />
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} sm={2}>
+              <InputLabel
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  fontWeight: 700
+                }}
+              >
+                Address 2
+              </InputLabel>
+            </Grid>
+            <Grid item xs={12} sm={4}>
+              <TextField
+                
+                id="add2"
+                {...register("add2", { required: "Address 2 is required" })}
+                label="plot no:567,war street,..."
+                fullWidth
+                error={!!errors.add2}
+                helperText={errors.add2 ? errors.add2.message : null}
+              />
+            </Grid>
+            {/*--------------------------mail phno --------------------------- */}
+            <Grid item xs={12} sm={2}>
+              <InputLabel
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  fontWeight: 700
+                }}
+              >
+                Email
+              </InputLabel>
+            </Grid>
+            <Grid item xs={12} sm={4}>
+              <FormControl fullWidth size="small">
+                <TextField
+                  
+                  type="email"
+                  id="mail"
+                  {...register("email", { required: "Email is required", pattern: { value: /^\S+@\S+\.\S+$/, message: "Enter a valid email address" } })}
+                  label="abc@gmail.com"
+                  error={!!errors.email}
+                  helperText={errors.email ? errors.email.message : null}
+                />
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} sm={2}>
+              <InputLabel
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  fontWeight: 700
+                }}
+              >
+                Phone Number
+              </InputLabel>
+            </Grid>
+            <Grid item xs={12} sm={4}>
+              <TextField
+                
+                type="tel"
+                id="phno"
+                {...register("phno", { required: "Phone number is required", pattern: { value: /^[6789]\d{9}$/, message: "Enter a valid 10-digit phone number starting with 6,7, 8, or 9" } })}
+                label="XXXXXXXXXX"
+                fullWidth
+                error={!!errors.phno}
+                helperText={errors.phno ? errors.phno.message : null}
+              />
+            </Grid>
+            {/*------------------------city state ----------------------*/}
+            <Grid item xs={12} sm={2}>
+              <InputLabel
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  fontWeight: 700
+                }}
+              >
+                State
+              </InputLabel>
+            </Grid>
+            <Grid item xs={12} sm={4}>
+            <Controller
+                name="state"
+                control={control}
+                rules={{ required: "Passing Year is required" }}
+                render={({ field }) => (
+                  <FormControl fullWidth>
+                    <InputLabel id="year-label">Year</InputLabel>
+                    <Select
+                      labelId="year-label"
+                      id="year"
+                      label="Year"
+                      {...field}
+                      error={!!errors.state}
+                    >
+                      {states.map((st) => (
+                        <MenuItem key={st} value={st}>
+                          {st}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                    {errors.state && (
+                      <span style={{ color: "#d32f2f", fontSize: "0.75rem", padding: "0.2rem", fontWeight: "400" }}>{errors.state.message}</span>
+                    )}
+                  </FormControl>
+                )}
+              />
+            </Grid>
+            <Grid item xs={12} sm={2}>
+              <InputLabel
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  fontWeight: 700
+                }}
+              >
+                City
+              </InputLabel>
+            </Grid>
+            <Grid item xs={12} sm={4}>
+              <TextField
+                
+                id="city"
+                {...register("city", { required: "City is required" })}
+                label="City"
+                fullWidth
+                size="small"
+                autoComplete="off"
+                variant="outlined"
+                error={!!errors.city}
+                helperText={errors.city ? errors.city.message : null}
+              />
+            </Grid>
+            <Grid item xs={12} sm={2}>
+              <InputLabel
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  fontWeight: 700
+                }}
+              >
+                Gender
+              </InputLabel>
+            </Grid>
+            <Grid item xs={12} sm={4}>
+              <Grid item xs={12} sm={8}>
+                Female
+                <input {...register("gender", { required: "Gender is required" })} type="radio" value="female" />
+                Male <input {...register("gender", { required: "Gender is required" })} type="radio" value="male" />
+                Other <input {...register("gender", { required: "Gender is required" })} type="radio" value="other" />
+              </Grid>
+              {errors.gender && (
+                <span style={{ color: "red" }}>{errors.gender.message}</span>
+              )}
+            </Grid>
+            <Grid item xs={12} sm={2}>
+              <InputLabel
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  fontWeight: 700
+                }}
+              >
+                DOB
+              </InputLabel>
+            </Grid>
+            <Grid item xs={12} sm={4}>
+              <TextField
+                id="date"
+                label="Birthday"
+                type="date"
+                {...register("dob", { required: "Date of Birth is required" })}
+                InputLabelProps={{
+                  shrink: true,
+                }}
+                inputProps={{
+                  max: todayDate,
+                }}
+                error={!!errors.dob}
+                helperText={errors.dob ? errors.dob.message : null}
+              />
+            </Grid>
+
+            <Grid item xs={12} sm={6} />
+            <Grid item xs={12} sm={5} />
+            <Grid item xs={12} sm={4}>
+              <Button type="submit" variant="contained" sx={{ color: "#ff781f" }}>
+                NEXT
+              </Button>
+            </Grid>
+            <Grid item xs={12} sm={5} />
+          </Grid>
+        </Box>
+      </Paper>
+    </React.Fragment>
   );
 };
 
 export default Step1;
-import React from 'react';
-import { useForm, SubmitHandler } from 'react-hook-form';
-
-interface Step2Props {
-  onNext: (data: Step2Data) => void;
-}
-
-interface Step2Data {
-  email: string;
-  phoneNumber: string;
-}
-
-const Step2: React.FC<Step2Props> = ({ onNext }) => {
-  const { register, handleSubmit } = useForm<Step2Data>();
-
-  const onSubmit: SubmitHandler<Step2Data> = data => {
-    onNext(data);
-  };
-
-  return (
-    <form onSubmit={handleSubmit(onSubmit)}>
-      <div>
-        <label>Email</label>
-        <input {...register('email', { required: true })} />
-      </div>
-      <div>
-        <label>Phone Number</label>
-        <input {...register('phoneNumber', { required: true })} />
-      </div>
-      <button type="submit">Next</button>
-    </form>
-  );
-};
-
-export default Step2;
-import React from 'react';
-import { useForm, SubmitHandler } from 'react-hook-form';
-
-interface Step3Props {
-  onSubmit: (data: Step3Data) => void;
-}
-
-interface Step3Data {
-  address: string;
-  city: string;
-}
-
-const Step3: React.FC<Step3Props> = ({ onSubmit }) => {
-  const { register, handleSubmit } = useForm<Step3Data>();
-
-  const handleFinalSubmit: SubmitHandler<Step3Data> = data => {
-    onSubmit(data);
-  };
-
-  return (
-    <form onSubmit={handleSubmit(handleFinalSubmit)}>
-      <div>
-        <label>Address</label>
-        <input {...register('address', { required: true })} />
-      </div>
-      <div>
-        <label>City</label>
-        <input {...register('city', { required: true })} />
-      </div>
-      <button type="submit">Submit</button>
-    </form>
-  );
-};
-
-export default Step3;
-import React, { useState } from 'react';
-import Step1 from './Step1';
-import Step2 from './Step2';
-import Step3 from './Step3';
-
-interface FormData {
-  firstName?: string;
-  lastName?: string;
-  email?: string;
-  phoneNumber?: string;
-  address?: string;
-  city?: string;
-}
-
-const MultiStepForm: React.FC = () => {
-  const [step, setStep] = useState(1);
-  const [formData, setFormData] = useState<FormData>({});
-
-  const handleNext = (data: any) => {
-    setFormData(prev => ({ ...prev, ...data }));
-    setStep(prev => prev + 1);
-  };
-
-  const handleFinalSubmit = (data: any) => {
-    const finalData = { ...formData, ...data };
-    localStorage.setItem('formData', JSON.stringify(finalData));
-    alert('Form Submitted!');
-  };
-
-  return (
-    <div>
-      {step === 1 && <Step1 onNext={handleNext} />}
-      {step === 2 && <Step2 onNext={handleNext} />}
-      {step === 3 && <Step3 onSubmit={handleFinalSubmit} />}
-    </div>
-  );
-};
-
-export default MultiStepForm;
