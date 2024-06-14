@@ -3,47 +3,33 @@ import { NavigateFunction, useNavigate,useSearchParams} from "react-router-dom";
 import BasicForm from './components/BasicDetails'
 import EducationForm from './components/EducationDetails'
 import WorkExpForm from './components/WorkExp'
+import ReferenceForm from './components/Reference'
 import TechlanForm from './components/Tech_Lan'
 import PreferenceForm from './components/Preferences'
 import {formdata} from './services/interfaces'
-import {BasicDetail_initials} from './services/constValues'
-import { BasicDetail_interface } from './services/interfaces';
-import { EducationDetail_initials } from './services/constValues';
-import { EducationDetails } from './services/interfaces';
-import { LanTech_interface } from './services/interfaces';
-import { LanTech_details } from './services/constValues';
-import { Preferance_interface } from './services/interfaces';
-import { Preferance_initials } from './services/constValues';
-import {WorkExp_details} from './services/constValues';
-import { WorkExp_interface } from './services/interfaces';
-import {Form} from './services/constValues'
 import { addUser, initDB ,getUserbyid,updateUser} from './db';
-
-
 
 const MultiStepForm: React.FC = () => {
   const Navigate:NavigateFunction = useNavigate();
   const [searchParams] = useSearchParams();
-  const idForupdate:number | null = Number(searchParams.get('id'));
+  const idForUpdate:number | null = Number(searchParams.get('id'));
   const [step, setStep] = useState(1);
-  let data1:{};
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
     (async () => {
-      if (idForupdate == null) {
-        data1={};
+      await initDB();
+      if (idForUpdate) {
+        const userData: formdata = await getUserbyid(idForUpdate) as formdata;
+        setFormData(userData);
       }
-      else{
-        await initDB();
-       const userdata:formdata =  await getUserbyid(idForupdate) as formdata;
-       data1=userdata;
-      }
+      setLoading(false);
     })();
-  }, []);
+  }, [idForUpdate]);
   
-  const [formData, setFormData] = useState<formdata>(data1);
+  const [formData, setFormData] = useState<formdata>({});
   const handleNext = (data: formdata) => {
     setFormData({...formData,...data})
-    
     setStep((prev=> prev+1))
   };
 
@@ -53,20 +39,17 @@ const MultiStepForm: React.FC = () => {
   }
 
   const handleFinalSubmit =async (data:formdata) => {
-    setFormData({...formData, ...data})
-    const finalData:formdata = formData as formdata;
-    await initDB();
-    if (idForupdate == null) {   
+    const finalData = { ...formData, ...data };
+
+    if (idForUpdate == null) {
       await addUser(finalData);
       alert('Form Submitted!');
+    } else {
+      await updateUser(finalData);
+      alert('Updated!');
     }
-    else{
-      await updateUser(finalData)
-      alert('updated!');
-    }
-    Navigate('/')
+    Navigate('/');
   };
-console.log(formData);
 
   return (
     <>
@@ -74,7 +57,8 @@ console.log(formData);
       {step === 2 && <EducationForm onNext={handleNext} initialValues={formData} onPrev={handlePrevious} />}
        {step === 3 && <TechlanForm initialValues={formData} onPrev={handlePrevious} onNext={handleNext} />}
       {step === 4 && <WorkExpForm initialValues={formData} onNext={handleNext} onPrev={handlePrevious} />} 
-      {step === 5 && <PreferenceForm initialValues={formData} onPrev={handlePrevious} onSubmit={handleFinalSubmit} />} 
+      {step === 5 && <ReferenceForm initialValues={formData} onNext={handleNext} onPrev={handlePrevious} />} 
+      {step === 6 && <PreferenceForm initialValues={formData} onPrev={handlePrevious} onSubmit={handleFinalSubmit} />} 
     </>
 
   );
