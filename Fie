@@ -1,370 +1,164 @@
 import * as React from "react";
-import { useForm, SubmitHandler, Controller } from "react-hook-form";
-import { useState,useEffect } from "react";
+import { useForm, SubmitHandler } from "react-hook-form";
 import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
-import TextField from "@mui/material/TextField";
+import Checkbox from "@mui/material/Checkbox";
 import Box from "@mui/material/Box";
 import Paper from "@mui/material/Paper";
 import InputLabel from "@mui/material/InputLabel";
-import MenuItem from "@mui/material/MenuItem";
-import FormControl from "@mui/material/FormControl";
-import Select from "@mui/material/Select";
 import Button from "@mui/material/Button";
 import { formdata } from "../services/interfaces";
-import {  State, City }  from 'country-state-city';
-import {  IState, ICity } from 'country-state-city'
 
-interface BasicProps {
-  onNext: (data: formdata) => void;
-  initialValues: formdata;
+interface TechlanPropes {
+    onNext: (data: formdata) => void;
+    initialValues: formdata;
+    onPrev: (data: formdata) => void;
 }
+const Techlan: React.FC<TechlanPropes> = ({ onNext, initialValues, onPrev }) => {
+    const { register, handleSubmit,watch, getValues, formState: { errors } } = useForm({ defaultValues: initialValues });
 
-const Step1: React.FC<BasicProps> = ({ onNext, initialValues }) => {
-  const [cityarr,setCityarr] = useState<ICity[]>();
-  const { register, handleSubmit,getValues, control,reset, formState: { errors } } = useForm<formdata>({
-    defaultValues: initialValues,
-  });
-const statearray = State.getStatesOfCountry('IN');
+    const handlePrevious = () => {
+        const data = getValues();
+        onPrev(data);
+    }
 
-const setcity = (id:string) =>{
-  const getcities = City.getCitiesOfState('IN',id);
-  setCityarr(getcities)
+    const onSubmit: SubmitHandler<formdata> = data => {
+        onNext(data);
+    }
+    const Values = getValues();
+    const [tech_check, setTechcheck] = React.useState<Array<boolean|undefined>>([Values.php, Values.mysql, Values.laravel, Values.oracle]);
+    return (
+        <React.Fragment>
+            <Paper elevation={3} sx={{ marginRight: "10%", marginLeft: "10%" }}>
+                <Box component="form" onSubmit={handleSubmit(onSubmit)} sx={{ padding: 5 }}>
+                    <Typography variant="h6" gutterBottom sx={{ paddingBottom: 1 }}>
+                        KNOWN LANGUAGE
+                    </Typography>
+                    <Grid container spacing={1} sx={{ marginBottom: 5, maxWidth: "600px" }}>
+                        <Grid item xs={6} sm={3}>
+                            <InputLabel
+                                sx={{
+                                    fontWeight: 700,
+                                    textAlign: "center"
+                                }}
+                            >
+                                GUJARATI :
+                            </InputLabel>
+                        </Grid>
+                        <Grid item xs={6} sm={3}> Read <Checkbox {...register("guj_read")} defaultChecked={Values.guj_read} /></Grid>
+                        <Grid item xs={6} sm={3}> Write <Checkbox {...register("guj_write")} defaultChecked={Values.guj_write} /></Grid>
+                        <Grid item xs={6} sm={3}> Speak <Checkbox {...register("guj_speak")} defaultChecked={Values.guj_speak} /></Grid>
+
+                        <Grid item xs={6} sm={3}>
+                            <InputLabel
+                                sx={{
+                                    fontWeight: 700,
+                                    textAlign: "center"
+                                }}
+                            >
+                                HINDI :
+                            </InputLabel>
+                        </Grid>
+                        <Grid item xs={6} sm={3}> Read <Checkbox {...register("hin_read")} defaultChecked={Values.hin_read} /></Grid>
+                        <Grid item xs={6} sm={3}> Write <Checkbox {...register("hin_write")} defaultChecked={Values.hin_write} /></Grid>
+                        <Grid item xs={6} sm={3}> Speak <Checkbox {...register("hin_speak")} defaultChecked={Values.hin_speak} /></Grid>
+
+                        <Grid item xs={6} sm={3}>
+                            <InputLabel
+                                sx={{
+                                    fontWeight: 700,
+                                    textAlign: "center"
+                                }}
+                            >
+                                ENGLISH :
+                            </InputLabel>
+                        </Grid>
+                        <Grid item xs={6} sm={3}> Read <Checkbox {...register("eng_read")} defaultChecked={Values.eng_read} /></Grid>
+                        <Grid item xs={6} sm={3}> Write <Checkbox {...register("eng_write")} defaultChecked={Values.eng_write} /></Grid>
+                        <Grid item xs={6} sm={3}> Speak <Checkbox  {...register("eng_speak")} defaultChecked={Values.eng_speak} /></Grid>
+                    </Grid>
+
+                    <Typography variant="h6" gutterBottom sx={{ paddingBottom: 5 }}>
+                        KNOWN TECHNOLOGIES
+                    </Typography>
+                    <Grid container spacing={1} sx={{ marginBottom: 5, maxWidth: "900px" }}>
+                        <Grid item xs={6} sm={3}>
+                            <InputLabel
+                                sx={{
+                                    fontWeight: 700,
+                                    textAlign: "center"
+                                }}
+                            >
+                                <Checkbox {...register("php")} defaultChecked={Values.php} onClick={() => {setTechcheck([!tech_check[0], tech_check[1], tech_check[2], tech_check[3]])
+                                }} />
+                                PHP :
+                            </InputLabel>
+                        </Grid>
+                         <Grid item xs={12} sm={2} sx={{ fontSize: "18px" }}> Begginer <input {...register("php_level",{required:Values.php})} type="radio" value="begginer" disabled={!tech_check[0]} /></Grid>
+                        <Grid item xs={12} sm={2} sx={{ fontSize: "18px" }}> Mediator <input {...register("php_level",{required:Values.php})} type="radio" value="mediator" disabled={!tech_check[0]} /></Grid>
+                        <Grid item xs={12} sm={2} sx={{ fontSize: "18px" }}> Expert <input {...register("php_level",{required:Values.php})} type="radio" value="expert" disabled={!tech_check[0]} /></Grid>
+                        <Grid item xs={12} sm={2}> {errors.php_level && <span style={{color: "#d32f2f", fontSize: "0.75rem", padding: "0.2rem", fontWeight: "400"}}>This field is required</span>} </Grid>
+                    
+
+                        <Grid item xs={6} sm={3}>
+                            <InputLabel
+                                sx={{
+                                    fontWeight: 700,
+                                    textAlign: "center"
+                                }}
+                            >
+                                <Checkbox {...register("mysql")} defaultChecked={Values.mysql} onClick={() => setTechcheck([tech_check[0], !tech_check[1], tech_check[2], tech_check[3]])} />
+                                MYSQL :
+                            </InputLabel>
+                        </Grid>
+                        <Grid item xs={12} sm={2} sx={{ fontSize: "18px" }}> Begginer <input {...register("mysql_level",{required:Values.mysql})} type="radio" value="begginer" disabled={!tech_check[1]} /></Grid>
+                        <Grid item xs={12} sm={2} sx={{ fontSize: "18px" }}> Mediator <input {...register("mysql_level",{required:Values.mysql})} type="radio" value="mediator" disabled={!tech_check[1]} /></Grid>
+                        <Grid item xs={12} sm={2} sx={{ fontSize: "18px" }}> Expert <input {...register("mysql_level",{required:Values.mysql})} type="radio" value="expert" disabled={!tech_check[1]} /></Grid>
+                        <Grid item xs={12} sm={2}> {errors.mysql_level && <span style={{color: "#d32f2f", fontSize: "0.75rem", padding: "0.2rem", fontWeight: "400"}}>This field is required</span>} </Grid>
+
+                        <Grid item xs={6} sm={3}>
+                            <InputLabel
+                                sx={{
+                                    fontWeight: 700,
+                                    textAlign: "center"
+                                }}
+                            >
+                                <Checkbox {...register("laravel")} defaultChecked={Values.laravel} onClick={() => setTechcheck([tech_check[0], tech_check[1], !tech_check[2], tech_check[3]])} />
+                                LARAVEL :
+                            </InputLabel>
+                        </Grid>
+                        <Grid item xs={12} sm={2} sx={{ fontSize: "18px" }}> Begginer <input {...register("laravel_level",{required:Values.laravel})} type="radio" value="begginer" disabled={!tech_check[2]} /></Grid>
+                        <Grid item xs={12} sm={2} sx={{ fontSize: "18px" }}> Mediator <input {...register("laravel_level",{required:Values.laravel})} type="radio" value="mediator" disabled={!tech_check[2]} /></Grid>
+                        <Grid item xs={12} sm={2} sx={{ fontSize: "18px" }}> Expert <input {...register("laravel_level",{required:Values.laravel})} type="radio" value="expert" disabled={!tech_check[2]} /></Grid>
+                        <Grid item xs={12} sm={2}> {errors.laravel_level && <span style={{color: "#d32f2f", fontSize: "0.75rem", padding: "0.2rem", fontWeight: "400"}}>This field is required</span>} </Grid>
+
+                        <Grid item xs={6} sm={3}>
+                            <InputLabel
+                                sx={{
+                                    fontWeight: 700,
+                                    textAlign: "center"
+                                }}
+                            >
+                                <Checkbox {...register("oracle")} defaultChecked={Values.oracle} onClick={() => setTechcheck([tech_check[0], tech_check[1], tech_check[2], !tech_check[3]])} />
+                                ORACLE :
+                            </InputLabel>
+                        </Grid>
+                        <Grid item xs={12} sm={2} sx={{ fontSize: "18px" }}> Begginer <input {...register("oracle_level",{required:Values.oracle})} type="radio" value="begginer" disabled={!tech_check[3]} /></Grid>
+                        <Grid item xs={12} sm={2} sx={{ fontSize: "18px" }}> Mediator <input {...register("oracle_level",{required:Values.oracle})} type="radio" value="mediator" disabled={!tech_check[3]} /></Grid>
+                        <Grid item xs={12} sm={2} sx={{ fontSize: "18px" }}> Expert <input {...register("oracle_level",{required:Values.oracle})} type="radio" value="expert" disabled={!tech_check[3]} /></Grid>
+                        <Grid item xs={12} sm={2}> {errors.oracle_level && <span style={{color: "#d32f2f", fontSize: "0.75rem", padding: "0.2rem", fontWeight: "400"}}>This field is required</span>} </Grid>
+                    </Grid>
+                    <Grid item xs={12} sm={4}>
+                        <Button onClick={handlePrevious} variant="contained" sx={{ marginRight: 5 }}>
+                            Previous
+                        </Button>
+                        <Button type="submit" variant="contained" >
+                            NEXT
+                        </Button>
+                    </Grid>
+                </Box>
+            </Paper>
+        </React.Fragment>
+    )
 }
-  useEffect(() => {
-    reset(initialValues);
-     // Reset the form with initial values
-  }, [initialValues, reset]);
-  
-  const todayDate = new Date().toISOString().split("T")[0];
-  const onSubmit: SubmitHandler<formdata> = data => {
-    onNext(data);
-  };
-  return (
-    <React.Fragment>
-      <Paper elevation={3} sx={{ marginRight: "15%", marginLeft: "15%" }}>
-        <Box component="form" onSubmit={handleSubmit(onSubmit)} sx={{ padding: 5 }}>
-          <Typography variant="h6" gutterBottom sx={{ paddingBottom: 5 }}>
-            BASIC DETAILS
-          </Typography>
-          <Grid container spacing={3}>
-            <Grid item xs={12} sm={2}>
-              <InputLabel
-                sx={{
-                  display: "flex",
-                  justifyContent: "center",
-                  fontWeight: 700
-                }}
-              >
-                First Name
-              </InputLabel>
-            </Grid>
-            <Grid item xs={12} sm={4}>
-              <Controller
-                control={control}
-                name="fname"
-                rules={{ required: "First name is required",pattern:{value:/^[a-zA-Z]+$/,message:"invalida input"} }}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    fullWidth
-                    sx={{ maxWidth: 600 }}
-                    label="First Name"
-                    margin="dense"
-                    error={!!errors.fname}
-                    helperText={errors.fname ? errors.fname.message : null}
-                  />
-                )}
-              />
-            </Grid>
-            <Grid item xs={12} sm={2}>
-              <InputLabel
-                sx={{
-                  display: "flex",
-                  justifyContent: "center",
-                  fontWeight: 700
-                }}
-              >
-                Last Name
-              </InputLabel>
-            </Grid>
-            <Grid item xs={12} sm={4}>
-              <Controller
-                control={control}
-                name="lname"
-                rules={{ required: "Last name is required",pattern:{value:/^[a-zA-Z]+$/,message:"invalida input"} }}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    fullWidth
-                    sx={{ maxWidth: 600 }}
-                    label="Last Name"
-                    margin="dense"
-                    error={!!errors.lname}
-                    helperText={errors.lname ? errors.lname.message : null}
-                  />
-                )}
-              />
-            </Grid>
-            <Grid item xs={12} sm={2}>
-              <InputLabel
-                sx={{
-                  display: "flex",
-                  justifyContent: "center",
-                  fontWeight: 700
-                }}
-              >
-                Designation
-              </InputLabel>
-            </Grid>
-            <Grid item xs={12} sm={4}>
-              <FormControl fullWidth size="small">
-                <TextField
-                  {...register("designation", { required: "Designation is required" })}
-                  id="Designation"
-                  label="Designation"
-                  error={!!errors.designation}
-                  helperText={errors.designation ? errors.designation.message : null}
-                />
-              </FormControl>
-            </Grid>
-            <Grid item xs={12} sm={2} />
-            <Grid item xs={12} sm={4} />
-            <Grid item xs={12} sm={2}>
-              <InputLabel
-                sx={{
-                  display: "flex",
-                  justifyContent: "center",
-                  fontWeight: 700
-                }}
-              >
-                Address 1
-              </InputLabel>
-            </Grid>
-            <Grid item xs={12} sm={4}>
-              <FormControl fullWidth size="small">
-                <TextField
-                  id="add1"
-                  {...register("add1", { required: "Address 1 is required" })}
-                  label="plot no:123,down street,..."
-                  error={!!errors.add1}
-                  helperText={errors.add1 ? errors.add1.message : null}
-                />
-              </FormControl>
-            </Grid>
-            <Grid item xs={12} sm={2}>
-              <InputLabel
-                sx={{
-                  display: "flex",
-                  justifyContent: "center",
-                  fontWeight: 700
-                }}
-              >
-                Address 2
-              </InputLabel>
-            </Grid>
-            <Grid item xs={12} sm={4}>
-              <TextField
-                
-                id="add2"
-                {...register("add2", { required: "Address 2 is required" })}
-                label="plot no:567,war street,..."
-                fullWidth
-                error={!!errors.add2}
-                helperText={errors.add2 ? errors.add2.message : null}
-              />
-            </Grid>
-            {/*--------------------------mail phno --------------------------- */}
-            <Grid item xs={12} sm={2}>
-              <InputLabel
-                sx={{
-                  display: "flex",
-                  justifyContent: "center",
-                  fontWeight: 700
-                }}
-              >
-                Email
-              </InputLabel>
-            </Grid>
-            <Grid item xs={12} sm={4}>
-              <FormControl fullWidth size="small">
-                <TextField
-                  
-                  type="email"
-                  id="mail"
-                  {...register("email", { required: "Email is required", pattern: { value: /^\S+@\S+\.\S+$/, message: "Enter a valid email address" } })}
-                  label="abc@gmail.com"
-                  error={!!errors.email}
-                  helperText={errors.email ? errors.email.message : null}
-                />
-              </FormControl>
-            </Grid>
-            <Grid item xs={12} sm={2}>
-              <InputLabel
-                sx={{
-                  display: "flex",
-                  justifyContent: "center",
-                  fontWeight: 700
-                }}
-              >
-                Phone Number
-              </InputLabel>
-            </Grid>
-            <Grid item xs={12} sm={4}>
-              <TextField
-                type="tel"
-                id="phno"
-                {...register("phno", { required: "Phone number is required", pattern: { value: /^[6789]\d{9}$/, message: "Enter a valid 10-digit phone number starting with 6,7, 8, or 9" } })}
-                label="XXXXXXXXXX"
-                fullWidth
-                error={!!errors.phno}
-                helperText={errors.phno ? errors.phno.message : null}
-              />
-            </Grid>
-            {/*------------------------city state ----------------------*/}
-            <Grid item xs={12} sm={2}>
-              <InputLabel
-                sx={{
-                  display: "flex",
-                  justifyContent: "center",
-                  fontWeight: 700
-                }}
-              >
-                State
-              </InputLabel>
-            </Grid>
-            <Grid item xs={12} sm={4}>
-            <Controller
-                name="state"
-                control={control}
-                rules={{ required: "state is required" }}
-                render={({ field }) => (
-                  <FormControl fullWidth>
-                    <InputLabel id="state-label">State</InputLabel>
-                    <Select
-                    defaultValue={initialValues.state}
-                      labelId="state-label"
-                      id="state"
-                      label="state"
-                      {...field}
-                      error={!!errors.state}
-                    >
-                      {statearray.map((st:IState) => (
-                        <MenuItem key={st.name} value={st.name} onClick={() => setcity(st.isoCode)}>
-                          {st.name}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                    {errors.state && (
-                      <span style={{ color: "#d32f2f", fontSize: "0.75rem", padding: "0.2rem", fontWeight: "400" }}>{errors.state.message}</span>
-                    )}
-                  </FormControl>
-                )}
-              />
-            </Grid>
-            <Grid item xs={12} sm={2}>
-              <InputLabel
-                sx={{
-                  display: "flex",
-                  justifyContent: "center",
-                  fontWeight: 700
-                }}
-              >
-                City
-              </InputLabel>
-            </Grid>
-            <Grid item xs={12} sm={4}>
-            <Controller
-                name="city"
-                control={control}
-                rules={{ required: "city is required" }}
-                render={({ field }) => (
-                  <FormControl fullWidth>
-                    <InputLabel id="city-label">City</InputLabel>
-                    <Select
-                    defaultValue={initialValues.city}
-                      labelId="city-label"
-                      id="city"
-                      label="city"
-                      {...field}
-                      error={!!errors.state}
-                    >
-                      {cityarr?.map((st:ICity) => (
-                        <MenuItem key={st.name} value={st.name} onChange={() => setcity(st.name)}>
-                          {st.name}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                    {errors.state && (
-                      <span style={{ color: "#d32f2f", fontSize: "0.75rem", padding: "0.2rem", fontWeight: "400" }}>{errors.state.message}</span>
-                    )}
-                  </FormControl>
-                )}
-              />
-            </Grid>
-            <Grid item xs={12} sm={2}>
-              <InputLabel
-                sx={{
-                  display: "flex",
-                  justifyContent: "center",
-                  fontWeight: 700
-                }}
-              >
-                Gender
-              </InputLabel>
-            </Grid>
-            <Grid item xs={12} sm={4}>
-              <Grid item xs={12} sm={8}>
-                Female
-                <input {...register("gender", { required: "Gender is required" })} type="radio" value="female" />
-                Male <input {...register("gender", { required: "Gender is required" })} type="radio" value="male" />
-                Other <input {...register("gender", { required: "Gender is required" })} type="radio" value="other" />
-              </Grid>
-              {errors.gender && (
-                <span style={{ color: "red" }}>{errors.gender.message}</span>
-              )}
-            </Grid>
-            <Grid item xs={12} sm={2}>
-              <InputLabel
-                sx={{
-                  display: "flex",
-                  justifyContent: "center",
-                  fontWeight: 700
-                }}
-              >
-                DOB
-              </InputLabel>
-            </Grid>
-            <Grid item xs={12} sm={4}>
-              <TextField
-                id="date"
-                label="Birthday"
-                type="date"
-                {...register("dob", { required: "Date of Birth is required" })}
-                InputLabelProps={{
-                  shrink: true,
-                }}
-                inputProps={{
-                  max: todayDate,
-                }}
-                error={!!errors.dob}
-                helperText={errors.dob ? errors.dob.message : null}
-              />
-            </Grid>
-
-            <Grid item xs={12} sm={6} />
-            <Grid item xs={12} sm={5} />
-            <Grid item xs={12} sm={4}>
-              <Button type="submit" variant="contained" sx={{ color: "#ff781f" }}>
-                NEXT
-              </Button>
-            </Grid>
-            <Grid item xs={12} sm={5} />
-          </Grid>
-        </Box>
-      </Paper>
-    </React.Fragment>
-  );
-};
-
-export default Step1;
+export default Techlan;
