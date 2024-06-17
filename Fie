@@ -1,214 +1,41 @@
-import React, { useState } from "react";
-import { useForm, Controller } from "react-hook-form";
-import Grid from "@mui/material/Grid";
-import Typography from "@mui/material/Typography";
-import MenuItem from "@mui/material/MenuItem";
-import Box from "@mui/material/Box";
-import Paper from "@mui/material/Paper";
-import InputLabel from "@mui/material/InputLabel";
-import Button from "@mui/material/Button";
-import FormControl from "@mui/material/FormControl";
-import Select,{ SelectChangeEvent } from "@mui/material/Select";
-import TextField from "@mui/material/TextField";
-import { Stack,Chip } from "@mui/material";
-import { formdata } from "../services/interfaces";
+You need to make a few changes to your code to make the preferred location field a multiple select. Here's the updated code:
 
-interface PrefProps {
-    onSubmit: (data: formdata) => void;
-    initialValues: formdata;
-    onPrev: (data: formdata) => void;
-}
+```
+jsx
+<Controller 
+  name="location" 
+  control={control} 
+  render={({ field }) => (
+    <FormControl fullWidth>
+      <InputLabel id="location-label">location</InputLabel>
+      <Select 
+        {...field} 
+        multiple 
+        labelId="location-label" 
+        id="location" 
+        label="location"
+        value={selectedLocation}
+        onChange={(e: SelectChangeEvent<string[]>) => {
+          setSelectedLocation(e.target.value);
+          field.onChange(e.target.value);
+        }}
+      >
+        {locations.map((name) => (
+          <MenuItem key={name} value={name}>
+            {name}
+          </MenuItem>
+        ))}
+      </Select>
+    </FormControl>
+  )}
+/>
+```
 
-const locations = [
-    "ahmedabad",
-    "gandhinagar",
-    "bhavnagar",
-    "rajkot",
-];
+In the above code:
 
-const Pref: React.FC<PrefProps> = ({ onSubmit, initialValues, onPrev }) => {
-    const { register, handleSubmit, getValues, control, formState: { errors } } = useForm({ defaultValues: initialValues });
-    const [selectedLocation, setSelectedLocation] = useState< | string[]>([]);
-    const handleprevious = () => {
-        const data = getValues();
-        onPrev(data);
-    }
+- We added a state `selectedLocation` to store the selected locations.
+- We set the `multiple` prop to `true` in the `Select` component.
+- We updated the `value` prop of the `Select` component to `selectedLocation`.
+- We updated the `onChange` event handler to update both the `selectedLocation` state and the form field value.
 
-    return (
-        <React.Fragment>
-            <Paper elevation={3} sx={{ marginRight: "10%", marginLeft: "10%" }}>
-                <Box component="form" onSubmit={handleSubmit(onSubmit)} sx={{ padding: 5 }}>
-                    <Typography variant="h6" gutterBottom sx={{ paddingBottom: 5 }}>
-                        PREFERENCES
-                    </Typography>
-                    <Grid container spacing={3}>
-                        <Grid item xs={12} sm={2}>
-                            <InputLabel
-                                sx={{
-                                    display: "flex",
-                                    justifyContent: "center",
-                                    fontWeight: 700
-                                }}
-                            >
-                                Prefered Location
-                            </InputLabel>
-                        </Grid>
-                        <Grid item xs={12} sm={4}>
-                            <Controller
-                                name="location"
-                                control={control}
-                                render={({ field,fieldState:{error} }) => (
-                                    <FormControl fullWidth>
-                                        <InputLabel id="location-label">location</InputLabel>
-                                        <Select
-                                        {...field}
-                                            multiple
-                                            labelId="location-label"
-                                            id="location"
-                                            label="location"
-                                            renderValue={(selected:Array<string>) => selected.join(",")}
-                                        >
-                                        {/* <MenuItem value="ahmedabad">AHMEDABAD</MenuItem>
-                                            <MenuItem value="gandhinagar">GANDHINAGAR</MenuItem>
-                                            <MenuItem value="bhavnagar">BHAVNAGAR</MenuItem>
-                                            <MenuItem value="rajkot">RAJKOT</MenuItem> */}
-                                        {locations.map((name) => (
-                                            <MenuItem key={name} value={name}>
-                                                {name}
-                                            </MenuItem>
-                                        ))}
-                                    </Select>
-                                    </FormControl>
-                                )}
-                            />
-                    </Grid>
-                    <Grid item xs={12} sm={2} />
-                    <Grid item xs={12} sm={4} />
-                    <Grid item xs={12} sm={2}>
-                        <InputLabel
-                            sx={{
-                                display: "flex",
-                                justifyContent: "center",
-                                fontWeight: 700
-                            }}
-                        >
-                            Notice Period
-                        </InputLabel>
-                    </Grid>
-                    <Grid item xs={12} sm={4}>
-                        <TextField
-
-                            id="notice"
-                            label="notice period"
-                            {...register("notice")}
-                        >
-                        </TextField>
-                    </Grid>
-
-                    <Grid item xs={12} sm={2} />
-                    <Grid item xs={12} sm={4} />
-
-                    <Grid item xs={12} sm={2}>
-                        <InputLabel
-                            sx={{
-                                display: "flex",
-                                justifyContent: "center",
-                                fontWeight: 700
-                            }}
-                        >
-                            Expected CTC
-                        </InputLabel>
-                    </Grid>
-                    <Grid item xs={6} sm={3}>
-                        <Controller
-                            control={control}
-                            name="expected_ctc"
-                            rules={{ required: "This field is required", pattern: { value: /^(3\.[6-9|4\.[0-9]|5\.[0])/, message: "Enter valid input" } }}
-                            render={({ field }) => (
-                                <TextField
-                                    {...field}
-                                    placeholder="3.0 to 5.0 lpa"
-                                    fullWidth
-                                    sx={{ maxWidth: 600 }}
-                                    label="Expected ctc"
-                                    margin="dense"
-                                    error={!!errors.expected_ctc}
-                                    helperText={errors.expected_ctc ? errors.expected_ctc.message : null}
-                                />
-                            )}
-                        />
-                    </Grid>
-                    <Grid item xs={12} sm={2}>
-                        <InputLabel
-                            sx={{
-                                display: "flex",
-                                justifyContent: "center",
-                                fontWeight: 700
-                            }}
-                        >
-                            Current CTC
-                        </InputLabel>
-                    </Grid>
-                    <Grid item xs={6} sm={3}>
-                        <TextField
-
-                            id="curr_ctc"
-                            label="current ctc"
-                            {...register("curr_ctc")}
-                        >
-                        </TextField>
-                    </Grid>
-
-                    <Grid item xs={6} sm={1} />
-
-                    <Grid item xs={12} sm={2}>
-                        <InputLabel
-                            sx={{
-                                display: "flex",
-                                justifyContent: "center",
-                                fontWeight: 700
-                            }}
-                        >
-                            Department
-                        </InputLabel>
-                    </Grid>
-                    <Grid item xs={12} sm={4}>
-                        <Controller
-                            name="department"
-                            control={control}
-                            render={({ field }) => (
-                                <FormControl fullWidth>
-                                    <InputLabel id="dep">Year</InputLabel>
-                                    <Select
-                                        labelId="dep"
-                                        id="dep"
-                                        label="dep"
-                                        {...field}
-                                    >
-                                        <MenuItem value="development">Development</MenuItem>
-                                        <MenuItem value="marketing">Marketing</MenuItem>
-                                        <MenuItem value="hr">HR</MenuItem>
-                                    </Select>
-                                </FormControl>
-                            )}
-                        />
-                    </Grid>
-
-                    <Grid item xs={12} sm={6} />
-                    <Grid item xs={12} sm={5} />
-                    <Grid item xs={12} sm={4}>
-                        <Button onClick={handleprevious} variant="contained" sx={{ marginRight: 5 }}>
-                            Previous
-                        </Button>
-                        <Button type="submit" variant="contained" >
-                            SUBMIT
-                        </Button>
-                    </Grid>
-                    <Grid item xs={12} sm={5} />
-                </Grid>
-            </Box>
-        </Paper>
-        </React.Fragment >
-    )
-}
-export default Pref;
+Now, the preferred location field should work as a multiple select.
