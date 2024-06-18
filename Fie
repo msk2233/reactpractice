@@ -1,129 +1,86 @@
-// src/auth/AuthProvider.tsx
-import React, { createContext, useContext, useState } from 'react';
-
-interface AuthContextProps {
-  isAuthenticated: boolean;
-  login: (token: string) => void;
-  logout: () => void;
-}
-
-const AuthContext = createContext<AuthContextProps | undefined>(undefined);
-
-export const AuthProvider: React.FC = ({ children }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-
-  const login = (token: string) => {
-    localStorage.setItem('token', token);
-    setIsAuthenticated(true);
-  };
-
-  const logout = () => {
-    localStorage.removeItem('token');
-    setIsAuthenticated(false);
-  };
-
-  return (
-    <AuthContext.Provider value={{ isAuthenticated, login, logout }}>
-      {children}
-    </AuthContext.Provider>
-  );
-};
-
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
-};
-// src/components/ProtectedRoute.tsx
-import React from 'react';
-import { Route, Redirect } from 'react-router-dom';
-import { useAuth } from '../auth/AuthProvider';
-
-interface ProtectedRouteProps {
-  component: React.ComponentType;
-  path: string;
-  exact?: boolean;
-}
-
-const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ component: Component, ...rest }) => {
-  const { isAuthenticated } = useAuth();
-
-  return (
-    <Route
-      {...rest}
-      render={(props) =>
-        isAuthenticated ? (
-          <Component {...props} />
-        ) : (
-          <Redirect to="/login" />
-        )
-      }
-    />
-  );
-};
-
-export default ProtectedRoute;
-// src/Application.tsx
-import React from "react";
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import Reg from './Pages/Register';
-import Login from './Pages/Login';
-import Crud from './Pages/Crud';
-import Home from './Pages/Home';
-import Challenges from './Pages/challanges';
-import Challenge1 from "./challanges/challenge1";
-import Challenge2 from "./challanges/challenge2";
-import Challenge3 from "./challanges/challenge3";
-import Challenge4 from "./challanges/challenge4";
-import Challenge5 from "./challanges/challenge5";
-import Challenge6 from "./challanges/challenge6";
-import Challenge7 from "./challanges/challenge7";
-import Challenge8 from "./challanges/challenge8";
-import { Employee } from "./challanges/challenge8";
-import { Ids } from "./challanges/challenge8";
-import Challenge9 from "./challanges/challenge9";
-import { AuthProvider } from "./auth/AuthProvider";
-import ProtectedRoute from "./components/ProtectedRoute";
-
-const Application: React.FC = () => {
-  return (
-    <AuthProvider>
-      <Router>
-        <Routes>
-          <Route path="/register" element={<Reg />} />
-          <Route path="/" element={<Reg />} />
-          <Route path="/login" element={<Login />} />
-          <ProtectedRoute path="/Home" element={<Home />} />
-          <ProtectedRoute path="/Home/crud" element={<Crud />} />
-          <ProtectedRoute path="/Home/challenges" element={<Challenges />} />
-          <ProtectedRoute path="/Home/challenges/challenge1" element={<Challenge1 />} />
-          <ProtectedRoute path="/Home/challenges/challenge2" element={<Challenge2 />} />
-          <ProtectedRoute path="/Home/challenges/challenge3" element={<Challenge3 />} />
-          <ProtectedRoute path="/Home/challenges/challenge4" element={<Challenge4 />} />
-          <ProtectedRoute path="/Home/challenges/challenge5" element={<Challenge5 />} />
-          <ProtectedRoute path="/Home/challenges/challenge6" element={<Challenge6 />} />
-          <ProtectedRoute path="/Home/challenges/challenge7" element={<Challenge7 />} />
-          <ProtectedRoute path="/Home/challenges/challenge8" element={<Challenge8 />} />
-          <ProtectedRoute path="/Home/challenges/challenge8/:name" element={<Employee />} />
-          <ProtectedRoute path="/Home/challenges/challenge8/Idss/:id" element={<Ids />} />
-          <ProtectedRoute path="/Home/challenges/challenge9" element={<Challenge9 />} />
-        </Routes>
-      </Router>
-    </AuthProvider>
-  );
-};
-
-export default Application;
-// src/Pages/Login.tsx
+import 'bootstrap/dist/css/bootstrap.min.css';
+import axios from "axios";
 import React, { useState } from 'react';
-import axios from 'axios';
-import { useAuth } from '../auth/AuthProvider';
+import { NavigateFunction, useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { login } from '../api/auth';
 
-const Login: React.FC = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const { login } = useAuth();
+interface person {
+    email: string
+    pass:string
+}
+let initialState: person = {
+    email: "",
+    pass:"",
+}
+const Login = () => {
+    const [person, setPerson] = useState<person>(initialState)
+    const Navigate:NavigateFunction = useNavigate();
+    const dispatch = useDispatch();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+const submitdata = async (e: React.FormEvent<HTMLFormElement>) =>{
+    e.preventDefault()
+    axios.post<{res:string}>('http://localhost:5050/login', person,{withCredentials:true})
+    .then(async (response) => {
+        if (response.data.res === "yes") {
+            const username:string = "msk@gmail.com";
+            const password:string = "abcd";
+            data();
+            setPerson({email:username,pass:password})
+            Navigate("/home");
+        } 
+    })
+    .catch(function (error) {
+        console.log(error);
+    });  
+}
+const data =async () =>{
+    await dispatch(login(person.email, person.pass));
+}
+const oninpChangeHandler = (event: HTMLInputElement) =>{
+    const { name, value } = event
+    setPerson((prev) => {
+        return { ...prev, [name]: value }
+    })
+}
+    return (
+        <>
+         <section className="vh-100 ">
+            <div className='vh-100 gradient-custom'>
+            <div className="container py-5 h-100">
+                <div className="row d-flex justify-content-center align-items-center h-100">
+                    <div className="col-12 col-md-8 col-lg-6 col-xl-5">
+                        <div className="card shadow-5-strong" style={{ borderRadius: "1 rem",border:"1px solid #BFBFBF",backgroundColor:"white",boxShadow:"10px 10px 5px #aaaaaa" }}>
+                            <div className="card-body p-5 text-center " >
+
+                                <h3 className="mb-5">Sign in</h3>
+                                    <form id='form' onSubmit={submitdata}>
+
+                                <div data-mdb-input-init className="form-outline mb-4">
+                                    <input name='email' type="text" id="typeEmailX-2" className="form-control form-control-lg" value={person.email} onChange={(e) => oninpChangeHandler(e.target)} />
+                                    <label className="form-label" htmlFor="typeEmailX-2" >Email</label>
+                                </div>
+
+                                <div data-mdb-input-init className="form-outline mb-4">
+                                    <input name='pass' type="password" id="typePasswordX-2" value={person.pass} className="form-control form-control-lg" onChange={(e) => oninpChangeHandler(e.target)} />
+                                    <label className="form-label" htmlFor="typePasswordX-2">Password</label>
+                                </div>
+
+
+                                <div className="mt-4 pt-2">
+                                            <input data-mdb-ripple-init className="btn btn-primary btn-lg" value="Submit" type='submit' />
+                                            </div>
+                                            <div>Register Here! <a href='/register'>REGISTER</a></div>
+                            </form>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+        </section > 
+        </>
+    )
+}
+export default Login;
