@@ -1,41 +1,129 @@
-You need to make a few changes to your code to make the preferred location field a multiple select. Here's the updated code:
+// src/auth/AuthProvider.tsx
+import React, { createContext, useContext, useState } from 'react';
 
-```
-jsx
-<Controller 
-  name="location" 
-  control={control} 
-  render={({ field }) => (
-    <FormControl fullWidth>
-      <InputLabel id="location-label">location</InputLabel>
-      <Select 
-        {...field} 
-        multiple 
-        labelId="location-label" 
-        id="location" 
-        label="location"
-        value={selectedLocation}
-        onChange={(e: SelectChangeEvent<string[]>) => {
-          setSelectedLocation(e.target.value);
-          field.onChange(e.target.value);
-        }}
-      >
-        {locations.map((name) => (
-          <MenuItem key={name} value={name}>
-            {name}
-          </MenuItem>
-        ))}
-      </Select>
-    </FormControl>
-  )}
-/>
-```
+interface AuthContextProps {
+  isAuthenticated: boolean;
+  login: (token: string) => void;
+  logout: () => void;
+}
 
-In the above code:
+const AuthContext = createContext<AuthContextProps | undefined>(undefined);
 
-- We added a state `selectedLocation` to store the selected locations.
-- We set the `multiple` prop to `true` in the `Select` component.
-- We updated the `value` prop of the `Select` component to `selectedLocation`.
-- We updated the `onChange` event handler to update both the `selectedLocation` state and the form field value.
+export const AuthProvider: React.FC = ({ children }) => {
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
 
-Now, the preferred location field should work as a multiple select.
+  const login = (token: string) => {
+    localStorage.setItem('token', token);
+    setIsAuthenticated(true);
+  };
+
+  const logout = () => {
+    localStorage.removeItem('token');
+    setIsAuthenticated(false);
+  };
+
+  return (
+    <AuthContext.Provider value={{ isAuthenticated, login, logout }}>
+      {children}
+    </AuthContext.Provider>
+  );
+};
+
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+};
+// src/components/ProtectedRoute.tsx
+import React from 'react';
+import { Route, Redirect } from 'react-router-dom';
+import { useAuth } from '../auth/AuthProvider';
+
+interface ProtectedRouteProps {
+  component: React.ComponentType;
+  path: string;
+  exact?: boolean;
+}
+
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ component: Component, ...rest }) => {
+  const { isAuthenticated } = useAuth();
+
+  return (
+    <Route
+      {...rest}
+      render={(props) =>
+        isAuthenticated ? (
+          <Component {...props} />
+        ) : (
+          <Redirect to="/login" />
+        )
+      }
+    />
+  );
+};
+
+export default ProtectedRoute;
+// src/Application.tsx
+import React from "react";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import Reg from './Pages/Register';
+import Login from './Pages/Login';
+import Crud from './Pages/Crud';
+import Home from './Pages/Home';
+import Challenges from './Pages/challanges';
+import Challenge1 from "./challanges/challenge1";
+import Challenge2 from "./challanges/challenge2";
+import Challenge3 from "./challanges/challenge3";
+import Challenge4 from "./challanges/challenge4";
+import Challenge5 from "./challanges/challenge5";
+import Challenge6 from "./challanges/challenge6";
+import Challenge7 from "./challanges/challenge7";
+import Challenge8 from "./challanges/challenge8";
+import { Employee } from "./challanges/challenge8";
+import { Ids } from "./challanges/challenge8";
+import Challenge9 from "./challanges/challenge9";
+import { AuthProvider } from "./auth/AuthProvider";
+import ProtectedRoute from "./components/ProtectedRoute";
+
+const Application: React.FC = () => {
+  return (
+    <AuthProvider>
+      <Router>
+        <Routes>
+          <Route path="/register" element={<Reg />} />
+          <Route path="/" element={<Reg />} />
+          <Route path="/login" element={<Login />} />
+          <ProtectedRoute path="/Home" element={<Home />} />
+          <ProtectedRoute path="/Home/crud" element={<Crud />} />
+          <ProtectedRoute path="/Home/challenges" element={<Challenges />} />
+          <ProtectedRoute path="/Home/challenges/challenge1" element={<Challenge1 />} />
+          <ProtectedRoute path="/Home/challenges/challenge2" element={<Challenge2 />} />
+          <ProtectedRoute path="/Home/challenges/challenge3" element={<Challenge3 />} />
+          <ProtectedRoute path="/Home/challenges/challenge4" element={<Challenge4 />} />
+          <ProtectedRoute path="/Home/challenges/challenge5" element={<Challenge5 />} />
+          <ProtectedRoute path="/Home/challenges/challenge6" element={<Challenge6 />} />
+          <ProtectedRoute path="/Home/challenges/challenge7" element={<Challenge7 />} />
+          <ProtectedRoute path="/Home/challenges/challenge8" element={<Challenge8 />} />
+          <ProtectedRoute path="/Home/challenges/challenge8/:name" element={<Employee />} />
+          <ProtectedRoute path="/Home/challenges/challenge8/Idss/:id" element={<Ids />} />
+          <ProtectedRoute path="/Home/challenges/challenge9" element={<Challenge9 />} />
+        </Routes>
+      </Router>
+    </AuthProvider>
+  );
+};
+
+export default Application;
+// src/Pages/Login.tsx
+import React, { useState } from 'react';
+import axios from 'axios';
+import { useAuth } from '../auth/AuthProvider';
+
+const Login: React.FC = () => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const { login } = useAuth();
+
+  const handleSubmit = async (e: React.FormEvent) => {
