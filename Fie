@@ -1,165 +1,26 @@
-import React from "react";
-import { Route, Navigate } from "react-router-dom";
-import { useSelector } from "react-redux";
-import { isAuthSelector } from "../store/auth";
-
-function GuestRoute(props:any) {
-  const isAuth = useSelector(isAuthSelector);
-
-  return isAuth
-    ? <Navigate to="/" />
-    : <Route {...props} />;
+{
+  "compilerOptions": {
+    "target": "es5",
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "noFallthroughCasesInSwitch": true,
+    "module": "esnext",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react-jsx"
+  },
+  "include": [
+    "src"
+  ]
 }
--- MySQL dump 10.13  Distrib 8.0.36, for Linux (x86_64)
---
--- Host: localhost    Database: crowncloth
--- ------------------------------------------------------
--- Server version	8.0.37-0ubuntu0.20.04.3
-
-/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
-/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
-/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!50503 SET NAMES utf8 */;
-/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
-/*!40103 SET TIME_ZONE='+00:00' */;
-/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
-/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
-/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
-/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
-
---
--- Table structure for table `cart`
---
-
-DROP TABLE IF EXISTS `cart`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `cart` (
-  `cart_id` int NOT NULL AUTO_INCREMENT,
-  `user_id` int DEFAULT NULL,
-  `item_id` int DEFAULT NULL,
-  `isdeleted` tinyint(1) DEFAULT '0',
-  `deletedAt` timestamp NULL DEFAULT NULL,
-  `createdAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp NULL DEFAULT NULL,
-  `quantity` int NOT NULL,
-  PRIMARY KEY (`cart_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `cart`
---
-
-LOCK TABLES `cart` WRITE;
-/*!40000 ALTER TABLE `cart` DISABLE KEYS */;
-INSERT INTO `cart` VALUES (1,12,7,0,NULL,'2024-06-19 03:46:49',NULL,2),(2,12,8,1,NULL,'2024-06-19 05:15:17',NULL,4),(3,12,9,0,NULL,'2024-06-19 05:15:19',NULL,2),(6,NULL,9,0,NULL,'2024-06-19 13:48:26',NULL,1),(7,NULL,8,0,NULL,'2024-06-19 13:48:31',NULL,1),(8,NULL,8,0,NULL,'2024-06-19 13:49:02',NULL,1),(9,NULL,8,0,NULL,'2024-06-19 13:49:19',NULL,1),(10,NULL,8,0,NULL,'2024-06-19 13:50:36',NULL,1),(11,NULL,7,0,NULL,'2024-06-19 13:51:51',NULL,1);
-/*!40000 ALTER TABLE `cart` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `items`
---
-
-DROP TABLE IF EXISTS `items`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `items` (
-  `item_id` int NOT NULL AUTO_INCREMENT,
-  `item_name` varchar(255) NOT NULL,
-  `item_photo` varchar(255) NOT NULL,
-  `item_desc` varchar(255) NOT NULL,
-  `item_price` varchar(255) NOT NULL,
-  `isdeleted` tinyint(1) NOT NULL DEFAULT '0',
-  `deletedAt` datetime DEFAULT NULL,
-  `createdAt` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `updatedAt` datetime DEFAULT NULL,
-  PRIMARY KEY (`item_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `items`
---
-
-LOCK TABLES `items` WRITE;
-/*!40000 ALTER TABLE `items` DISABLE KEYS */;
-INSERT INTO `items` VALUES (7,'tshirt','/uploads/item_img1717566819795-shopping.webp','this is tshirt','600',0,NULL,'2024-06-05 05:53:39','2024-06-05 05:53:39'),(8,'jeans','/uploads/depositphotos_17597535-stock-photo-jeans.webp','this is jeans','500',0,NULL,'2024-06-05 05:53:41','2024-06-05 05:53:41'),(9,'tshirt','/uploads/item_img1717652305809-shopping.webp','this is black tshirt','200',0,NULL,'2024-06-06 11:08:25',NULL),(10,'fancy top','/uploads/item_img1718878880868-img3jpeg','fancy one piece with jacket','1000',0,NULL,'2024-06-20 15:51:20',NULL),(11,'one pieced floral','/uploads/item_img1718878921090-img2.jpg','one pieced floral','2500',0,NULL,'2024-06-20 15:52:01',NULL),(12,'green top','/uploads/item_img1718879418384-images4.jpeg','green top','3000',0,NULL,'2024-06-20 16:00:18',NULL),(13,'white shirt ','/uploads/item_img1718879814040-img5.jpeg','white shirt ','500',0,NULL,'2024-06-20 16:06:54',NULL),(14,'men\'s shirt ','/uploads/item_img1718879842438-img7.jpeg','men\'s shirt ','200',0,NULL,'2024-06-20 16:07:22',NULL),(15,'silk shirt ','/uploads/item_img1718879871255-img6.jpeg','silk shirt ','700',0,NULL,'2024-06-20 16:07:51',NULL);
-/*!40000 ALTER TABLE `items` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `properties`
---
-
-DROP TABLE IF EXISTS `properties`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `properties` (
-  `prop_id` int NOT NULL AUTO_INCREMENT,
-  `property` varchar(255) NOT NULL,
-  `item_id` int NOT NULL,
-  `isdeleted` tinyint(1) DEFAULT '0',
-  `deletedAt` datetime DEFAULT NULL,
-  `createdAt` datetime DEFAULT NULL,
-  `updatedAt` datetime DEFAULT NULL,
-  PRIMARY KEY (`prop_id`),
-  KEY `item_id` (`item_id`),
-  CONSTRAINT `properties_ibfk_1` FOREIGN KEY (`item_id`) REFERENCES `items` (`item_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `properties`
---
-
-LOCK TABLES `properties` WRITE;
-/*!40000 ALTER TABLE `properties` DISABLE KEYS */;
-INSERT INTO `properties` VALUES (1,'denim',7,0,NULL,NULL,NULL),(2,'maroon',8,0,NULL,NULL,NULL),(3,'smooth',8,0,NULL,NULL,NULL);
-/*!40000 ALTER TABLE `properties` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `users`
---
-
-DROP TABLE IF EXISTS `users`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `users` (
-  `u_id` int NOT NULL AUTO_INCREMENT,
-  `fname` varchar(255) NOT NULL,
-  `lname` varchar(255) NOT NULL,
-  `email` varchar(255) NOT NULL,
-  `phno` varchar(255) NOT NULL,
-  `gender` varchar(255) NOT NULL,
-  `state` varchar(255) NOT NULL,
-  `dob` date NOT NULL,
-  `password` varchar(255) NOT NULL,
-  `createdAt` datetime DEFAULT CURRENT_TIMESTAMP,
-  `updatedAt` datetime DEFAULT NULL,
-  PRIMARY KEY (`u_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `users`
---
-
-LOCK TABLES `users` WRITE;
-/*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (1,'shruti','mokariya','shrutimokariya@gmail.com','9409018538','','Gujrat','1111-01-01','$2b$07$0sjDkc8c86JXPYbv7NxG5.GDqZtrz9YYP3WFyDAJieNrmEJAd2.mO','2024-06-04 11:06:20','2024-06-04 11:06:20'),(2,'shruti','mokariya','hosd@hasmkc.oikcan','9988556633','','Gujrat','1111-08-08','$2b$07$9XbXYqJIqyEB6z9a2w0NWe0hJFuTI6FKdro9KY5/Ha7URz2o/x91q','2024-06-04 11:14:06','2024-06-04 11:14:06'),(3,'dvs','vsdv','asg@bhikasc.aosdh','8585858585','','Punjab','2024-06-07','$2b$07$8ZJAFoYiTLeN2l/M2qgFhOeh/h7KxudbWuUDVeuSuDTEdH1jbXDx6','2024-06-04 11:15:49','2024-06-04 11:15:49'),(4,'dv','dfb','aid@sdv.szdjkb','8409018538','Female','Gujrat','2024-06-08','$2b$07$gPAhCF4bGdDF23uZguV.ruQnYoN3aWaR0LCZOxYwFETTi.P/GRs5y','2024-06-04 11:45:54','2024-06-04 11:45:54'),(6,'cads','csdcd','riya@gmail.com','9009018538','Female','Gujrat','2024-05-31','$2b$07$ahWQwAeFvea8jHkg0eIKE.7GaOpJb.z.pIUixESdIHbVNn9H1xe9W','2024-06-04 11:55:11','2024-06-04 11:55:11'),(7,'casc','casca','abc@gmail.com','9696969696','Female','Gujrat','2024-06-14','$2b$07$aawtetym1r2/NOga1/jBWeYvLvjrSSfei5LhLwUEU813Hc8woamIy','2024-06-06 04:50:01','2024-06-06 04:50:01'),(8,'sdv','sdv','ppp@gmail.com','9393939393','Male','Maharashtra','2024-06-01','$2b$07$gNwNE962Gi6IYvLu5tcVpumfxB419mXVoP/gvNAkU0Hlh7ZbwnzDW','2024-06-06 04:56:40','2024-06-06 04:56:40'),(9,'sdv','sdv','ppp@gmail.com','9393939393','Male','Maharashtra','2024-06-01','$2b$07$aaF64qKEYRcXMgpVNhmZ7uOiTUZLUjt38ddxewGSCmezIjPxzx0y2',NULL,NULL),(12,'bhavin','vfxc','msk@gmail.com','8409018538','Male','Gujrat','2024-06-01','$2b$07$IWBS09gaUD5gWUlAeUVTIe0iZ6kO1VzXwjodofdu/2aTGbGYAxqnC','2024-06-18 15:48:56',NULL);
-/*!40000 ALTER TABLE `users` ENABLE KEYS */;
-UNLOCK TABLES;
-/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
-
-/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
-/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
-/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
-/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
-
--- Dump completed on 2024-06-20 19:22:01
-export default GuestRoute;
