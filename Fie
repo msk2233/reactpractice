@@ -1,26 +1,82 @@
-{
-  "compilerOptions": {
-    "target": "es5",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
-    "allowJs": true,
-    "skipLibCheck": true,
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "strict": true,
-    "forceConsistentCasingInFileNames": true,
-    "noFallthroughCasesInSwitch": true,
-    "module": "esnext",
-    "moduleResolution": "node",
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "noEmit": true,
-    "jsx": "react-jsx"
-  },
-  "include": [
-    "src"
-  ]
-}
+import React, { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import Navbar from '../components/Navbar';
+import { Card, CardContent, CardMedia, Typography, Grid, Box, Button, Container } from '@mui/material';
+import { addToCart } from '../slices/cartSlice'; // Assuming you have a cart slice
+
+const dummyProduct = {
+  item_id: 1,
+  item_name: 'Sample Product',
+  item_description: 'This is a sample product description.',
+  item_photo: 'https://via.placeholder.com/300',
+  item_price: 999,
+};
+
+const ProductDetails = () => {
+  const { id } = useParams();
+  const dispatch = useDispatch();
+  const [product, setProduct] = useState(null);
+
+  useEffect(() => {
+    // Fetch product data by ID from backend or use dummy data
+    const fetchProduct = async () => {
+      // Replace with your fetch logic
+      // const response = await fetch(`http://your-api/products/${id}`);
+      // const data = await response.json();
+      setProduct(dummyProduct); // Using dummy data for now
+    };
+    fetchProduct();
+  }, [id]);
+
+  const handleAddToCart = () => {
+    dispatch(addToCart(product));
+    alert('Product added to cart!');
+  };
+
+  if (!product) {
+    return <Typography>Loading...</Typography>;
+  }
+
+  return (
+    <>
+      <Navbar />
+      <Container>
+        <Box sx={{ my: 4 }}>
+          <Grid container spacing={4}>
+            <Grid item xs={12} md={6}>
+              <Card>
+                <CardMedia
+                  component="img"
+                  image={product.item_photo}
+                  alt={product.item_name}
+                  sx={{ height: 'auto', width: '100%' }}
+                />
+              </Card>
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <Card>
+                <CardContent>
+                  <Typography variant="h4" component="div">
+                    {product.item_name}
+                  </Typography>
+                  <Typography variant="h6" color="text.secondary" sx={{ my: 2 }}>
+                    &#x20B9; {product.item_price}
+                  </Typography>
+                  <Typography variant="body1" component="div" sx={{ my: 2 }}>
+                    {product.item_description}
+                  </Typography>
+                  <Button variant="contained" color="primary" onClick={handleAddToCart}>
+                    Add to Cart
+                  </Button>
+                </CardContent>
+              </Card>
+            </Grid>
+          </Grid>
+        </Box>
+      </Container>
+    </>
+  );
+};
+
+export default ProductDetails;
