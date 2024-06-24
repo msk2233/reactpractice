@@ -1,82 +1,62 @@
-import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
-import Navbar from '../components/Navbar';
-import { Card, CardContent, CardMedia, Typography, Grid, Box, Button, Container } from '@mui/material';
-import { addToCart } from '../slices/cartSlice'; // Assuming you have a cart slice
+import Navbar from "../components/Navbar"
+import { useParams } from "react-router-dom";
+import {  useEffect, useState } from "react";
+import axios from "axios";
+import { Data } from "../slices/cartSlice";
+import { Card, CardContent, CardMedia, Typography, Grid, Box, Button, Divider } from '@mui/material';
 
-const dummyProduct = {
-  item_id: 1,
-  item_name: 'Sample Product',
-  item_description: 'This is a sample product description.',
-  item_photo: 'https://via.placeholder.com/300',
-  item_price: 999,
-};
-
-const ProductDetails = () => {
-  const { id } = useParams();
-  const dispatch = useDispatch();
-  const [product, setProduct] = useState(null);
-
-  useEffect(() => {
-    // Fetch product data by ID from backend or use dummy data
-    const fetchProduct = async () => {
-      // Replace with your fetch logic
-      // const response = await fetch(`http://your-api/products/${id}`);
-      // const data = await response.json();
-      setProduct(dummyProduct); // Using dummy data for now
-    };
-    fetchProduct();
-  }, [id]);
-
-  const handleAddToCart = () => {
-    dispatch(addToCart(product));
-    alert('Product added to cart!');
-  };
-
-  if (!product) {
-    return <Typography>Loading...</Typography>;
-  }
-
-  return (
-    <>
-      <Navbar />
-      <Container>
-        <Box sx={{ my: 4 }}>
-          <Grid container spacing={4}>
-            <Grid item xs={12} md={6}>
-              <Card>
+const ViewProduct = () =>{
+    const { item_id } = useParams(); 
+    const [item,setItem] = useState<Array<Data>>([]);
+    
+    useEffect(() => {
+      const fetchdetail = async () => {
+          const Cart = await axios.get(`http://192.168.10.106:5050/product/?id=${item_id}`,{withCredentials:true});
+          setItem((prev)=>[...prev,Cart.data.product]);
+        }
+        fetchdetail(); 
+      },[item_id])
+      
+      return(                         
+        <>
+        {console.log(item[0])}
+    <Navbar />
+  
+         <Box sx={{ p: 4 }}>
+        <Typography variant="h4" gutterBottom>
+          Checkout
+        </Typography>
+        <Grid container spacing={4}>
+          <Grid item xs={12}>
+              <Card sx={{ display: 'flex', mb: 2 }} key={item[0]?.item_id}>
                 <CardMedia
                   component="img"
-                  image={product.item_photo}
-                  alt={product.item_name}
-                  sx={{ height: 'auto', width: '100%' }}
+                  sx={{ width: 150 }}
+                  image={item[0]?.item_photo}
+                  alt={item[0]?.item_name}
                 />
+                <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+                  <CardContent>
+                    <Typography component="h5" variant="h5">
+                      {item[0]?.item_name}
+                    </Typography>
+                    <Typography variant="subtitle1" color="text.secondary">
+                      Quantity: {item[0]?.quantity}
+                    </Typography>
+                    <Typography variant="subtitle1" color="text.secondary">
+                      Price: &#x20B9; {item[0]?.item_price}
+                    </Typography>
+                    <Typography variant="subtitle1" color="text.secondary">
+                      Total: &#x20B9; {item[0]?.item_total}
+                    </Typography>
+                  </CardContent>
+                </Box>
               </Card>
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <Card>
-                <CardContent>
-                  <Typography variant="h4" component="div">
-                    {product.item_name}
-                  </Typography>
-                  <Typography variant="h6" color="text.secondary" sx={{ my: 2 }}>
-                    &#x20B9; {product.item_price}
-                  </Typography>
-                  <Typography variant="body1" component="div" sx={{ my: 2 }}>
-                    {product.item_description}
-                  </Typography>
-                  <Button variant="contained" color="primary" onClick={handleAddToCart}>
-                    Add to Cart
-                  </Button>
-                </CardContent>
-              </Card>
-            </Grid>
           </Grid>
-        </Box>
-      </Container>
+        </Grid>
+      </Box>
     </>
-  );
-};
 
-export default ProductDetails;
+ )
+}
+export default ViewProduct;
