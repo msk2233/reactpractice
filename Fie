@@ -1,91 +1,43 @@
-import React, { useEffect, useState } from 'react';
-import Navbar from "../components/Navbar";
-import { useParams } from "react-router-dom";
-import axios from "axios";
-import { Data } from "../slices/cartSlice";
-import { Card, CardContent, CardMedia, Typography, Grid, Box, Button, CircularProgress, Container } from '@mui/material';
+'use strict';
 
-const ViewProduct = () => {
-  const { item_id } = useParams<{ item_id: string }>(); 
-  const [item, setItem] = useState<Data[] | null>(null);
-  const [loading, setLoading] = useState(true);
-  
-  useEffect(() => {
-    const fetchDetail = async () => {
-      try {
-        const response = await axios.get(`http://192.168.10.106:5050/product/?id=${item_id}`, { withCredentials: true });
-        setItem(response.data.product);
-      } catch (error) {
-        console.error("Error fetching product details:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchDetail();
-  }, [item_id]);
+const fs = require('fs');
+const path = require('path');
+const Sequelize = require('sequelize');
+const process = require('process');
+const basename = path.basename(__filename);
+const env = process.env.NODE_ENV || 'development';
+const config = require(__dirname + '/../config/config.json')[env];
+const db = {};
 
-  if (loading) {
+let sequelize;
+if (config.use_env_variable) {
+  sequelize = new Sequelize(process.env[config.use_env_variable], config);
+} else {
+  sequelize = new Sequelize(config.database, config.username, config.password, config);
+}
+
+fs
+  .readdirSync(__dirname)
+  .filter(file => {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-        <CircularProgress />
-      </Box>
+      file.indexOf('.') !== 0 &&
+      file !== basename &&
+      file.slice(-3) === '.js' &&
+      file.indexOf('.test.js') === -1
     );
+  })
+  .forEach(file => {
+    const model = require(path.join(__dirname, file))(sequelize, Sequelize.DataTypes);
+    db[model.name] = model;
+  });
+
+Object.keys(db).forEach(modelName => {
+  if (db[modelName].associate) {
+    db[modelName].associate(db);
   }
+});
 
-  if (!item || item.length === 0) {
-    return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-        <Typography variant="h6">Product not found.</Typography>
-      </Box>
-    );
-  }
+db.sequelize = sequelize;
+db.Sequelize = Sequelize;
 
-  return (
-    <>
-      <Navbar />
-      <Container sx={{ mt: 10 }}>
-        <Typography variant="h4" gutterBottom>
-          Product Detail
-        </Typography>
-        <Grid container spacing={4} justifyContent="center">
-          <Grid item xs={12} md={8}>
-            <Card sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, mb: 2 }}>
-              <CardMedia
-                component="img"
-                sx={{ width: { xs: '100%', md: 300 }, objectFit: 'cover' }}
-                image={item[0].item_photo}
-                alt={item[0].item_name}
-              />
-              <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-                <CardContent>
-                  <Typography component="h5" variant="h5">
-                    {item[0].item_name}
-                  </Typography>
-                  <Typography variant="body1" color="text.secondary" paragraph>
-                    {item[0].item_desc}
-                  </Typography>
-                  <Typography variant="subtitle1" color="text.secondary">
-                    Quantity: {item[0].quantity}
-                  </Typography>
-                  <Typography variant="subtitle1" color="text.secondary">
-                    Price: &#x20B9; {item[0].item_price}
-                  </Typography>
-                  <Typography variant="subtitle1" color="text.secondary">
-                    Total: &#x20B9; {Number(item[0].item_price) * Number(item[0].quantity)}
-                  </Typography>
-                </CardContent>
-                <Box sx={{ p: 2, mt: 'auto' }}>
-                  <Button variant="contained" color="primary">
-                    Add to Cart
-                  </Button>
-                </Box>
-              </Box>
-            </Card>
-          </Grid>
-        </Grid>
-      </Container>
-    </>
-  );
-};
-
-export default ViewProduct;
+module.exports = db;
