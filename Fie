@@ -1,60 +1,120 @@
-'use strict';
-import { DataTypes, Model, Sequelize } from "sequelize";
-const users = (sequelize:Sequelize) => {
-  class users extends Model {
-   
-  }
-  users.init({
-    uid:{
-      type: DataTypes.INTEGER,
-      autoIncrement: true,
-      allowNull: false,
-      primaryKey: true
-    },
-    fname: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      get() {
-        const rawValue = this.getDataValue('fname');
-        return rawValue ? rawValue.toUpperCase() : null;
-      },
-    },
-    lname: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      get() {
-        const rawValue = this.getDataValue('lname');
-        return rawValue ? rawValue.toUpperCase() : null;
-      },
-    },
-    email: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    phno: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    gender: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    state: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    dob: {
-      type: DataTypes.DATEONLY,
-      allowNull: false,
-    },
-    password: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-  }, {
-    sequelize,
-    modelName: 'users',
-  });
-  return users;
+Here's an example of how you can structure your TypeORM project with PostgreSQL, using TypeScript and the migration and entity folders:
+
+_Project Structure:_
+```
+src/
+entities/
+Admin.ts
+Teacher.ts
+Student.ts
+Exam.ts
+Question.ts
+Option.ts
+Answer.ts
+index.ts
+migrations/
+001-create-admin-table.ts
+002-create-teacher-table.ts
+003-create-student-table.ts
+...
+index.ts
+typeorm.config.js
+index.ts
+package.json
+```
+_typeorm.config.js:_
+```
+module.exports = {
+  type: 'postgres',
+  url: 'localhost:5432',
+  username: 'postgres',
+  password: 'password',
+  database: 'omr_exam_db',
+  entities: ['src/entities/**/*.ts'],
+  migrations: ['src/migrations/**/*.ts'],
 };
-export default users; 
+```
+_entities/Admin.ts:_
+```
+import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+
+@Entity()
+export class Admin {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @Column()
+  name: string;
+
+  @Column()
+  email: string;
+
+  @Column()
+  password: string;
+}
+```
+_migrations/001-create-admin-table.ts:_
+```
+import { MigrationInterface, QueryRunner } from 'typeorm';
+
+export class CreateAdminTable implements MigrationInterface {
+  async up(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.createTable(
+      new Table({
+        name: 'admin',
+        columns: [
+          {
+            name: 'id',
+            type: 'int',
+            isGenerated: true,
+            generationStrategy: 'increment',
+          },
+          {
+            name: 'name',
+            type: 'varchar',
+          },
+          {
+            name: 'email',
+            type: 'varchar',
+          },
+          {
+            name: 'password',
+            type: 'varchar',
+          },
+        ],
+      }),
+    );
+  }
+
+  async down(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.dropTable('admin');
+  }
+}
+```
+_index.ts (in src folder):_
+```
+import 'reflect-metadata';
+import { createConnection } from 'typeorm';
+
+createConnection();
+```
+_index.ts (in entities folder):_
+```
+export * from './Admin';
+export * from './Teacher';
+export * from './Student';
+export * from './Exam';
+export * from './Question';
+export * from './Option';
+export * from './Answer';
+```
+_index.ts (in migrations folder):_
+```
+export * from './001-create-admin-table';
+export * from './002-create-teacher-table';
+export * from './003-create-student-table';
+...
+```
+Note: Make sure to adjust the database connection settings in `typeorm.config.js` to match your PostgreSQL database credentials.
+
+By following this structure, you can use TypeORM to manage your database migrations and entities in a TypeScript project with PostgreSQL.
