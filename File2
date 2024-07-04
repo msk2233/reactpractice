@@ -1,22 +1,148 @@
-'use strict';
+Here's a sample database design for an OMR exam system using TypeORM and Node.js, including the associations you mentioned:
 
-import * as fs from 'fs';
-import * as path from 'path';
-import { Sequelize, DataTypes } from 'sequelize';
-import * as process from 'process';
-const basename: string = path.basename(__filename);
-const env: string = process.env.NODE_ENV || 'development';
-const config = require(__dirname + '/../config/sequelize.config.js')[env];
-const db: { [key: string]: any } = {};
+*Entities:*
 
-let sequelize: Sequelize;
-if (config.use_env_variable) {
-  sequelize = new Sequelize(process.env[config.use_env_variable] as string, config);
-} else {
-  sequelize = new Sequelize(config.database, config.username, config.password, config);
+1. *Admin*
+    - id (primary key)
+    - name
+    - email
+    - password
+2. *Teacher*
+    - id (primary key)
+    - name
+    - email
+    - password
+    - admin_id (foreign key to Admin)
+3. *Student*
+    - id (primary key)
+    - name
+    - email
+    - password
+    - teacher_id (foreign key to Teacher)
+4. *Exam*
+    - id (primary key)
+    - name
+    - date
+    - teacher_id (foreign key to Teacher)
+5. *Question*
+    - id (primary key)
+    - text
+    - exam_id (foreign key to Exam)
+6. *Option*
+    - id (primary key)
+    - text
+    - question_id (foreign key to Question)
+7. *Answer*
+    - id (primary key)
+    - student_id (foreign key to Student)
+    - exam_id (foreign key to Exam)
+    - question_id (foreign key to Question)
+    - option_id (foreign key to Option)
+
+*Associations:*
+
+1. One-to-Many:
+    - Admin -> Teacher (one admin can have many teachers)
+    - Teacher -> Student (one teacher can have many students)
+    - Exam -> Question (one exam can have many questions)
+    - Question -> Option (one question can have many options)
+2. Many-to-One:
+    - Teacher -> Admin (one teacher belongs to one admin)
+    - Student -> Teacher (one student belongs to one teacher)
+    - Question -> Exam (one question belongs to one exam)
+    - Option -> Question (one option belongs to one question)
+3. Many-to-Many:
+    - Student -> Exam (one student can take many exams, and one exam can have many students)
+    - Answer -> Student (one answer belongs to one student)
+    - Answer -> Exam (one answer belongs to one exam)
+    - Answer -> Question (one answer belongs to one question)
+    - Answer -> Option (one answer belongs to one option)
+
+*TypeORM Migrations:*
+
+To create the database using TypeORM migrations, you can follow these steps:
+
+1. Install TypeORM and the MySQL driver:
+```
+npm install typeorm mysql
+```
+1. Create a `typeorm.config.js` file with the database connection settings:
+```
+module.exports = {
+  type: 'mysql',
+  host: 'localhost',
+  port: 3306,
+  username: 'root',
+  password: 'password',
+  database: 'omr_exam_db',
+  entities: ['src/entities/**/*.ts'],
+  migrations: ['src/migrations/**/*.ts'],
+};
+```
+1. Create the entity files (e.g., `Admin.ts`, `Teacher.ts`, etc.) in the `src/entities` directory:
+```
+// src/entities/Admin.ts
+import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+
+@Entity()
+export class Admin {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @Column()
+  name: string;
+
+  @Column()
+  email: string;
+
+  @Column()
+  password: string;
 }
+```
+1. Create the migration files (e.g., `001-create-admin-table.ts`, `002-create-teacher-table.ts`, etc.) in the `src/migrations` directory:
+```
+// src/migrations/001-create-admin-table.ts
+import { MigrationInterface, QueryRunner } from 'typeorm';
 
-db.sequelize = sequelize;
-db.Sequelize = Sequelize;
+export class CreateAdminTable implements MigrationInterface {
+  async up(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.createTable(
+      new Table({
+        name: 'admin',
+        columns: [
+          {
+            name: 'id',
+            type: 'int',
+            isGenerated: true,
+            generationStrategy: 'increment',
+          },
+          {
+            name: 'name',
+            type: 'varchar',
+          },
+          {
+            name: 'email',
+            type: 'varchar',
+          },
+          {
+            name: 'password',
+            type: 'varchar',
+          },
+        ],
+      }),
+    );
+  }
 
-export default db;
+  async down(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.dropTable('admin');
+  }
+}
+```
+1. Run the migrations using the TypeORM CLI:
+```
+shell
+npx typeorm migration:run
+```
+This will create the database tables and relationships based on the entity and migration files.
+
+Note: This is just a sample database design and migration setup. You may need to modify it to fit your specific requirements.
