@@ -1,3 +1,71 @@
-Property 'run' in type 'StateSeeder' is not assignable to the same property in base type 'Seeder'.
-  Type '(dataSource: DataSource) => Promise<void>' is not assignable to type '(factory: Factory, connection: Connection) => Promise<void>'.ts(2416)
-(method) StateSeeder.run(dataSource: DataSource): Promise<void>
+import { Seeder, Factory } from 'typeorm-seeding';
+import { DataSource, Connection } from 'typeorm';
+import { State } from '../entities/State';
+
+export default class CreateStates implements Seeder {
+  public async run(factory: Factory, connection: Connection): Promise<void> {
+    const stateRepository = connection.getRepository(State);
+
+    const states = [
+      { statename: "Andhra Pradesh", createdAt: new Date(), updatedAt: new Date() },
+      { statename: "Arunachal Pradesh", createdAt: new Date(), updatedAt: new Date() },
+      { statename: "Assam", createdAt: new Date(), updatedAt: new Date() },
+      // Add more states as needed
+    ];
+
+    await stateRepository.save(states);
+  }
+}
+
+
+import { DataSource } from "typeorm";
+import { config } from "dotenv";
+import { State } from "./entities/State";
+
+config();
+
+export const AppDataSource = new DataSource({
+  type: "postgres",
+  host: process.env.DATABASE_HOST,
+  port: +process.env.DATABASE_PORT,
+  username: process.env.DATABASE_USER,
+  password: process.env.DATABASE_PASSWORD,
+  database: process.env.DATABASE_DB,
+  dropSchema: false,
+  logging: true,
+  entities: [State],
+  migrations: ["src/migration/**/*.ts"],
+  synchronize: false,
+});
+
+AppDataSource.initialize().then(() => {
+  console.log("Data Source has been initialized!");
+}).catch((err) => {
+  console.error("Error during Data Source initialization:", err);
+});
+
+
+import { AppDataSource } from "../ormconfig";
+import { runSeeder } from 'typeorm-seeding';
+import CreateStates from '../seeds/CreateStates';
+
+AppDataSource.initialize().then(async () => {
+  console.log("Data Source has been initialized!");
+
+  await runSeeder(CreateStates);
+
+  console.log("State seeding completed!");
+}).catch((err) => {
+  console.error("Error during Data Source initialization:", err);
+});
+
+
+"scripts": {
+  "start": "ts-node src/index.ts",
+  "typeorm": "typeorm-ts-node-commonjs -d ./ormconfig.ts",
+  "migration:run": "npm run typeorm migration:run",
+  "migration:generate": "npm run typeorm -- migration:generate ./src/migration/$npm_config_name",
+  "migration:create": "npm run typeorm -- migration:create ./src/migration/$npm_config_name",
+  "migration:revert": "npm run typeorm -- migration:revert",
+  "seed:run": "ts-node src/seeder/runSeeder.ts"
+}
