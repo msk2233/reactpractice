@@ -1,44 +1,3 @@
-import { DataSource } from 'typeorm';
-import { config } from 'dotenv';
-config();
-
-export default new DataSource({
-  type: 'postgres',
-  host: process.env.DATABASE_HOST,
-  port: +process.env.DATABASE_PORT,
-  username: process.env.DATABASE_USER,
-  password: process.env.DATABASE_PASSWORD,
-  database: process.env.DATABASE_DB,
-  dropSchema: false,
-  logging: false,
-  entities: ["src/entity/*{.ts,.js}"],
-  migrations: ['src/migrations/**/*.ts'],
-  // seed:[__dirname + 'src/seeder/*.ts'],,'src/seeder/seed.ts'
-  // migrationsTableName: 'migration_table',
-  synchronize: true,
-});
-
-THIS IS MIGRATION
-
-import { MigrationInterface, QueryRunner } from "typeorm";
-
-export class Userdata1720076673600 implements MigrationInterface {
-    name = 'Userdata1720076673600'
-
-    public async up(queryRunner: QueryRunner): Promise<void> {
-        await queryRunner.query(`CREATE TABLE "user" ("id" SERIAL NOT NULL, "fname" character varying NOT NULL, "lname" character varying NOT NULL, "email" character varying NOT NULL, "phno" character varying NOT NULL, CONSTRAINT "PK_cace4a159ff9f2512dd42373760" PRIMARY KEY ("id"))`);
-    }
-
-    public async down(queryRunner: QueryRunner): Promise<void> {
-        await queryRunner.query(`DROP TABLE "user"`);
-    }
-
-}
-
-this is package.json 
-
-
-
 {
   "name": "typeorm-sample",
   "version": "0.0.1",
@@ -60,6 +19,32 @@ this is package.json
     "migration:generate": "npm run typeorm -- -d ./src/data-source.ts migration:generate ./src/migration/$npm_config_name",
     "migration:create": "npm run typeorm -- migration:create ./src/migration/$npm_config_name",
     "migration:revert": "npm run typeorm -- -d ./src/data-source.ts migration:revert"
+  },
+  "_moduleAliases": {
+    "src": "./src"
   }
 }
+
+
+import { DataSource } from "typeorm";
+import { config } from "dotenv";
+config();
+
+export default new DataSource({
+  type: "postgres",
+  host: process.env.DATABASE_HOST,
+  port: +process.env.DATABASE_PORT,
+  username: process.env.DATABASE_USER,
+  password: process.env.DATABASE_PASSWORD,
+  database: process.env.DATABASE_DB,
+  dropSchema: false,
+  logging: false,
+  // entities: ["./entity//.ts"],
+  // migrations: ["./migration/**/.ts"],
+  entities: ["src/entities/**/*.ts"],
+  migrations: ["src/migration/**/*.ts"],
+  // seed:[__dirname + 'src/seeder/*.ts'],,'src/seeder/seed.ts'
+  synchronize: false,
+});
+
 
