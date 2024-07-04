@@ -1,50 +1,41 @@
-{
-  "name": "typeorm-sample",
-  "version": "0.0.1",
-  "description": "Awesome project developed with TypeORM.",
-  "devDependencies": {
-    "ts-node": "10.9.1",
-    "@types/node": "^16.11.10",
-    "typescript": "4.5.2"
-  },
-  "dependencies": {
-    "typeorm": "0.3.20",
-    "reflect-metadata": "^0.1.13",
-    "pg": "^8.4.0"
-  },
-  "scripts": {
-    "start": "ts-node src/index.ts",
-    "typeorm": "typeorm-ts-node-commonjs",
-   "migration:run": "npm run typeorm migration:run -- -d ./src/data-source.ts",
-    "migration:generate": "npm run typeorm -- -d ./src/data-source.ts migration:generate ./src/migration/$npm_config_name",
-    "migration:create": "npm run typeorm -- migration:create ./src/migration/$npm_config_name",
-    "migration:revert": "npm run typeorm -- -d ./src/data-source.ts migration:revert"
-  },
-  "_moduleAliases": {
-    "src": "./src"
+To insert data into a table using an Express controller, you'll need to create a route that handles the request and uses TypeORM to interact with the database.
+
+Here's an example of how you can create a simple controller to insert data into the "user" table:
+```
+// src/controller/UserController.ts
+import { Controller, Post, Body } from 'express';
+import { DataSource } from 'typeorm';
+import { User } from '../entity/User';
+
+@Controller('users')
+export class UserController {
+  @Post('create')
+  async createUser(@Body() userData: User) {
+    const dataSource = new DataSource();
+    const userRepository = dataSource.getRepository(User);
+    const user = new User();
+    user.fname = userData.fname;
+    user.lname = userData.lname;
+    user.email = userData.email;
+    user.phno = userData.phno;
+    await userRepository.save(user);
+    return { message: 'User created successfully' };
   }
 }
+```
+In this example, we've created a `UserController` with a `createUser` method that handles the request to create a new user. The method uses the `DataSource` and `getRepository` methods to get a reference to the `User` repository, and then creates a new `User` entity and saves it to the database using the `save` method.
 
+You can then use this controller in your Express routes like this:
+```
+// src/index.ts
+import { UserController } from './controller/UserController';
+import express from 'express';
 
-import { DataSource } from "typeorm";
-import { config } from "dotenv";
-config();
+const app = express();
+const userController = new UserController();
 
-export default new DataSource({
-  type: "postgres",
-  host: process.env.DATABASE_HOST,
-  port: +process.env.DATABASE_PORT,
-  username: process.env.DATABASE_USER,
-  password: process.env.DATABASE_PASSWORD,
-  database: process.env.DATABASE_DB,
-  dropSchema: false,
-  logging: false,
-  // entities: ["./entity//.ts"],
-  // migrations: ["./migration/**/.ts"],
-  entities: ["src/entities/**/*.ts"],
-  migrations: ["src/migration/**/*.ts"],
-  // seed:[__dirname + 'src/seeder/*.ts'],,'src/seeder/seed.ts'
-  synchronize: false,
-});
+app.post('/users/create', userController.createUser);
+```
+This will create a new route that handles POST requests to `/users/create` and calls the `createUser` method on the `UserController` instance.
 
-
+Note that this is just a simple example, and you may need to add additional logic and error handling depending on your specific use case.
