@@ -1,86 +1,32 @@
-import { Entity, PrimaryGeneratedColumn, Column,OneToMany } from "typeorm"
-import { Questions } from "./questions"
-
-@Entity()
-export class exam {
-    @PrimaryGeneratedColumn()
-    id: number
-
-    @Column()
-    name:string
-   
-    @OneToMany(() => Questions, (question) => question.Exam)
-    questions: Questions[]
-
-}
-
-
-import { Entity, PrimaryGeneratedColumn, Column,ManyToOne, JoinColumn } from "typeorm"
-import { exam } from "./exam"
-
-@Entity()
-export class Questions {
-    @PrimaryGeneratedColumn()
-    que_id:number
-    
-    @Column()
-    question_title:string
-
-    @ManyToOne(() => exam, (Exam) => Exam.questions)
-    @JoinColumn({ name: 'exam_id', referencedColumnName: 'id' })
-    Exam: exam
-}
-
-
-import { MigrationInterface, QueryRunner } from "typeorm";
-
-export class Data1720161928032 implements MigrationInterface {
-    name = 'Data1720161928032'
-
-    public async up(queryRunner: QueryRunner): Promise<void> {
-        await queryRunner.query(`CREATE TABLE "state" ("state_id" SERIAL NOT NULL, "state_name" character varying NOT NULL, "createdAt" TIMESTAMP NOT NULL, "updatedAt" TIMESTAMP NOT NULL, CONSTRAINT "PK_c6c635621335b860a10c0763e78" PRIMARY KEY ("state_id"))`);
-        await queryRunner.query(`CREATE TABLE "exam" ("id" SERIAL NOT NULL, "name" character varying NOT NULL, CONSTRAINT "PK_56071ab3a94aeac01f1b5ab74aa" PRIMARY KEY ("id"))`);
-        await queryRunner.query(`CREATE TABLE "questions" ("que_id" SERIAL NOT NULL, "question_title" character varying NOT NULL, "exam_id" integer, CONSTRAINT "PK_daddc05dc218886e47d3c592247" PRIMARY KEY ("que_id"))`);
-        await queryRunner.query(`ALTER TABLE "questions" ADD CONSTRAINT "FK_f912d2c24bc84f66e0a40b1c169" FOREIGN KEY ("exam_id") REFERENCES "exam"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`);
-    }
-
-    public async down(queryRunner: QueryRunner): Promise<void> {
-        await queryRunner.query(`ALTER TABLE "questions" DROP CONSTRAINT "FK_f912d2c24bc84f66e0a40b1c169"`);
-        await queryRunner.query(`DROP TABLE "questions"`);
-        await queryRunner.query(`DROP TABLE "exam"`);
-        await queryRunner.query(`DROP TABLE "state"`);
-    }
-}
-
-
-import { Request,Response } from "express"
+import { Request, Response } from "express";
 import dataSource from "../src/data-source";
-import {User} from '../src/entities/User'
-import {Questions} from '../src/entities/questions'
+import { Questions } from '../src/entities/questions';
+import { exam } from '../src/entities/exam';
 
-const userRepo = dataSource.getRepository(User);
 const QueRepo = dataSource.getRepository(Questions);
+const ExamRepo = dataSource.getRepository(exam);
 
-// export const Read =async (req:Request,resposne:Response) =>{
-//     const select = await userRepo.find();
-//     resposne.json({select:select})
-// }
-// export const Insert =async (req:Request,res:Response) =>{
-//     const {fname,lname,email,phno} = req.body;
-//     const insdata = await userRepo.save({ fname: fname, lname: lname,email:email,phno:phno });
-//     res.json(insdata)
-// }
-export const InsertQue =async (req:Request,res:Response) =>{
-    const {question_title,id} = req.body;
+export const InsertQue = async (req: Request, res: Response) => {
+    const { question_title, exam_id } = req.body;
     console.log(req.body);
-    
+
     try {
-        const insdata = await QueRepo.save({question_title:question_title,exam_id:Number(id)});
-        // const fetch = await QueRepo.find();
-        res.json(insdata)
-        // res.json(fetch)
+        // Find the exam by ID
+        const examInstance = await ExamRepo.findOne({ where: { id: exam_id } });
+
+        if (!examInstance) {
+            return res.status(404).json({ message: "Exam not found" });
+        }
+
+        // Create a new question instance and associate it with the found exam
+        const newQuestion = QueRepo.create({ question_title, Exam: examInstance });
+
+        // Save the new question
+        const insdata = await QueRepo.save(newQuestion);
+
+        res.json(insdata);
     } catch (err) {
         console.log(err);
-        res.json(err)
+        res.status(500).json(err);
     }
 }
