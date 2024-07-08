@@ -1,32 +1,46 @@
-import { Request, Response } from "express";
-import dataSource from "../src/data-source";
-import { Questions } from '../src/entities/questions';
-import { exam } from '../src/entities/exam';
+import { registerAs } from '@nestjs/config';
+import { config as dotenvConfig } from 'dotenv';
+import { DataSource, DataSourceOptions } from 'typeorm';
+import { Student } from 'src/students/entities/student.entity';
 
-const QueRepo = dataSource.getRepository(Questions);
-const ExamRepo = dataSource.getRepository(exam);
+dotenvConfig({ path: '.env' });
 
-export const InsertQue = async (req: Request, res: Response) => {
-    const { question_title, exam_id } = req.body;
-    console.log(req.body);
+const config = {
+  type: 'postgres',
+  host: `${process.env.DATABASE_HOST}`,
+  port: `${process.env.DATABASE_PORT}`,
+  username: `${process.env.DATABASE_USERNAME}`,
+  password: `${process.env.DATABASE_PASSWORD}`,
+  database: `${process.env.DATABASE_NAME}`,
+  // entities: [`${__dirname}/../**/**.entity{.ts,.js}`],
+  entities: [Student],
+  migrations: ['dist/migrations/*{.ts,.js}'],
+  autoLoadEntities: true,
+  synchronize: false,
+};
 
-    try {
-        // Find the exam by ID
-        const examInstance = await ExamRepo.findOne({ where: { id: exam_id } });
+export default registerAs('typeorm', () => config);
+export const connectionSource = new DataSource(config as DataSourceOptions);
 
-        if (!examInstance) {
-            return res.status(404).json({ message: "Exam not found" });
-        }
+this error is occuring 
+shruti-mokariya@shruti-mokariya:~/Desktop/typescript_react_practice/gitlab/omr_management/server$ npm run migration:generate --name=dbschema
 
-        // Create a new question instance and associate it with the found exam
-        const newQuestion = QueRepo.create({ question_title, Exam: examInstance });
+> server@0.0.1 migration:generate
+> npm run typeorm -- -d ./src/database/typeorm.ts migration:generate ./src/migrations/$npm_config_name
 
-        // Save the new question
-        const insdata = await QueRepo.save(newQuestion);
 
-        res.json(insdata);
-    } catch (err) {
-        console.log(err);
-        res.status(500).json(err);
-    }
-}
+> server@0.0.1 typeorm
+> typeorm-ts-node-commonjs -d ./src/database/typeorm.ts migration:generate ./src/migrations/dbschema
+
+Error during migration generation:
+Error: Unable to open file: "/home/shruti-mokariya/Desktop/typescript_react_practice/gitlab/omr_management/server/src/database/typeorm.ts". Cannot find module 'src/students/entities/student.entity'
+Require stack:
+- /home/shruti-mokariya/Desktop/typescript_react_practice/gitlab/omr_management/server/src/database/typeorm.ts
+- /home/shruti-mokariya/Desktop/typescript_react_practice/gitlab/omr_management/server/node_modules/typeorm/util/ImportUtils.js
+- /home/shruti-mokariya/Desktop/typescript_react_practice/gitlab/omr_management/server/node_modules/typeorm/commands/CommandUtils.js
+- /home/shruti-mokariya/Desktop/typescript_react_practice/gitlab/omr_management/server/node_modules/typeorm/commands/SchemaSyncCommand.js
+- /home/shruti-mokariya/Desktop/typescript_react_practice/gitlab/omr_management/server/node_modules/typeorm/cli.js
+- /home/shruti-mokariya/Desktop/typescript_react_practice/gitlab/omr_management/server/node_modules/typeorm/cli-ts-node-commonjs.js
+    at Function.loadDataSource (/home/shruti-mokariya/Desktop/typescript_react_practice/gitlab/omr_management/server/node_modules/src/commands/CommandUtils.ts:22:19)
+    at async Object.handler (/home/shruti-mokariya/Desktop/typescript_react_practice/gitlab/omr_management/server/node_modules/src/commands/MigrationGenerateCommand.ts:78:26)
+shruti-mokariya@shruti-mokariya:~/Desktop/typescript_react_practice/gitlab/omr_management/server$ 
