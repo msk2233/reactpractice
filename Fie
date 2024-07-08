@@ -1,109 +1,43 @@
-import { Result } from '../../results/entities/result.entity';
-import { AbstractEntity } from '../../database/entity/abstract.entity';
-import { Role } from '../../role/entities/role.entity';
-import {
-  Column,
-  Entity,
-  JoinColumn,
-  JoinTable,
-  ManyToMany,
-  ManyToOne,
-  OneToMany,
-} from 'typeorm';
-import { Exam } from '../../exams/entities/exam.entity';
-
-@Entity('users')
-export class User extends AbstractEntity<User> {
-  @Column()
-  fname: string;
-
-  @Column()
-  lname: string;
-
-  @Column({
-    type: 'date',
-  })
-  dob: Date;
-
-  @Column()
-  state: string;
-
-  @Column()
-  city: string;
-
-  @Column()
-  gender: string;
-
-  @Column()
-  email: string;
-
-  @Column()
-  phno: string;
-
-  @Column()
-  password: string;
-
-  @Column()
-  isDeleted: boolean;
-
-  @ManyToOne(() => Role, (role) => role.user)
-  @JoinColumn({ name: 'roleId', referencedColumnName: 'id' })
-  role: Role;
-
-  @OneToMany(() => Result, (result) => result.user)
-  result: Result;
-
-  @ManyToMany(() => Exam, (exam) => exam.user)
-  @JoinTable()
-  exam: Exam;
-}
-import { AbstractEntity } from '../../database/entity/abstract.entity';
-import {
-  Column,
-  CreateDateColumn,
-  Entity,
-  ManyToMany,
-  OneToMany,
-} from 'typeorm';
-import { Question } from '../../questions/entities/question.entity';
-import { Result } from '../../results/entities/result.entity';
-import { User } from 'src/users/entities/user.entity';
-// import { Record } from '../../records/entities/record.entity';
-
-@Entity('exams')
-export class Exam extends AbstractEntity<Exam> {
-  @Column()
-  exam_name: string;
-
-  @Column()
-  instrucations: string;
-
-  @CreateDateColumn({
-    type: 'date',
-  })
-  exam_date: Date;
-
-  @Column()
-  starttime: number;
-
-  @Column({
-    type: 'interval',
-  })
-  duration: number;
-
-  @Column()
-  passing_criteria: number;
-
-  @Column()
-  total_marks: number;
-
-  @OneToMany(() => Question, (que) => que.exam)
-  question: Question[];
-
-  @OneToMany(() => Result, (result) => result.exam)
-  result: Result[];
-
-  @ManyToMany(() => User, (user) => user.exam)
-  user: User[];
-}
-I WANT TO JOIN THESE TABLES WITH MANY TO MANY AND AUTO GENERATE USER-EXAM TABLE
+Authentication and Authorization
+Register User: POST /auth/register
+Login User: POST /auth/login
+Logout User: POST /auth/logout
+User Management
+Create User (Admin only): POST /admin/users
+Get User by ID (Admin only): GET /admin/users/:id
+Update User (Admin only): PUT /admin/users/:id
+Delete User (Admin only): DELETE /admin/users/:id
+List Users (Admin only): GET /admin/users
+Get Profile (Authenticated User): GET /users/profile
+Update Profile (Authenticated User): PUT /users/profile
+Role Management
+Create Role: POST /admin/roles
+Get Role by ID: GET /admin/roles/:id
+Update Role: PUT /admin/roles/:id
+Delete Role: DELETE /admin/roles/:id
+List Roles: GET /admin/roles
+Exam Management (Teacher only)
+Create Exam: POST /teacher/exams
+Get Exam by ID: GET /teacher/exams/:id
+Update Exam: PUT /teacher/exams/:id
+Delete Exam: DELETE /teacher/exams/:id
+List Exams: GET /teacher/exams
+Assign Subject to Exam: POST /teacher/exams/:examId/subjects
+List Subjects for Exam: GET /teacher/exams/:examId/subjects
+Question Management (Teacher only)
+Create Question: POST /teacher/questions
+Get Question by ID: GET /teacher/questions/:id
+Update Question: PUT /teacher/questions/:id
+Delete Question: DELETE /teacher/questions/:id
+List Questions: GET /teacher/questions
+Add Options to Question: POST /teacher/questions/:questionId/options
+List Options for Question: GET /teacher/questions/:questionId/options
+Student Management (Teacher only)
+List Students: GET /teacher/students
+Get Student by ID: GET /teacher/students/:id
+Get Student Results: GET /teacher/students/:id/results
+Exam Participation (Student only)
+List Available Exams: GET /student/exams
+Get Exam Details: GET /student/exams/:id
+Submit Exam: POST /student/exams/:id/submit
+Get Exam Results: GET /student/exams/:id/results
