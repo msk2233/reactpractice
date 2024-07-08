@@ -1,21 +1,109 @@
-import { Column, Entity } from 'typeorm';
+import { Result } from '../../results/entities/result.entity';
 import { AbstractEntity } from '../../database/entity/abstract.entity';
+import { Role } from '../../role/entities/role.entity';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  JoinTable,
+  ManyToMany,
+  ManyToOne,
+  OneToMany,
+} from 'typeorm';
+import { Exam } from '../../exams/entities/exam.entity';
 
-@Entity('questions')
-export class Result extends AbstractEntity<Result> {
+@Entity('users')
+export class User extends AbstractEntity<User> {
   @Column()
-  right_answers: number;
+  fname: string;
 
   @Column()
-  wrong_answers: number;
+  lname: string;
 
   @Column({
-    default: () => 4 * this.right_answers - this.wrong_answers,
+    type: 'date',
   })
-  obatined_marks: number;
+  dob: Date;
 
-  @Column({
-    type: 'boolean',
-  })
-  absent_or_present: boolean;
+  @Column()
+  state: string;
+
+  @Column()
+  city: string;
+
+  @Column()
+  gender: string;
+
+  @Column()
+  email: string;
+
+  @Column()
+  phno: string;
+
+  @Column()
+  password: string;
+
+  @Column()
+  isDeleted: boolean;
+
+  @ManyToOne(() => Role, (role) => role.user)
+  @JoinColumn({ name: 'roleId', referencedColumnName: 'id' })
+  role: Role;
+
+  @OneToMany(() => Result, (result) => result.user)
+  result: Result;
+
+  @ManyToMany(() => Exam, (exam) => exam.user)
+  @JoinTable()
+  exam: Exam;
 }
+import { AbstractEntity } from '../../database/entity/abstract.entity';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  ManyToMany,
+  OneToMany,
+} from 'typeorm';
+import { Question } from '../../questions/entities/question.entity';
+import { Result } from '../../results/entities/result.entity';
+import { User } from 'src/users/entities/user.entity';
+// import { Record } from '../../records/entities/record.entity';
+
+@Entity('exams')
+export class Exam extends AbstractEntity<Exam> {
+  @Column()
+  exam_name: string;
+
+  @Column()
+  instrucations: string;
+
+  @CreateDateColumn({
+    type: 'date',
+  })
+  exam_date: Date;
+
+  @Column()
+  starttime: number;
+
+  @Column({
+    type: 'interval',
+  })
+  duration: number;
+
+  @Column()
+  passing_criteria: number;
+
+  @Column()
+  total_marks: number;
+
+  @OneToMany(() => Question, (que) => que.exam)
+  question: Question[];
+
+  @OneToMany(() => Result, (result) => result.exam)
+  result: Result[];
+
+  @ManyToMany(() => User, (user) => user.exam)
+  user: User[];
+}
+I WANT TO JOIN THESE TABLES WITH MANY TO MANY AND AUTO GENERATE USER-EXAM TABLE
