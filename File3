@@ -1,42 +1,97 @@
-import fs from "fs";
-import path from "path";
+import { Injectable } from '@nestjs/common';
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Student } from './entities/student.entity';
+import { CreateStudentDto } from './dto/create-student.dto';
+// import { CreateStudentDto } from './dto/create-student.dto';
+// import { UpdateStudentDto } from './dto/update-student.dto';
 
-import { ModelCtor, Sequelize } from "sequelize-typescript";
+@Injectable()
+export class StudentsService {
+  constructor(
+    @InjectRepository(Student)
+    private studentRepository: Repository<CreateStudentDto>,
+  ) {}
+  async addStudent(student: CreateStudentDto) {
+    return await this.studentRepository.save(student);
+  }
+  // create(createStudentDto: CreateStudentDto) {
+  //   return 'This action adds a new student';
+  // }
+  // findAll() {
+  //   return `This action returns all students`;
+  // }
+  // findOne(id: number) {
+  //   return `This action returns a #${id} student`;
+  // }
+  // update(id: number, updateStudentDto: UpdateStudentDto) {
+  //   return `This action updates a #${id} student`;
+  // }
+  // remove(id: number) {
+  //   return `This action removes a #${id} student`;
+  // }
+}
+this is service 
+import {
+  Controller,
+  // Get,
+  Post,
+  Body,
+  // Patch,
+  // Param,
+  // Delete,
+} from '@nestjs/common';
+import { StudentsService } from './students.service';
+import { CreateStudentDto } from './dto/create-student.dto';
+// import { UpdateStudentDto } from './dto/update-student.dto';
 
-const initSequalize = () => {
-  const _basename = path.basename(module.filename);
-const sequelize=new Sequelize({
-    database:"orm_db",
-    username:"root",
-    password:"Dev@123",
-    host:"localhost",
-    dialect:"mysql",
-    // logging:false
-})
-  sequelize
-  .authenticate()
-  .then(() => console.log(`Successfully connecloggerted to database!`))
-  .catch((err) => console.log(`Something went wrong ${err.message}`));
+@Controller('students')
+export class StudentsController {
+  constructor(private readonly studentsService: StudentsService) {}
 
+  @Post()
+  addStudent(@Body() createStudentDto: CreateStudentDto) {
+    return this.studentsService.addStudent(createStudentDto);
+  }
 
-  const _models = fs
-  .readdirSync(__dirname)
-  .filter((file: string) => {
-      return (
-        file !== _basename &&
-        (file.slice(-3) === ".ts" || file.slice(-3) === ".js")
-      );
-    })
-    .map((file: string) => {
-      const model: ModelCtor = require(path.join(__dirname, file))?.default;
-      return model;
-    });
-  sequelize.addModels(_models);
-  return sequelize;
+  // @Get()
+  // findAll() {
+  //   return this.studentsService.findAll();
+  // }
 
-};
+  // @Get(':id')
+  // findOne(@Param('id') id: string) {
+  //   return this.studentsService.findOne(+id);
+  // }
 
-const db = {
-  connect: initSequalize(),
-};
-export default db;
+  // @Patch(':id')
+  // update(@Param('id') id: string, @Body() updateStudentDto: UpdateStudentDto) {
+  //   return this.studentsService.update(+id, updateStudentDto);
+  // }
+
+  // @Delete(':id')
+  // remove(@Param('id') id: string) {
+  //   return this.studentsService.remove(+id);
+  // }
+}
+THIS IS CONTROLLER
+
+import { ApiProperty } from '@nestjs/swagger';
+import { IsEmail, IsNotEmpty, IsPhoneNumber } from 'class-validator';
+
+export class CreateStudentDto {
+  @ApiProperty()
+  @IsNotEmpty()
+  enrollment: string;
+
+  @ApiProperty()
+  @IsEmail()
+  @IsNotEmpty()
+  email: string;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsPhoneNumber()
+  phno: string;
+}
+THIS IS DTO STILL CLASS-VALIDATOR NOT WORKING IF ISEMPTY.ISEMAIL NOTHING WORKING 
