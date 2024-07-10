@@ -1,55 +1,35 @@
-Here is an example of the complete configuration for the `index.ts` file (in the `src/migrations` folder) and the `package.json` file:
+import React from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { login, register, logout } from '../features/authSlice';
+import { RootState } from '../store';
 
-*`src/migrations/index.ts`*
-```
-import { MigrationInterface, QueryRunner } from 'typeorm';
-import { createConnection } from 'typeorm';
+const MyComponent = () => {
+  const dispatch = useDispatch();
+  const { basicUserInfo, status, error } = useSelector((state: RootState) => state.auth);
 
-createConnection({
-  type: 'postgres',
-  url: 'localhost:5432',
-  username: 'postgres',
-  password: 'password',
-  database: 'omr_exam_db',
-  entities: ['src/entities/**/*.ts'],
-  migrations: ['src/migrations/**/*.ts'],
-});
+  const handleLogin = async (email: string, password: string) => {
+    dispatch(login({ email, password }));
+  };
 
-export class MigrationRunner implements MigrationInterface {
-  async up(queryRunner: QueryRunner): Promise<void> {
-    // Apply migrations here
-  }
+  const handleRegister = async (userData: forAuthslice) => {
+    dispatch(register(userData));
+  };
 
-  async down(queryRunner: QueryRunner): Promise<void> {
-    // Revert migrations here
-  }
-}
-```
-*`package.json`*
-```
-{
-  "name": "omr-exam-db",
-  "version": "1.0.0",
-  "scripts": {
-    "migrate": "ts-node src/migrations/index.ts",
-    "migrate:up": "ts-node src/migrations/index.ts up",
-    "migrate:down": "ts-node src/migrations/index.ts down"
-  },
-  "dependencies": {
-    "typeorm": "^0.2.34",
-    "pg": "^8.5.1",
-    "ts-node": "^10.2.1"
-  }
-}
-```
-With this configuration, you can run the migrations using the following commands:
+  const handleLogout = () => {
+    dispatch(logout());
+  };
 
-- `npm run migrate` (to run all migrations)
-- `npm run migrate:up` (to run all migrations in the "up" direction)
-- `npm run migrate:down` (to run all migrations in the "down" direction)
+  return (
+    <div>
+      <button onClick={() => handleLogin('test@example.com', 'password123')}>Login</button>
+      <button onClick={() => handleRegister({ email: 'test@example.com', password: 'password123', name: 'John Doe' })}>Register</button>
+      <button onClick={handleLogout}>Logout</button>
 
-Make sure to adjust the database connection settings in the `index.ts` file to match your PostgreSQL database credentials.
+      {status === 'loading' && <p>Loading...</p>}
+      {status === 'failed' && <p>Error: {error}</p>}
+      {basicUserInfo && <p>Welcome, {basicUserInfo.data.email}</p>}
+    </div>
+  );
+};
 
-Also, make sure to install the required dependencies by running `npm install` in your project directory.
-
-If you're still having issues running migrations, please provide more details about the error message you're seeing, and I'll do my best to help you troubleshoot.
+export default MyComponent;
