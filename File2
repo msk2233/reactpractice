@@ -1,74 +1,27 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import axiosInstance from "../api/axiosInstance";
-import { forAuthslice } from "../interfaces/regInterface";
 
-type User = {
-  email: string;
-  password: string;
+
+import { AppDispatch } from "../store"; // Import your AppDispatch type
+
+export const login = (userData: User) => async (dispatch: AppDispatch) => {
+  dispatch(loginStart());
+  try {
+    const response = await axiosInstance.post("/login", userData);
+    const resData = response.data;
+    localStorage.setItem("userInfo", JSON.stringify(resData.res));
+    dispatch(loginSuccess(resData.res));
+  } catch (error) {
+    dispatch(loginFailure(error.toString()));
+  }
 };
 
-type UserBasicInfo = {
-  data: forAuthslice;
+export const register = (userData: forAuthslice) => async (dispatch: AppDispatch) => {
+  dispatch(registerStart());
+  try {
+    const response = await axiosInstance.post("/register", userData);
+    const resData = response.data;
+    localStorage.setItem("userInfo", JSON.stringify(resData));
+    dispatch(registerSuccess(resData));
+  } catch (error) {
+    dispatch(registerFailure(error.toString()));
+  }
 };
-
-type AuthApiState = {
-  basicUserInfo?: UserBasicInfo | null;
-  status: "idle" | "loading" | "succeeded" | "failed";
-  error: string | null;
-};
-
-const initialState: AuthApiState = {
-  basicUserInfo: localStorage.getItem("userInfo")
-    ? JSON.parse(localStorage.getItem("userInfo") as string)
-    : null,
-  status: "idle",
-  error: null,
-};
-
-const authSlice = createSlice({
-  name: "auth",
-  initialState,
-  reducers: {
-    loginStart(state) {
-      state.status = "loading";
-      state.error = null;
-    },
-    loginSuccess(state, action: PayloadAction<UserBasicInfo>) {
-      state.status = "succeeded";
-      state.basicUserInfo = action.payload;
-    },
-    loginFailure(state, action: PayloadAction<string>) {
-      state.status = "failed";
-      state.error = action.payload;
-    },
-    registerStart(state) {
-      state.status = "loading";
-      state.error = null;
-    },
-    registerSuccess(state, action: PayloadAction<UserBasicInfo>) {
-      state.status = "succeeded";
-      state.basicUserInfo = action.payload;
-    },
-    registerFailure(state, action: PayloadAction<string>) {
-      state.status = "failed";
-      state.error = action.payload;
-    },
-    logout(state) {
-      state.status = "idle";
-      state.basicUserInfo = null;
-      localStorage.removeItem("userInfo");
-    },
-  },
-});
-
-export const {
-  loginStart,
-  loginSuccess,
-  loginFailure,
-  registerStart,
-  registerSuccess,
-  registerFailure,
-  logout,
-} = authSlice.actions;
-
-export default authSlice.reducer;
