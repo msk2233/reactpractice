@@ -1,21 +1,19 @@
-import { Prisma, PrismaClient } from "@prisma/client";
-// import BaseRepository, { BaseRepoI } from "./baseRepository";
-import { Company } from "@prisma/client";
-import { companyInterface } from "../interfaces/crmInterfaces";
-import prisma from "../../prisma/prisma.script";
-import { findAll } from "./baseRepository";
-import { options } from "joi";
+import { BaseRepoI } from './baseRepo';
+import { User } from './user.entity'; // Adjust as per your entity setup
 
-// export default class CompanyRepository extends BaseRepository<Company> {
-//   constructor() {
-//     super(prisma.company);
-//   }
-//   createCompany(data: companyInterface): Promise<companyInterface> {
-//     const inserted = this.modelClient.create({ data: data });
-//     return inserted;
-//   }
-// }
-// export const findAll = async<T>(model:BaseRepoI<T>,options: Record<string, any> = {})=>{
-export const findAllcompany = async () => {
-  const data = await findAll(model:Company);
+export const userRepo: BaseRepoI<User> = {
+  findMany: async (options: Record<string, any>) => {
+    // Implement your logic using Prisma or any other ORM
+    const users = await prisma.user.findMany(options);
+    return users;
+  },
+  findOne: async (id: string) => {
+    // Implement your logic using Prisma or any other ORM
+    const user = await prisma.user.findUnique({
+      where: { id },
+    });
+    return user;
+  },
 };
+
+// Add other specific repositories as needed
