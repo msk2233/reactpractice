@@ -1,0 +1,30 @@
+import { PrismaClient } from "@prisma/client";
+
+const DEFAULT_ORDER_BY = {
+  createdAt: "desc",
+};
+const MAX_RECORDS_LIMIT = 100;
+
+const getAll = async (modelClient: PrismaClient, options: Record<string, any> = {}): Promise<any[]> => {
+  if (!options.orderBy) {
+    options.orderBy = DEFAULT_ORDER_BY;
+  }
+  if (!options.take || options.take > MAX_RECORDS_LIMIT) {
+    options.take = MAX_RECORDS_LIMIT;
+  }
+  return modelClient.findMany(options);
+};
+
+const getById = async (modelClient: PrismaClient, id: string): Promise<any> => {
+  return modelClient.findFirst({
+    where: { id },
+  });
+};
+
+const deleteById = async (modelClient: PrismaClient, id: number): Promise<any> => {
+  return modelClient.delete({
+    where: { id },
+  });
+};
+
+export { getAll, getById, deleteById };
