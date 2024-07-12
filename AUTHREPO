@@ -1,0 +1,35 @@
+import { PrismaClient, User } from "@prisma/client";
+import { userInterface } from "../interfaces/crmInterfaces";
+import bcrypt from "bcryptjs";
+import prisma from "../../prisma/prisma.script";
+
+const createUser = async (data: userInterface): Promise<userInterface> => {
+  const inserted = await prisma.user.create({ data });
+  return inserted;
+};
+
+const getUsersByEmailOrUsername = async (email: string, username: string): Promise<User[]> => {
+  const data = await prisma.user.findMany({
+    where: {
+      OR: [
+        { email },
+        { username },
+      ],
+    },
+  });
+  return data;
+};
+
+const getUserForLogin = async (emailOrUsername: string): Promise<userInterface | null> => {
+  const data = await prisma.user.findFirst({
+    where: {
+      OR: [
+        { email: emailOrUsername },
+        { username: emailOrUsername },
+      ],
+    },
+  });
+  return data;
+};
+
+export { createUser, getUsersByEmailOrUsername, getUserForLogin };
