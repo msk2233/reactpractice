@@ -1,30 +1,45 @@
-import { PrismaClient } from "@prisma/client";
-
+import { type PrismaClient } from "@prisma/client/extension";
+import { options } from "joi";
 const DEFAULT_ORDER_BY = {
   createdAt: "desc",
 };
 const MAX_RECORDS_LIMIT = 100;
 
-const getAll = async (modelClient: PrismaClient, options: Record<string, any> = {}): Promise<any[]> => {
+export type BaseRepoI<T> = {
+  findMany : (options:Record<string,any>) => Promise<T[]>
+  findOne : (id:string) => Promise<T[]>
+}
+
+export const findAll = async<T>(model:BaseRepoI<T>,options: Record<string, any> = {})=>{
   if (!options.orderBy) {
     options.orderBy = DEFAULT_ORDER_BY;
   }
   if (!options.take || options.take > MAX_RECORDS_LIMIT) {
     options.take = MAX_RECORDS_LIMIT;
   }
-  return modelClient.findMany(options);
-};
+  return model.findMany(options);
+}
 
-const getById = async (modelClient: PrismaClient, id: string): Promise<any> => {
-  return modelClient.findFirst({
-    where: { id },
-  });
-};
+// export default abstract class BaseRepository<A> {
+//   constructor(protected modelClient: PrismaClient) {}
+//   getAll(options: Record<string, any> = {}): Promise<Array<A>> {
+//     if (!options.orderBy) {
+//       options.orderBy = DEFAULT_ORDER_BY;
+//     }
+//     if (!options.take || options.take > MAX_RECORDS_LIMIT) {
+//       options.take = MAX_RECORDS_LIMIT;
+//     }
+//     return this.modelClient.findMany(options);
+//   }
+//   getById(id: string): Promise<A> {
+//     return this.modelClient.findFirst({
+//       where: {
+//         AND: [{ id: id }],
+//       },
+//     });
+//   }
 
-const deleteById = async (modelClient: PrismaClient, id: number): Promise<any> => {
-  return modelClient.delete({
-    where: { id },
-  });
-};
-
-export { getAll, getById, deleteById };
+//   deletebyid(id: number): Promise<A> {
+//     return this.modelClient.deletebyid(id);
+//   }
+// }
