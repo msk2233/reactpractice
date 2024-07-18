@@ -1,45 +1,747 @@
-import { type PrismaClient } from "@prisma/client/extension";
-import { options } from "joi";
-const DEFAULT_ORDER_BY = {
-  createdAt: "desc",
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import Navbar from "../common/Navbar";
+import Button from "../common/Button";
+import Input from "../common/Input";
+import Modal from "../common/Modal"; // Import the modal component
+import { Controller, useForm, SubmitHandler } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { companySchema } from "../../schema/regSchema";
+import axiosInstance from "../../tokenconfig/tokenConfig";
+
+export interface CompanyInterface {
+  id?: string;
+  name: string;
+  address: string;
+  email: string;
+  phone: string;
+  website: string;
+}
+
+const Company: React.FC = () => {
+  const [companies, setCompanies] = useState<CompanyInterface[]>([]);
+  const [showForm, setShowForm] = useState(false);
+  const [formData, setFormData] = useState<CompanyInterface>();
+
+  const {
+    control,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<CompanyInterface>({
+    resolver: yupResolver(companySchema),
+    mode: "onChange",
+    defaultValues:formData
+  });
+
+  const fetchCompanies = async () => {
+    try {
+      const response = await axiosInstance.get('/companies');
+      setCompanies(response.data.data.res);
+    } catch (error) {
+      console.error("Error fetching companies:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchCompanies();
+  }, []);
+
+  useEffect(() => {
+    if (formData) {
+      reset(formData); // Reset form values when formData changes
+    }
+  }, [formData, reset]);
+
+  const deleteCompany = async (id: string | undefined) => {
+    try {
+      await axiosInstance.delete(`/companies/${id}`);
+      fetchCompanies();
+    } catch (error) {
+      console.error("Error deleting company:", error);
+    }
+  };
+
+  const onSubmit: SubmitHandler<CompanyInterface> = async (data) => {
+    try {
+      const token = localStorage.getItem("authtoken");
+      if (token) {
+        const config = {
+          headers: { Authorization: `Bearer ${token}` },
+        };
+        if (formData?.id) {
+          await axios.put(
+            `http://localhost:6060/companies/${formData.id}`,
+            data,
+            config
+          );
+        } else {
+          const response = await axios.post(
+            "http://localhost:6060/companies",
+            data,
+            config
+          );
+          setCompanies([...companies, response.data.data.res]);
+        }
+        setShowForm(false);
+        fetchCompanies();
+      }
+    } catch (error) {
+      console.error("There was an error!", error);
+    }
+  };
+
+  const findCompany = async (id: string | undefined) => {
+    try {
+      const response = await axiosInstance.get(`/companies/${id}`);
+      setFormData(response.data.data);
+      setShowForm(true);
+      reset(response.data.data); // Populate form with company data
+    } catch (error) {
+      console.error("Error fetching company:", error);
+    }
+  };
+
+  return (
+    <>
+      <Navbar />
+      <section className="bg-gray-50 light:bg-gray">
+        <div className="flex flex-col items-center justify-center lg:py-0">
+          <div className="w-full max-w-9xl bg-white rounded-lg shadow md:mt-0 sm:overflow-x-auto light:bg-gray-800 light:border-gray-700">
+            <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
+              <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl light:text-white">
+                Company Records
+              </h1>
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50 light:bg-gray-700">
+                  <tr>
+                    <th className="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase">
+                      Name
+                    </th>
+                    <th className="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase">
+                      Address
+                    </th>
+                    <th className="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase">
+                      Email
+                    </th>
+                    <th className="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase">
+                      Phone
+                    </th>
+                    <th className="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase">
+                      Website
+                    </th>
+                    <th className="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase">
+                      Delete
+                    </th>
+                    <th className="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase">
+                      Edit
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {companies.length > 0 &&
+                    companies.map((company) => (
+                      <tr key={company.id}>
+                        <td className="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-900">
+                          {company.name}
+                        </td>
+                        <td className="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-900">
+                          {company.address}
+                        </td>
+                        <td className="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-900">
+                          {company.email}
+                        </td>
+                        <td className="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-900">
+                          {company.phone}
+                        </td>
+                        <td className="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-900">
+                          <a
+                            href={company.website}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-500 hover:text-blue-700"
+                          >
+                            {company.website}
+                          </a>
+                        </td>
+                        <td>
+                          <div>
+                            <Button
+                              type="button"
+                              onClick={() => deleteCompany(company.id)}
+                            >
+                              <img
+                                className="px-6 py-4 whitespace-no-wrap"
+                                src="/assets/delete.svg"
+                                alt="delete"
+                              />
+                            </Button>
+                          </div>
+                        </td>
+                        <td>
+                          <div>
+                            <Button
+                              type="button"
+                              onClick={() => findCompany(company.id)}
+                            >
+                              <img
+                                alt="edit"
+                                className="px-6 py-4 whitespace-no-wrap"
+                                src="/assets/edit.svg"
+                              />
+                            </Button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
+              <Button
+                type="button"
+                onClick={() => {
+                  setShowForm(!showForm);
+                  // Reset formData when opening the form for a new company
+                }}
+                className="bg-purple-600 text-white p-2 rounded hover:bg-purple-700 focus:ring-4 focus:outline-none focus:ring-purple-300 absolute top-20 right-4"
+              >
+                {showForm ? "Hide Form" : "Register Company"}
+              </Button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <Modal isOpen={showForm} onClose={() => setShowForm(false)}>
+        <form
+          className="space-y-4 md:space-y-6"
+          onSubmit={handleSubmit(onSubmit)}
+        >
+          <div>
+            <label
+              htmlFor="name"
+              className="block mb-2 text-sm font-medium text-gray-900 light:text-white"
+            >
+              Name
+            </label>
+            <Controller
+              name="name"
+              control={control}
+              render={({ field }) => (
+                <Input
+                  type="text"
+                  placeholder="Company Name"
+                  {...field}
+                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-purple-600 focus:border-purple-600 light:bg-gray-700 light:border-gray-600 light:placeholder-gray-400 light:text-white light:focus:ring-purple-500 light:focus:border-purple-500"
+                />
+              )}
+            />
+            {errors.name && (
+              <p className="text-red-600">{errors.name.message}</p>
+            )}
+          </div>
+          <div>
+            <label
+              htmlFor="address"
+              className="block mb-2 text-sm font-medium text-gray-900 light:text-white"
+            >
+              Address
+            </label>
+            <Controller
+              name="address"
+              control={control}
+              render={({ field }) => (
+                <Input
+                  type="text"
+                  placeholder="Company Address"
+                  {...field}
+                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-purple-600 focus:border-purple-600 light:bg-gray-700 light:border-gray-600 light:placeholder-gray-400 light:text-white light:focus:ring-purple-500 light:focus:border-purple-500"
+                />
+              )}
+            />
+            {errors.address && (
+              <p className="text-red-600">{errors.address.message}</p>
+            )}
+          </div>
+          <div>
+            <label
+              htmlFor="email"
+              className="block mb-2 text-sm font-medium text-gray-900 light:text-white"
+            >
+              Email
+            </label>
+            <Controller
+              name="email"
+              control={control}
+              render={({ field }) => (
+                <Input
+                  type="email"
+                  placeholder="name@company.com"
+                  {...field}
+                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-purple-600 focus:border-purple-600 light:bg-gray-700 light:border-gray-600 light:placeholder-gray-400 light:text-white light:focus:ring-purple-500 light:focus:border-purple-500"
+                />
+              )}
+            />
+            {errors.email && (
+              <p className="text-red-600">{errors.email.message}</p>
+            )}
+          </div>
+          <div>
+            <label
+              htmlFor="phone"
+              className="block mb-2 text-sm font-medium text-gray-900 light:text-white"
+            >
+              Phone
+            </label>
+            <Controller
+              name="phone"
+              control={control}
+              render={({ field }) => (
+                <Input
+                  type="text"
+                  placeholder="Phone Number"
+                  {...field}
+                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-purple-600 focus:border-purple-600 light:bg-gray-700 light:border-gray-600 light:placeholder-gray-400 light:text-white light:focus:ring-purple-500 light:focus:border-purple-500"
+                />
+              )}
+            />
+            {errors.phone && (
+              <p className="text-red-600">{errors.phone.message}</p>
+            )}
+          </div>
+          <div>
+            <label
+              htmlFor="website"
+              className="block mb-2 text-sm font-medium text-gray-900 light:text-white"
+            >
+              Website
+            </label>
+            <Controller
+              name="website"
+              control={control}
+              render={({ field }) => (
+                <Input
+                  type="url"
+                  placeholder="Company Website"
+                  {...field}
+                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-purple-600 focus:border-purple-600 light:bg-gray-700 light:border-gray-600 light:placeholder-gray-400 light:text-white light:focus:ring-purple-500 light:focus:border-purple-500"
+                />
+              )}
+            />
+            {errors.website && (
+              <p className="text-red-600">{errors.website.message}</p>
+            )}
+          </div>
+          <Button className="w-full bg-purple-600 text-white p-2 rounded mt-2 hover:bg-purple-700 focus:ring-4 focus:outline-none focus:ring-purple-300" type="submit">
+            {formData ? "Update Company" : "Register Company"}
+          </Button>
+        </form>
+      </Modal>
+    </>
+  );
 };
-const MAX_RECORDS_LIMIT = 100;
 
-export type BaseRepoI<T> = {
-  findMany : (options:Record<string,any>) => Promise<T[]>
-  findOne : (id:string) => Promise<T[]>
+export default Company;
+
+
+
+// components/common/Modal.tsx
+import React from 'react';
+
+interface ModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  children: React.ReactNode;
 }
 
-export const findAll = async<T>(model:BaseRepoI<T>,options: Record<string, any> = {})=>{
-  if (!options.orderBy) {
-    options.orderBy = DEFAULT_ORDER_BY;
-  }
-  if (!options.take || options.take > MAX_RECORDS_LIMIT) {
-    options.take = MAX_RECORDS_LIMIT;
-  }
-  return model.findMany(options);
+const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 flex items-center justify-center z-50">
+      <div className="absolute inset-0 bg-gray-600 opacity-50" onClick={onClose}></div>
+      <div className="bg-white rounded-lg p-6 relative z-10">
+        {children}
+        <button onClick={onClose} className="absolute top-2 right-2">Close</button>
+      </div>
+    </div>
+  );
+};
+
+export default Modal;
+
+
+PAGE
+
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import Navbar from "../common/Navbar";
+import Button from "../common/Button";
+import Input from "../common/Input";
+import Modal from "../common/Modal"; // Import the modal component
+import { Controller, useForm, SubmitHandler } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { companySchema } from "../../schema/regSchema";
+import axiosInstance from "../../tokenconfig/tokenConfig";
+
+export interface CompanyInterface {
+  id?: string;
+  name: string;
+  address: string;
+  email: string;
+  phone: string;
+  website: string;
 }
 
-// export default abstract class BaseRepository<A> {
-//   constructor(protected modelClient: PrismaClient) {}
-//   getAll(options: Record<string, any> = {}): Promise<Array<A>> {
-//     if (!options.orderBy) {
-//       options.orderBy = DEFAULT_ORDER_BY;
-//     }
-//     if (!options.take || options.take > MAX_RECORDS_LIMIT) {
-//       options.take = MAX_RECORDS_LIMIT;
-//     }
-//     return this.modelClient.findMany(options);
-//   }
-//   getById(id: string): Promise<A> {
-//     return this.modelClient.findFirst({
-//       where: {
-//         AND: [{ id: id }],
-//       },
-//     });
-//   }
+const Company: React.FC = () => {
+  const [companies, setCompanies] = useState<CompanyInterface[]>([]);
+  const [showForm, setShowForm] = useState(false);
+  const [formData, setFormData] = useState<CompanyInterface | null>(null);
+  const [page, setPage] = useState(1);
+  const [order, setOrder] = useState<{ field: string; direction: 'asc' | 'desc' }>({ field: 'name', direction: 'asc' });
 
-//   deletebyid(id: number): Promise<A> {
-//     return this.modelClient.deletebyid(id);
-//   }
-// }
+  const {
+    control,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<CompanyInterface>({
+    resolver: yupResolver(companySchema),
+    mode: "onChange",
+  });
+
+  const fetchCompanies = async (page: number, order: { field: string; direction: 'asc' | 'desc' }) => {
+    try {
+      const response = await axiosInstance.get('/companies', {
+        params: {
+          page,
+          order: order.field,
+          direction: order.direction
+        }
+      });
+      setCompanies(response.data.data.res);
+    } catch (error) {
+      console.error("Error fetching companies:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchCompanies(page, order);
+  }, [page, order]);
+
+  useEffect(() => {
+    if (formData) {
+      reset(formData); // Reset form values when formData changes
+    }
+  }, [formData, reset]);
+
+  const deleteCompany = async (id: string | undefined) => {
+    try {
+      await axiosInstance.delete(`/companies/${id}`);
+      fetchCompanies(page, order);
+    } catch (error) {
+      console.error("Error deleting company:", error);
+    }
+  };
+
+  const onSubmit: SubmitHandler<CompanyInterface> = async (data) => {
+    try {
+      const token = localStorage.getItem("authtoken");
+      if (token) {
+        const config = {
+          headers: { Authorization: `Bearer ${token}` },
+        };
+        if (formData?.id) {
+          await axios.put(
+            `http://localhost:6060/companies/${formData.id}`,
+            data,
+            config
+          );
+        } else {
+          const response = await axios.post(
+            "http://localhost:6060/companies",
+            data,
+            config
+          );
+          setCompanies([...companies, response.data.data.res]);
+        }
+        setShowForm(false);
+        setFormData(null); // Reset formData
+        fetchCompanies(page, order);
+      }
+    } catch (error) {
+      console.error("There was an error!", error);
+    }
+  };
+
+  const findCompany = async (id: string | undefined) => {
+    try {
+      const response = await axiosInstance.get(`/companies/${id}`);
+      setFormData(response.data.data);
+      setShowForm(true);
+    } catch (error) {
+      console.error("Error fetching company:", error);
+    }
+  };
+
+  const handleSort = (field: string) => {
+    setOrder((prevOrder) => ({
+      field,
+      direction: prevOrder.field === field && prevOrder.direction === 'asc' ? 'desc' : 'asc'
+    }));
+  };
+
+  const handlePageChange = (newPage: number) => {
+    setPage(newPage);
+  };
+
+  return (
+    <>
+      <Navbar />
+      <section className="bg-gray-50 light:bg-gray">
+        <div className="flex flex-col items-center justify-center lg:py-0">
+          <div className="w-full max-w-9xl bg-white rounded-lg shadow md:mt-0 sm:overflow-x-auto light:bg-gray-800 light:border-gray-700">
+            <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
+              <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl light:text-white">
+                Company Records
+              </h1>
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50 light:bg-gray-700">
+                  <tr>
+                    <th className="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase cursor-pointer" onClick={() => handleSort('name')}>
+                      Name {order.field === 'name' && (order.direction === 'asc' ? '▲' : '▼')}
+                    </th>
+                    <th className="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase cursor-pointer" onClick={() => handleSort('address')}>
+                      Address {order.field === 'address' && (order.direction === 'asc' ? '▲' : '▼')}
+                    </th>
+                    <th className="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase cursor-pointer" onClick={() => handleSort('email')}>
+                      Email {order.field === 'email' && (order.direction === 'asc' ? '▲' : '▼')}
+                    </th>
+                    <th className="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase cursor-pointer" onClick={() => handleSort('phone')}>
+                      Phone {order.field === 'phone' && (order.direction === 'asc' ? '▲' : '▼')}
+                    </th>
+                    <th className="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase cursor-pointer" onClick={() => handleSort('website')}>
+                      Website {order.field === 'website' && (order.direction === 'asc' ? '▲' : '▼')}
+                    </th>
+                    <th className="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase">
+                      Delete
+                    </th>
+                    <th className="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase">
+                      Edit
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {companies.length > 0 &&
+                    companies.map((company) => (
+                      <tr key={company.id}>
+                        <td className="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-900">
+                          {company.name}
+                        </td>
+                        <td className="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-900">
+                          {company.address}
+                        </td>
+                        <td className="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-900">
+                          {company.email}
+                        </td>
+                        <td className="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-900">
+                          {company.phone}
+                        </td>
+                        <td className="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-900">
+                          <a
+                            href={company.website}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-500 hover:text-blue-700"
+                          >
+                            {company.website}
+                          </a>
+                        </td>
+                        <td>
+                          <div>
+                            <Button
+                              type="button"
+                              onClick={() => deleteCompany(company.id)}
+                            >
+                              <img
+                                className="px-6 py-4 whitespace-no-wrap"
+                                src="/assets/delete.svg"
+                                alt="delete"
+                              />
+                            </Button>
+                          </div>
+                        </td>
+                        <td>
+                          <div>
+                            <Button
+                              type="button"
+                              onClick={() => findCompany(company.id)}
+                            >
+                              <img
+                                alt="edit"
+                                className="px-6 py-4 whitespace-no-wrap"
+                                src="/assets/edit.svg"
+                              />
+                            </Button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
+              <div className="flex justify-between items-center mt-4">
+                <Button
+                  type="button"
+                  onClick={() => handlePageChange(page - 1)}
+                  disabled={page === 1}
+                >
+                  Previous
+                </Button>
+                <span>Page {page}</span>
+                <Button type="button" onClick={() => handlePageChange(page + 1)}>
+                  Next
+                </Button>
+              </div>
+              <Button
+                className="w-full bg-purple-600 text-white p-2 rounded mt-2 hover:bg-purple-700 focus:ring-4 focus:outline-none focus:ring-purple-300"
+                type="button"
+                onClick={() => {
+                  setShowForm(true);
+                  setFormData(null); // Reset formData when opening the form to add a new company
+                }}
+              >
+                Add Company
+              </Button>
+            </div>
+          </div>
+        </div>
+      </section>
+      <Modal isVisible={showForm} onClose={() => setShowForm(false)}>
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <div>
+            <label
+              htmlFor="name"
+              className="block mb-2 text-sm font-medium text-gray-900 light:text-white"
+            >
+              Company Name
+            </label>
+            <Controller
+              name="name"
+              control={control}
+              render={({ field }) => (
+                <Input
+                  type="text"
+                  placeholder="Company Name"
+                  {...field}
+                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-purple-600 focus:border-purple-600 light:bg-gray-700 light:border-gray-600 light:placeholder-gray-400 light:text-white light:focus:ring-purple-500 light:focus:border-purple-500"
+                />
+              )}
+            />
+            {errors.name && (
+              <p className="text-red-600">{errors.name.message}</p>
+            )}
+          </div>
+          <div>
+            <label
+              htmlFor="address"
+              className="block mb-2 text-sm font-medium text-gray-900 light:text-white"
+            >
+              Company Address
+            </label>
+            <Controller
+              name="address"
+              control={control}
+              render={({ field }) => (
+                <Input
+                  type="text"
+                  placeholder="Company Address"
+                  {...field}
+                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-purple-600 focus:border-purple-600 light:bg-gray-700 light:border-gray-600 light:placeholder-gray-400 light:text-white light:focus:ring-purple-500 light:focus:border-purple-500"
+                />
+              )}
+            />
+            {errors.address && (
+              <p className="text-red-600">{errors.address.message}</p>
+            )}
+          </div>
+          <div>
+            <label
+              htmlFor="email"
+              className="block mb-2 text-sm font-medium text-gray-900 light:text-white"
+            >
+              Email
+            </label>
+            <Controller
+              name="email"
+              control={control}
+              render={({ field }) => (
+                <Input
+                  type="email"
+                  placeholder="name@company.com"
+                  {...field}
+                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-purple-600 focus:border-purple-600 light:bg-gray-700 light:border-gray-600 light:placeholder-gray-400 light:text-white light:focus:ring-purple-500 light:focus:border-purple-500"
+                />
+              )}
+            />
+            {errors.email && (
+              <p className="text-red-600">{errors.email.message}</p>
+            )}
+          </div>
+          <div>
+            <label
+              htmlFor="phone"
+              className="block mb-2 text-sm font-medium text-gray-900 light:text-white"
+            >
+              Phone
+            </label>
+            <Controller
+              name="phone"
+              control={control}
+              render={({ field }) => (
+                <Input
+                  type="text"
+                  placeholder="Phone Number"
+                  {...field}
+                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-purple-600 focus:border-purple-600 light:bg-gray-700 light:border-gray-600 light:placeholder-gray-400 light:text-white light:focus:ring-purple-500 light:focus:border-purple-500"
+                />
+              )}
+            />
+            {errors.phone && (
+              <p className="text-red-600">{errors.phone.message}</p>
+            )}
+          </div>
+          <div>
+            <label
+              htmlFor="website"
+              className="block mb-2 text-sm font-medium text-gray-900 light:text-white"
+            >
+              Website
+            </label>
+            <Controller
+              name="website"
+              control={control}
+              render={({ field }) => (
+                <Input
+                  type="url"
+                  placeholder="Company Website"
+                  {...field}
+                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-purple-600 focus:border-purple-600 light:bg-gray-700 light:border-gray-600 light:placeholder-gray-400 light:text-white light:focus:ring-purple-500 light:focus:border-purple-500"
+                />
+              )}
+            />
+            {errors.website && (
+              <p className="text-red-600">{errors.website.message}</p>
+            )}
+          </div>
+          <Button
+            className="w-full bg-purple-600 text-white p-2 rounded mt-2 hover:bg-purple-700 focus:ring-4 focus:outline-none focus:ring-purple-300"
+            type="submit"
+          >
+            {formData ? "Update Company" : "Register Company"}
+          </Button>
+        </form>
+      </Modal>
+    </>
+  );
+};
+
+export default Company;
