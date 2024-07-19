@@ -1,43 +1,351 @@
-Authentication and Authorization
-Register User: POST /auth/register
-Login User: POST /auth/login
-Logout User: POST /auth/logout
-User Management
-Create User (Admin only): POST /admin/users
-Get User by ID (Admin only): GET /admin/users/:id
-Update User (Admin only): PUT /admin/users/:id
-Delete User (Admin only): DELETE /admin/users/:id
-List Users (Admin only): GET /admin/users
-Get Profile (Authenticated User): GET /users/profile
-Update Profile (Authenticated User): PUT /users/profile
-Role Management
-Create Role: POST /admin/roles
-Get Role by ID: GET /admin/roles/:id
-Update Role: PUT /admin/roles/:id
-Delete Role: DELETE /admin/roles/:id
-List Roles: GET /admin/roles
-Exam Management (Teacher only)
-Create Exam: POST /teacher/exams
-Get Exam by ID: GET /teacher/exams/:id
-Update Exam: PUT /teacher/exams/:id
-Delete Exam: DELETE /teacher/exams/:id
-List Exams: GET /teacher/exams
-Assign Subject to Exam: POST /teacher/exams/:examId/subjects
-List Subjects for Exam: GET /teacher/exams/:examId/subjects
-Question Management (Teacher only)
-Create Question: POST /teacher/questions
-Get Question by ID: GET /teacher/questions/:id
-Update Question: PUT /teacher/questions/:id
-Delete Question: DELETE /teacher/questions/:id
-List Questions: GET /teacher/questions
-Add Options to Question: POST /teacher/questions/:questionId/options
-List Options for Question: GET /teacher/questions/:questionId/options
-Student Management (Teacher only)
-List Students: GET /teacher/students
-Get Student by ID: GET /teacher/students/:id
-Get Student Results: GET /teacher/students/:id/results
-Exam Participation (Student only)
-List Available Exams: GET /student/exams
-Get Exam Details: GET /student/exams/:id
-Submit Exam: POST /student/exams/:id/submit
-Get Exam Results: GET /student/exams/:id/results
+// src/components/common/Pagination.tsx
+
+import React from "react";
+
+interface PaginationProps {
+  currentPage: number;
+  totalPages: number;
+  onPageChange: (page: number) => void;
+}
+
+const Pagination: React.FC<PaginationProps> = ({
+  currentPage,
+  totalPages,
+  onPageChange,
+}) => {
+  const handlePageChange = (page: number) => {
+    if (page >= 1 && page <= totalPages) {
+      onPageChange(page);
+    }
+  };
+
+  return (
+    <nav className="flex justify-center my-4">
+      <ul className="inline-flex -space-x-px">
+        <li>
+          <button
+            onClick={() => handlePageChange(currentPage - 1)}
+            className="px-3 py-2 ml-0 leading-tight text-gray-500 bg-white border border-gray-300 rounded-l-lg hover:bg-gray-100 hover:text-gray-700"
+            disabled={currentPage === 1}
+          >
+            Previous
+          </button>
+        </li>
+        {Array.from({ length: totalPages }, (_, index) => (
+          <li key={index}>
+            <button
+              onClick={() => handlePageChange(index + 1)}
+              className={`px-3 py-2 leading-tight border ${
+                currentPage === index + 1
+                  ? "text-white bg-purple-600 border-purple-600"
+                  : "text-gray-500 bg-white border-gray-300 hover:bg-gray-100 hover:text-gray-700"
+              }`}
+            >
+              {index + 1}
+            </button>
+          </li>
+        ))}
+        <li>
+          <button
+            onClick={() => handlePageChange(currentPage + 1)}
+            className="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-lg hover:bg-gray-100 hover:text-gray-700"
+            disabled={currentPage === totalPages}
+          >
+            Next
+          </button>
+        </li>
+      </ul>
+    </nav>
+  );
+};
+
+export default Pagination;
+
+
+
+
+
+
+
+
+
+import React, { useEffect, useState } from "react";
+import Navbar from "../common/Navbar";
+import Button from "../common/Button";
+import Input from "../common/Input";
+import Modal from "../common/Modal"; // Import the modal component
+import Pagination from "../common/Pagination"; // Import the pagination component
+import { Controller, useForm, SubmitHandler } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { dealSchema } from "../../schema/regSchema";
+import useAxios from "../../hooks/axiosHook";
+
+export interface DealInterface {
+  id?: string;
+  title: string;
+  amount: number;
+  stage?: string;
+  closedate: Date;
+}
+const initialValue = {
+  title: "",
+  amount: 0,
+  stage: "",
+  closedate: new Date(),
+};
+
+interface ParamsInterface {
+  page: number;
+  order: string;
+  limit: number;
+  sortBy: string;
+  search: string;
+}
+const paramsInitials = {
+  page: 1,
+  order: "asc",
+  limit: 10,
+  sortBy: "title",
+  search: "",
+};
+
+const Deals: React.FC = () => {
+  const [deals, setDeals] = useState<DealInterface[]>([]);
+  const [showForm, setShowForm] = useState(false);
+  const [formData, setFormData] = useState<DealInterface>(initialValue);
+  const [params, setParams] = useState(paramsInitials);
+  const [totalPages, setTotalPages] = useState(1); // Add state for total pages
+  const { callApi } = useAxios();
+
+  const {
+    control,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<DealInterface>({
+    resolver: yupResolver(deal
+
+
+
+
+
+
+import React, { useEffect, useState } from "react";
+import Navbar from "../common/Navbar";
+import Button from "../common/Button";
+import Input from "../common/Input";
+import Modal from "../common/Modal"; // Import the modal component
+import Pagination from "../common/Pagination"; // Import the pagination component
+import { Controller, useForm, SubmitHandler } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { dealSchema } from "../../schema/regSchema";
+import useAxios from "../../hooks/axiosHook";
+
+export interface DealInterface {
+  id?: string;
+  title: string;
+  amount: number;
+  stage?: string;
+  closedate: Date;
+}
+
+const initialValue = {
+  title: "",
+  amount: 0,
+  stage: "",
+  closedate: new Date(),
+};
+
+interface ParamsInterface {
+  page: number;
+  order: string;
+  limit: number;
+  sortBy: string;
+  search: string;
+}
+
+const paramsInitials = {
+  page: 1,
+  order: "asc",
+  limit: 10,
+  sortBy: "title",
+  search: "",
+};
+
+const Deals: React.FC = () => {
+  const [deals, setDeals] = useState<DealInterface[]>([]);
+  const [showForm, setShowForm] = useState(false);
+  const [formData, setFormData] = useState<DealInterface>(initialValue);
+  const [params, setParams] = useState(paramsInitials);
+  const [totalPages, setTotalPages] = useState(1); // State for total pages
+  const { callApi } = useAxios();
+
+  const {
+    control,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<DealInterface>({
+    resolver: yupResolver(dealSchema),
+    mode: "onChange",
+    defaultValues: formData,
+  });
+
+  const fetchDeals = async (params: ParamsInterface) => {
+    try {
+      const res = await callApi({
+        url: "/deals",
+        method: "get",
+        data: {},
+        params: params,
+      });
+      setDeals(res?.data.deals || []); // Adjust according to your API response
+      setTotalPages(res?.data.totalPages || 1); // Set total pages based on API response
+    } catch (error) {
+      console.error("Error fetching deals:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchDeals(params);
+  }, [params]);
+
+  useEffect(() => {
+    if (formData?.id !== undefined) {
+      reset(formData); // Reset form values when formData changes
+    }
+  }, [formData, reset]);
+
+  const deleteDeal = async (id: string | undefined) => {
+    try {
+      await callApi({
+        url: `/deals/${id}`,
+        method: "delete",
+        data: {},
+        params: {},
+      });
+      fetchDeals(params);
+    } catch (error) {
+      console.error("Error deleting deal:", error);
+    }
+  };
+
+  const onSubmit: SubmitHandler<DealInterface> = async (data) => {
+    const closingDate = data.closedate.toISOString().split("T")[0];
+    const dataTosubmit = {
+      title: data.title,
+      amount: data.amount,
+      stage: data.stage,
+      closedate: closingDate,
+    };
+    if (formData?.id) {
+      const id = formData.id;
+      await callApi({
+        url: `/deals/${id}`,
+        method: "put",
+        data: dataTosubmit,
+        params: {},
+      });
+    } else {
+      await callApi({
+        url: "/deals",
+        method: "post",
+        data: dataTosubmit,
+        params: {},
+      });
+    }
+    setFormData(initialValue);
+    setShowForm(false);
+    fetchDeals(params);
+  };
+
+  const findDeal = async (id: string | undefined) => {
+    try {
+      const res = await callApi({
+        url: `/deals/${id}`,
+        method: "get",
+        data: {},
+        params: {},
+      });
+      setFormData(res?.data);
+      setShowForm(true);
+      reset(res?.data); // Populate form with deal data
+    } catch (error) {
+      console.error("Error fetching deal:", error);
+    }
+  };
+
+  const handlePageChange = (page: number) => {
+    setParams((prevParams) => ({ ...prevParams, page }));
+  };
+
+  return (
+    <>
+      <Navbar />
+      <section className="bg-gray-50 light:bg-gray">
+        <div className="flex flex-col items-center justify-center lg:py-0">
+          <div className="w-full max-w-9xl bg-white rounded-lg shadow md:mt-0 sm:overflow-x-auto light:bg-gray-800 light:border-gray-700">
+            <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
+              <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl light:text-white">
+                Deal Records
+              </h1>
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50 light:bg-gray-700">
+                  <tr>
+                    {/* Table headers and sorting */}
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {deals.length > 0 &&
+                    deals.map((deal) => (
+                      <tr key={deal.id}>
+                        {/* Table rows */}
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
+              <Pagination
+                currentPage={params.page}
+                totalPages={totalPages}
+                onPageChange={handlePageChange}
+              />
+              <Button
+                type="button"
+                onClick={() => {
+                  setShowForm(!showForm);
+                  // Reset formData when opening the form for a new deal
+                }}
+                className="bg-purple-600 text-white p-2 rounded hover:bg-purple-700 focus:ring-4 focus:outline-none focus:ring-purple-300 absolute top-20 right-4"
+              >
+                {showForm ? "Hide Form" : "Register Deal"}
+              </Button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <Modal
+        isOpen={showForm}
+        onClose={() => {
+          setShowForm(false);
+          setFormData(initialValue);
+        }}
+      >
+        <form
+          className="space-y-4 md:space-y-6"
+          onSubmit={handleSubmit(onSubmit)}
+        >
+          {/* Form fields */}
+          <Button
+            className="w-full bg-purple-600 text-white p-2 rounded mt-2 hover:bg-purple-700 focus:ring-4 focus:outline-none focus:ring-purple-300"
+            type="submit"
+          >
+            {formData?.id ? "Update Deal" : "Register Deal"}
+          </Button>
+        </form>
+      </Modal>
+    </>
+  );
+};
+
+export default Deals;
