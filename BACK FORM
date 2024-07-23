@@ -1,0 +1,273 @@
+const { execute, insert } = require('../executequery');
+var backvalidation = require('../middlewear/backendvalidation');
+
+exports.main = async (req, res) => {
+    res.render('job_application_form_main');
+}
+
+exports.fetch = async (req, res) => {
+    const { id } = req.query;  // Assuming id is passed in query parameters
+    let result1 = await execute(`SELECT * FROM basic_detail WHERE application_id = ${id};`);
+    let result2 = await execute(`SELECT * FROM education WHERE application_id = ${id};`);
+    let result3 = await execute(`SELECT * FROM workexperience WHERE application_id = ${id};`);
+    let result4 = await execute(`SELECT * FROM known_language WHERE application_id = ${id};`);
+    let result5 = await execute(`SELECT * FROM known_technologies WHERE application_id = ${id};`);
+    let result6 = await execute(`SELECT * FROM referenceContact WHERE application_id = ${id};`);
+    let result7 = await execute(`SELECT * FROM preferences WHERE application_id = ${id};`);
+    res.send({ result1, result2, result3, result4, result5, result6, result7 });
+}
+
+exports.insert = (req, res) => {
+    submittype = "insert";
+    res.render('job_application_form', { submittype: submittype, id: {} });
+}
+
+exports.update = (req, res) => {
+    id = req.query.id;
+    submittype = "update";
+    res.render('job_application_form', { submittype: submittype, id: id });
+}
+
+exports.get_state = async (req, res) => {
+    let data = await execute(`SELECT name, id FROM states ORDER BY id ASC;`);
+    res.send({ data });
+}
+
+exports.get_city = async (req, res) => {
+    var type = req.query.id;
+    let data1 = await execute(`SELECT city FROM cities WHERE state_id = ${type};`);
+    res.send({ data1 });
+}
+
+async function backend(req, res) {
+    if (backvalidation.basicdetail(req.body)) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+exports.insdata = async (req, res, next) => {
+    let fail = null;
+    if (backend(req, res)) {
+        const { fname, lname, designation, address1, address2, email, phno, city, gender, state, rstatus, zipcode, dob, nob_ssc, ps_ssc, percentage_ssc, nob_hsc, ps_hsc, percentage_hsc, coursename_bach, ps_bach, percentage_bach, coursename_mas, ps_mas, percentage_mas, companyname1, designation_exp1, date_of_join_exp1, date_of_coplition_exp1, companyname2, designation_exp2, date_of_join_exp2, date_of_coplition_exp2, companyname3, designation_exp3, date_of_join_exp3, date_of_coplition_exp3, rhindi, whindi, shindi, renglish, wenglish, senglish, rgujarati, wgujarati, sgujarati, phpcheckbox, mysqlcheckbox, laravelcheckbox, oraclecheckbox, php, mysql, laravel, oracle, ref_name_1, ref_name_2, contact_ref_1, contact_ref_2, contact_ref_relation1, contact_ref_relation2, location, notice_period, exp_ctc, cur_ctc, department } = req.body;
+
+        //INSERT INTO BASIC DETAIL TABLE
+        var basic_detail_query = `INSERT INTO basic_detail(fname, lname, designation, address1, address2, email, phno, city, state, gender, zipcode, rstatus, dob) VALUES ('${fname}', '${lname}', '${designation}', '${address1}', '${address2}', '${email}', '${phno}', '${city}', '${state}', '${gender}', '${zipcode}', '${rstatus}', '${dob}')`;
+        let insertedid = await insert(basic_detail_query);
+
+        // INSERT INTO EDUCATION TABLE
+        let education_queries = [];
+        if (nob_ssc != '') {
+            education_queries.push(`(${insertedid}, 1, '${nob_ssc}', '${ps_ssc}', ${percentage_ssc})`);
+        }
+        if (nob_hsc != '') {
+            education_queries.push(`(${insertedid}, 2, '${nob_hsc}', '${ps_hsc}', ${percentage_hsc})`);
+        }
+        if (coursename_bach != '') {
+            education_queries.push(`(${insertedid}, 3, '${coursename_bach}', '${ps_bach}', ${percentage_bach})`);
+        }
+        if (coursename_mas != '') {
+            education_queries.push(`(${insertedid}, 4, '${coursename_mas}', '${ps_mas}', ${percentage_mas})`);
+        }
+        if (education_queries.length > 0) {
+            var education_query = `INSERT INTO education(application_id, educationlevel, board_course, passing_year, percentage) VALUES ${education_queries.join(', ')};`;
+            await execute(education_query);
+        }
+
+        // INSERT INTO WORK EXPERIENCE TABLE
+        let work_experience_queries = [];
+        if (companyname1 != '') {
+            work_experience_queries.push(`(${insertedid}, '${companyname1}', '${designation_exp1}', '${date_of_join_exp1}', '${date_of_coplition_exp1}')`);
+        }
+        if (companyname2 != '') {
+            work_experience_queries.push(`(${insertedid}, '${companyname2}', '${designation_exp2}', '${date_of_join_exp2}', '${date_of_coplition_exp2}')`);
+        }
+        if (companyname3 != '') {
+            work_experience_queries.push(`(${insertedid}, '${companyname3}', '${designation_exp3}', '${date_of_join_exp3}', '${date_of_coplition_exp3}')`);
+        }
+        if (work_experience_queries.length > 0) {
+            var workexperience_query = `INSERT INTO workexperience(application_id, ComapanyName, Designation, Dateofjoining, Dateofcompliting) VALUES ${work_experience_queries.join(', ')};`;
+            await execute(workexperience_query);
+        }
+
+        // INSERT INTO KNOWN LANGUAGE TABLE
+        let languages = [];
+        if (rhindi || whindi || shindi) {
+            languages.push(`(${insertedid}, 'hindi', ${rhindi ? 1 : 0}, ${whindi ? 1 : 0}, ${shindi ? 1 : 0})`);
+        }
+        if (renglish || wenglish || senglish) {
+            languages.push(`(${insertedid}, 'english', ${renglish ? 1 : 0}, ${wenglish ? 1 : 0}, ${senglish ? 1 : 0})`);
+        }
+        if (rgujarati || wgujarati || sgujarati) {
+            languages.push(`(${insertedid}, 'guj', ${rgujarati ? 1 : 0}, ${wgujarati ? 1 : 0}, ${sgujarati ? 1 : 0})`);
+        }
+        if (languages.length > 0) {
+            var language_query = `INSERT INTO known_language(application_id, language_name, can_read, can_write, can_speak) VALUES ${languages.join(', ')};`;
+            await execute(language_query);
+        }
+
+        // INSERT INTO TECHNOLOGIES TABLE
+        let technologies = [];
+        if (phpcheckbox) {
+            technologies.push(`(${insertedid}, 'PHP', '${php}')`);
+        }
+        if (mysqlcheckbox) {
+            technologies.push(`(${insertedid}, 'MySql', '${mysql}')`);
+        }
+        if (laravelcheckbox) {
+            technologies.push(`(${insertedid}, 'Laravel', '${laravel}')`);
+        }
+        if (oraclecheckbox) {
+            technologies.push(`(${insertedid}, 'Oracle', '${oracle}')`);
+        }
+        if (technologies.length > 0) {
+            var techno_query = `INSERT INTO known_technologies(application_id, Name_of_technology, Experties) VALUES ${technologies.join(', ')};`;
+            await execute(techno_query);
+        }
+
+        // INSERT INTO REFERENCE CONTACT TABLE
+        let reference_contacts = [];
+        if (ref_name_1 != '') {
+            reference_contacts.push(`(${insertedid}, '${ref_name_1}', '${contact_ref_1}', '${contact_ref_relation1}')`);
+        }
+        if (ref_name_2 != '') {
+            reference_contacts.push(`(${insertedid}, '${ref_name_2}', '${contact_ref_2}', '${contact_ref_relation2}')`);
+        }
+        if (reference_contacts.length > 0) {
+            var ref_query = `INSERT INTO referenceContact(application_id, NameOfContact, ContactNumber, Relation) VALUES ${reference_contacts.join(', ')};`;
+            await execute(ref_query);
+        }
+
+        // INSERT INTO PREFERENCE TABLE
+        var preference_query = `INSERT INTO preferences(application_id, prefered_location, notice_period, expected_ctc, curr_ctc, department) VALUES (${insertedid}, '${location}', '${notice_period}', '${exp_ctc}', '${cur_ctc}', '${department}');`;
+        await execute(preference_query);
+
+        fail = "Inserted";
+        res.render('job_application_form_main', { fail: fail });
+    } else {
+        fail = "Fail";
+        res.render('job_application_form_main', { fail: fail });
+    }
+}
+
+exports.updatedata = async (req, res, next) => {
+    let fail = null;
+    if (backend(req, res)) {
+        const { application_id, fname, lname, designation, address1, address2, email, phno, city, gender, state, rstatus, zipcode, dob, nob_ssc, ps_ssc, percentage_ssc, nob_hsc, ps_hsc, percentage_hsc, coursename_bach, ps_bach, percentage_bach, coursename_mas, ps_mas, percentage_mas, companyname1, designation_exp1, date_of_join_exp1, date_of_coplition_exp1, companyname2, designation_exp2, date_of_join_exp2, date_of_coplition_exp2, companyname3, designation_exp3, date_of_join_exp3, date_of_coplition_exp3, rhindi, whindi, shindi, renglish, wenglish, senglish, rgujarati, wgujarati, sgujarati, phpcheckbox, mysqlcheckbox, laravelcheckbox, oraclecheckbox, php, mysql, laravel, oracle, ref_name_1, ref_name_2, contact_ref_1, contact_ref_2, contact_ref_relation1, contact_ref_relation2, location, notice_period, exp_ctc, cur_ctc, department } = req.body;
+
+        // Update or Insert Basic Detail
+        let basic_detail = await execute(`SELECT application_id FROM basic_detail WHERE application_id = ${application_id};`);
+        if (basic_detail.length > 0) {
+            var basic_detail_query = `UPDATE basic_detail SET fname='${fname}', lname='${lname}', designation='${designation}', address1='${address1}', address2='${address2}', email='${email}', phno='${phno}', city='${city}', state='${state}', gender='${gender}', zipcode='${zipcode}', rstatus='${rstatus}', dob='${dob}' WHERE application_id = ${application_id};`;
+            await execute(basic_detail_query);
+        } else {
+            var basic_detail_query = `INSERT INTO basic_detail(application_id, fname, lname, designation, address1, address2, email, phno, city, state, gender, zipcode, rstatus, dob) VALUES (${application_id}, '${fname}', '${lname}', '${designation}', '${address1}', '${address2}', '${email}', '${phno}', '${city}', '${state}', '${gender}', '${zipcode}', '${rstatus}', '${dob}');`;
+            await insert(basic_detail_query);
+        }
+
+        // Update or Insert Education
+        await execute(`DELETE FROM education WHERE application_id = ${application_id};`);
+        let education_queries = [];
+        if (nob_ssc != '') {
+            education_queries.push(`(${application_id}, 1, '${nob_ssc}', '${ps_ssc}', ${percentage_ssc})`);
+        }
+        if (nob_hsc != '') {
+            education_queries.push(`(${application_id}, 2, '${nob_hsc}', '${ps_hsc}', ${percentage_hsc})`);
+        }
+        if (coursename_bach != '') {
+            education_queries.push(`(${application_id}, 3, '${coursename_bach}', '${ps_bach}', ${percentage_bach})`);
+        }
+        if (coursename_mas != '') {
+            education_queries.push(`(${application_id}, 4, '${coursename_mas}', '${ps_mas}', ${percentage_mas})`);
+        }
+        if (education_queries.length > 0) {
+            var education_query = `INSERT INTO education(application_id, educationlevel, board_course, passing_year, percentage) VALUES ${education_queries.join(', ')};`;
+            await execute(education_query);
+        }
+
+        // Update or Insert Work Experience
+        await execute(`DELETE FROM workexperience WHERE application_id = ${application_id};`);
+        let work_experience_queries = [];
+        if (companyname1 != '') {
+            work_experience_queries.push(`(${application_id}, '${companyname1}', '${designation_exp1}', '${date_of_join_exp1}', '${date_of_coplition_exp1}')`);
+        }
+        if (companyname2 != '') {
+            work_experience_queries.push(`(${application_id}, '${companyname2}', '${designation_exp2}', '${date_of_join_exp2}', '${date_of_coplition_exp2}')`);
+        }
+        if (companyname3 != '') {
+            work_experience_queries.push(`(${application_id}, '${companyname3}', '${designation_exp3}', '${date_of_join_exp3}', '${date_of_coplition_exp3}')`);
+        }
+        if (work_experience_queries.length > 0) {
+            var workexperience_query = `INSERT INTO workexperience(application_id, ComapanyName, Designation, Dateofjoining, Dateofcompliting) VALUES ${work_experience_queries.join(', ')};`;
+            await execute(workexperience_query);
+        }
+
+        // Update or Insert Known Language
+        await execute(`DELETE FROM known_language WHERE application_id = ${application_id};`);
+        let languages = [];
+        if (rhindi || whindi || shindi) {
+            languages.push(`(${application_id}, 'hindi', ${rhindi ? 1 : 0}, ${whindi ? 1 : 0}, ${shindi ? 1 : 0})`);
+        }
+        if (renglish || wenglish || senglish) {
+            languages.push(`(${application_id}, 'english', ${renglish ? 1 : 0}, ${wenglish ? 1 : 0}, ${senglish ? 1 : 0})`);
+        }
+        if (rgujarati || wgujarati || sgujarati) {
+            languages.push(`(${application_id}, 'guj', ${rgujarati ? 1 : 0}, ${wgujarati ? 1 : 0}, ${sgujarati ? 1 : 0})`);
+        }
+        if (languages.length > 0) {
+            var language_query = `INSERT INTO known_language(application_id, language_name, can_read, can_write, can_speak) VALUES ${languages.join(', ')};`;
+            await execute(language_query);
+        }
+
+        // Update or Insert Known Technologies
+        await execute(`DELETE FROM known_technologies WHERE application_id = ${application_id};`);
+        let technologies = [];
+        if (phpcheckbox) {
+            technologies.push(`(${application_id}, 'PHP', '${php}')`);
+        }
+        if (mysqlcheckbox) {
+            technologies.push(`(${application_id}, 'MySql', '${mysql}')`);
+        }
+        if (laravelcheckbox) {
+            technologies.push(`(${application_id}, 'Laravel', '${laravel}')`);
+        }
+        if (oraclecheckbox) {
+            technologies.push(`(${application_id}, 'Oracle', '${oracle}')`);
+        }
+        if (technologies.length > 0) {
+            var techno_query = `INSERT INTO known_technologies(application_id, Name_of_technology, Experties) VALUES ${technologies.join(', ')};`;
+            await execute(techno_query);
+        }
+
+        // Update or Insert Reference Contact
+        await execute(`DELETE FROM referenceContact WHERE application_id = ${application_id};`);
+        let reference_contacts = [];
+        if (ref_name_1 != '') {
+            reference_contacts.push(`(${application_id}, '${ref_name_1}', '${contact_ref_1}', '${contact_ref_relation1}')`);
+        }
+        if (ref_name_2 != '') {
+            reference_contacts.push(`(${application_id}, '${ref_name_2}', '${contact_ref_2}', '${contact_ref_relation2}')`);
+        }
+        if (reference_contacts.length > 0) {
+            var ref_query = `INSERT INTO referenceContact(application_id, NameOfContact, ContactNumber, Relation) VALUES ${reference_contacts.join(', ')};`;
+            await execute(ref_query);
+        }
+
+        // Update or Insert Preferences
+        let preferences = await execute(`SELECT application_id FROM preferences WHERE application_id = ${application_id};`);
+        if (preferences.length > 0) {
+            var preference_query = `UPDATE preferences SET prefered_location='${location}', notice_period='${notice_period}', expected_ctc='${exp_ctc}', curr_ctc='${cur_ctc}', department='${department}' WHERE application_id = ${application_id};`;
+            await execute(preference_query);
+        } else {
+            var preference_query = `INSERT INTO preferences(application_id, prefered_location, notice_period, expected_ctc, curr_ctc, department) VALUES (${application_id}, '${location}', '${notice_period}', '${exp_ctc}', '${cur_ctc}', '${department}');`;
+            await execute(preference_query);
+        }
+
+        fail = "Updated";
+        res.render('job_application_form_main', { fail: fail });
+    } else {
+        fail = "Fail";
+        res.render('job_application_form_main', { fail: fail });
+    }
+}
