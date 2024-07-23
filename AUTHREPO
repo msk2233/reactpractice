@@ -1,35 +1,215 @@
-import { PrismaClient, User } from "@prisma/client";
-import { userInterface } from "../interfaces/crmInterfaces";
-import bcrypt from "bcryptjs";
-import prisma from "../../prisma/prisma.script";
+<script>
+    let submittype = '<%= submittype %>';
+    let id = '<%= id %>';
 
-const createUser = async (data: userInterface): Promise<userInterface> => {
-  const inserted = await prisma.user.create({ data });
-  return inserted;
-};
+    async function fetchData(id) {
+        try {
+            let response = await fetch(`${location.origin}/fetch/?id=${id}`);
+            let data = await response.json();
+            return data;
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        }
+    }
 
-const getUsersByEmailOrUsername = async (email: string, username: string): Promise<User[]> => {
-  const data = await prisma.user.findMany({
-    where: {
-      OR: [
-        { email },
-        { username },
-      ],
-    },
-  });
-  return data;
-};
+    function populateBasicDetails(data) {
+        let basicInputs = document.getElementById('basicdetailtable').getElementsByTagName('input');
+        for (let input of basicInputs) {
+            input.value = data.result1[0][input.name] || '';
+        }
 
-const getUserForLogin = async (emailOrUsername: string): Promise<userInterface | null> => {
-  const data = await prisma.user.findFirst({
-    where: {
-      OR: [
-        { email: emailOrUsername },
-        { username: emailOrUsername },
-      ],
-    },
-  });
-  return data;
-};
+        let genderInputs = document.getElementsByName('gender');
+        genderInputs[0].checked = data.result1[0].gender === 'Male';
+        genderInputs[1].checked = data.result1[0].gender === 'Female';
 
-export { createUser, getUsersByEmailOrUsername, getUserForLogin };
+        let rstatusInputs = document.getElementsByName('rstatus');
+        rstatusInputs[0].selected = data.result1[0].rstatus === 'single';
+        rstatusInputs[1].selected = data.result1[0].rstatus !== 'single';
+
+        document.getElementById('address1').value = data.result1[0].address1 || '';
+        document.getElementById('address2').value = data.result1[0].address2 || '';
+    }
+
+    function populateEducationDetails(data) {
+        let educationDetails = ['ssc', 'hsc', 'bach', 'mas'];
+        educationDetails.forEach((level, index) => {
+            if (data.result2[index]) {
+                document.getElementById(`nob_${level}`).value = data.result2[index].board_course || '';
+                document.getElementById(`ps_${level}`).value = data.result2[index].passing_year || '';
+                document.getElementById(`tage_${level}`).value = data.result2[index].percentage || '';
+            }
+        });
+    }
+
+    function populateWorkExperience(data) {
+        let workExperienceCount = Math.min(data.result3.length, 3);
+        for (let i = 0; i < workExperienceCount; i++) {
+            let experience = data.result3[i];
+            if (experience) {
+                document.getElementById(`companyname${i + 1}`).value = experience.ComapanyName || '';
+                document.getElementById(`designation_exp${i + 1}`).value = experience.Designation || '';
+                document.getElementById(`date_of_join_exp${i + 1}`).value = experience.Dateofjoining || '';
+                document.getElementById(`date_of_coplition_exp${i + 1}`).value = experience.Dateofcompliting || '';
+            }
+        }
+
+        // Hide additional rows if less than 3 experiences
+        for (let i = workExperienceCount; i < 3; i++) {
+            document.getElementById(`td_companyname${i + 1}`).style.visibility = 'hidden';
+            document.getElementById(`td_designation_exp${i + 1}`).style.visibility = 'hidden';
+            document.getElementById(`td_date_of_join_exp${i + 1}`).style.visibility = 'hidden';
+            document.getElementById(`td_date_of_coplition_exp${i + 1}`).style.visibility = 'hidden';
+        }
+    }
+
+    function populateLanguages(data) {
+        data.result4.forEach((language, index) => {
+            if (index === 0) {
+                document.getElementById('rhindi').checked = language.can_read === 1;
+                document.getElementById('whindi').checked = language.can_write === 1;
+                document.getElementById('shindi').checked = language.can_speak === 1;
+            } else if (index === 1) {
+                document.getElementById('renglish').checked = language.can_read === 1;
+                document.getElementById('wenglish').checked = language.can_write === 1;
+                document.getElementById('senglish').checked = language.can_speak === 1;
+            } else if (index === 2) {
+                document.getElementById('rgujarati').checked = language.can_read === 1;
+                document.getElementById('wgujarati').checked = language.can_write === 1;
+                document.getElementById('sgujarati').checked = language.can_speak === 1;
+            }
+        });
+    }
+
+    function populateTechnologies(data) {
+        data.result5.forEach((tech, index) => {
+            let checkbox = document.getElementById(`${tech.Name_of_technology.toLowerCase()}checkbox`);
+            if (checkbox) {
+                checkbox.checked = true;
+                let radios = document.getElementsByName(tech.Name_of_technology.toLowerCase());
+                radios.forEach(radio => {
+                    radio.disabled = !checkbox.checked;
+                    if (tech.Experties === radio.value) {
+                        document.getElementById(`${radio.value}${index + 1}`).checked = true;
+                    }
+                });
+            }
+        });
+    }
+
+    function populateReferences(data) {
+        data.result6.forEach((ref, index) => {
+            if (index < 2) {
+                document.getElementById(`ref_name_${index + 1}`).value = ref.NameOfContact || '';
+                document.getElementById(`contact_ref_${index + 1}`).value = ref.ContactNumber || '';
+                document.getElementById(`contact_ref_relation_${index + 1}`).value = ref.Relation || '';
+            }
+        });
+    }
+
+    function populatePreferences(data) {
+        document.getElementById('notice_prd').value = data.result7[0].notice_period || '';
+        document.getElementById('exp_ctc').value = data.result7[0].expected_ctc || '';
+        document.getElementById('cur_ctc').value = data.result7[0].curr_ctc || '';
+
+        let departmentOptions = document.getElementById('department').getElementsByTagName('option');
+        for (let option of departmentOptions) {
+            if (option.value === data.result7[0].department) {
+                option.selected = true;
+            }
+        }
+    }
+
+    async function initializeForm() {
+        if (submittype === 'update') {
+            document.getElementById('id').value = id;
+            let data = await fetchData(id);
+
+            populateBasicDetails(data);
+            populateEducationDetails(data);
+            populateWorkExperience(data);
+            populateLanguages(data);
+            populateTechnologies(data);
+            populateReferences(data);
+            populatePreferences(data);
+        }
+    }
+
+    async function submitdata() {
+        validate();
+        if (validate()) {
+            let form = document.getElementById('regForm');
+            const formData = new URLSearchParams(new FormData(form)).toString();
+            let url = submittype === 'insert' ? `${location.origin}/dashboard/job_application_form_main/post_data` : `${location.origin}/dashboard/job_application_form_main/update`;
+
+            try {
+                let response = await fetch(url, {
+                    method: 'POST',
+                    body: formData,
+                    headers: { 'Content-type': 'application/x-www-form-urlencoded' }
+                });
+                let result = await response.json();
+
+                if (result.fail === null) {
+                    form.style.visibility = 'hidden';
+                    document.getElementById('response').innerText = 'ERROR IN YOUR INPUT';
+                } else if (result.fail === 'no') {
+                    form.style.visibility = 'hidden';
+                    document.getElementById('response').innerText = submittype === 'insert' ? 'YOUR RESPONSE HAVE BEEN SUBMITTED' : 'YOUR DATA HAVE BEEN UPDATED';
+                }
+            } catch (error) {
+                console.error('Error submitting data:', error);
+            }
+        }
+    }
+
+    async function state() {
+        try {
+            let response = await fetch(`${location.origin}/dashboard/job_application_form_main/get_state`);
+            let states = await response.json();
+
+            let stateSelect = document.getElementById('state');
+            for (let key in states) {
+                for (let subKey in states[key]) {
+                    let option = new Option(states[key][subKey].name, states[key][subKey].id);
+                    option.setAttribute('name', 'statename');
+                    stateSelect.appendChild(option);
+                }
+            }
+        } catch (error) {
+            console.error('Error fetching states:', error);
+        }
+    }
+
+    async function selectcity(id) {
+        try {
+            let response = await fetch(`${location.origin}/dashboard/job_application_form_main/get_city/?id=${id}`);
+            let cities = await response.json();
+
+            let citySelect = document.getElementById('city');
+            citySelect.innerHTML = '';
+            for (let key in cities) {
+                for (let subKey in cities[key]) {
+                    let option = new Option(cities[key][subKey].city, cities[key][subKey].city);
+                    option.setAttribute('name', 'cityname[]');
+                    citySelect.appendChild(option);
+                }
+            }
+        } catch (error) {
+            console.error('Error fetching cities:', error);
+        }
+    }
+
+    function enableradio(check) {
+        const radios = check.closest('tr').querySelectorAll('input[type="radio"]');
+        radios.forEach(radio => {
+            radio.disabled = !check.checked;
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        if (submittype === 'update') {
+            initializeForm();
+        }
+        state();
+    });
+</script>
