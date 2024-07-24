@@ -1,215 +1,225 @@
-<script>
-    let submittype = '<%= submittype %>';
-    let id = '<%= id %>';
+// Deals.tsx
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import Navbar from "../common/Navbar";
+import Button from "../common/Button";
+import Input from "../common/Input";
+import Pagination from "../common/Pagination";
+import Modal from "../common/Modal";
+import { DealInterface, ParamsInterface } from "../../Interface/interface";
+import dealService from "./deal.service";
+import DealForm from "./DealForm";
+import { SubmitHandler } from "react-hook-form";
+import initialParams from "../../constants/constants";
+import Table from "../common/Table";
 
-    async function fetchData(id) {
-        try {
-            let response = await fetch(`${location.origin}/fetch/?id=${id}`);
-            let data = await response.json();
-            return data;
-        } catch (error) {
-            console.error('Error fetching data:', error);
-        }
+const initialValue = {
+  title: "",
+  amount: 0,
+  stage: "Prospecting",
+};
+
+const Deals: React.FC = () => {
+  const navigate = useNavigate();
+  const paramsInitials = initialParams("title", 5);
+  const [deals, setDeals] = useState<DealInterface[]>([]);
+  const [showForm, setShowForm] = useState(false);
+  const [update, setUpdate] = useState<boolean>(false);
+  const [params, setParams] = useState(paramsInitials);
+  const [totalPages, setTotalPages] = useState(1);
+  const [currentDeal, setCurrentDeal] = useState<DealInterface | null>(null);
+  const { fetchDealsApi, deleteDealApi, updateeDealApi, createDealApi } = dealService();
+
+  const fetchDeals = async (params: ParamsInterface) => {
+    try {
+      const res = await fetchDealsApi(params);
+      setTotalPages(res?.data.totalPage || 1);
+      setParams(paramsInitials);
+      setDeals([...res?.data.res]);
+    } catch (error) {
+      console.error("Error fetching deals:", error);
     }
+  };
 
-    function populateBasicDetails(data) {
-        let basicInputs = document.getElementById('basicdetailtable').getElementsByTagName('input');
-        for (let input of basicInputs) {
-            input.value = data.result1[0][input.name] || '';
-        }
+  useEffect(() => {
+    fetchDeals(params);
+  }, []);
 
-        let genderInputs = document.getElementsByName('gender');
-        genderInputs[0].checked = data.result1[0].gender === 'Male';
-        genderInputs[1].checked = data.result1[0].gender === 'Female';
-
-        let rstatusInputs = document.getElementsByName('rstatus');
-        rstatusInputs[0].selected = data.result1[0].rstatus === 'single';
-        rstatusInputs[1].selected = data.result1[0].rstatus !== 'single';
-
-        document.getElementById('address1').value = data.result1[0].address1 || '';
-        document.getElementById('address2').value = data.result1[0].address2 || '';
+  const deleteDeal = async (id: string | undefined) => {
+    try {
+      await deleteDealApi(id);
+      fetchDeals(params);
+    } catch (error) {
+      console.error("Error deleting deal:", error);
     }
+  };
 
-    function populateEducationDetails(data) {
-        let educationDetails = ['ssc', 'hsc', 'bach', 'mas'];
-        educationDetails.forEach((level, index) => {
-            if (data.result2[index]) {
-                document.getElementById(`nob_${level}`).value = data.result2[index].board_course || '';
-                document.getElementById(`ps_${level}`).value = data.result2[index].passing_year || '';
-                document.getElementById(`tage_${level}`).value = data.result2[index].percentage || '';
-            }
-        });
+  const handleFormSubmit: SubmitHandler<DealInterface> = async (data) => {
+    const dataTosubmit = {
+      title: data.title,
+      amount: data.amount,
+      stage: data.stage,
+      closedate: data.closedate,
+    };
+    if (update && currentDeal?.id) {
+      const id = currentDeal.id;
+      await updateeDealApi(id, dataTosubmit);
+    } else {
+      const res = await createDealApi(dataTosubmit);
+      setDeals([...deals, res?.data]);
     }
+    setCurrentDeal(null);
+    setShowForm(false);
+    fetchDeals(params);
+  };
 
-    function populateWorkExperience(data) {
-        let workExperienceCount = Math.min(data.result3.length, 3);
-        for (let i = 0; i < workExperienceCount; i++) {
-            let experience = data.result3[i];
-            if (experience) {
-                document.getElementById(`companyname${i + 1}`).value = experience.ComapanyName || '';
-                document.getElementById(`designation_exp${i + 1}`).value = experience.Designation || '';
-                document.getElementById(`date_of_join_exp${i + 1}`).value = experience.Dateofjoining || '';
-                document.getElementById(`date_of_coplition_exp${i + 1}`).value = experience.Dateofcompliting || '';
-            }
-        }
-
-        // Hide additional rows if less than 3 experiences
-        for (let i = workExperienceCount; i < 3; i++) {
-            document.getElementById(`td_companyname${i + 1}`).style.visibility = 'hidden';
-            document.getElementById(`td_designation_exp${i + 1}`).style.visibility = 'hidden';
-            document.getElementById(`td_date_of_join_exp${i + 1}`).style.visibility = 'hidden';
-            document.getElementById(`td_date_of_coplition_exp${i + 1}`).style.visibility = 'hidden';
-        }
+  const findDeal = async (id: string | undefined) => {
+    if (id) {
+      navigate(`/edit-deal/${id}`);
     }
+  };
 
-    function populateLanguages(data) {
-        data.result4.forEach((language, index) => {
-            if (index === 0) {
-                document.getElementById('rhindi').checked = language.can_read === 1;
-                document.getElementById('whindi').checked = language.can_write === 1;
-                document.getElementById('shindi').checked = language.can_speak === 1;
-            } else if (index === 1) {
-                document.getElementById('renglish').checked = language.can_read === 1;
-                document.getElementById('wenglish').checked = language.can_write === 1;
-                document.getElementById('senglish').checked = language.can_speak === 1;
-            } else if (index === 2) {
-                document.getElementById('rgujarati').checked = language.can_read === 1;
-                document.getElementById('wgujarati').checked = language.can_write === 1;
-                document.getElementById('sgujarati').checked = language.can_speak === 1;
-            }
-        });
-    }
+  const handlePageChange = async (page: number) => {
+    params.page = page;
+    const res = await fetchDealsApi(params);
+    setDeals([...res?.data.res]);
+  };
 
-    function populateTechnologies(data) {
-        data.result5.forEach((tech, index) => {
-            let checkbox = document.getElementById(`${tech.Name_of_technology.toLowerCase()}checkbox`);
-            if (checkbox) {
-                checkbox.checked = true;
-                let radios = document.getElementsByName(tech.Name_of_technology.toLowerCase());
-                radios.forEach(radio => {
-                    radio.disabled = !checkbox.checked;
-                    if (tech.Experties === radio.value) {
-                        document.getElementById(`${radio.value}${index + 1}`).checked = true;
-                    }
-                });
-            }
-        });
-    }
+  const columns = [
+    { header: "Title", accessor: "title" },
+    { header: "Amount", accessor: "amount" },
+    { header: "Stage", accessor: "stage" },
+    { header: "Close Date", accessor: "closedate" },
+  ];
 
-    function populateReferences(data) {
-        data.result6.forEach((ref, index) => {
-            if (index < 2) {
-                document.getElementById(`ref_name_${index + 1}`).value = ref.NameOfContact || '';
-                document.getElementById(`contact_ref_${index + 1}`).value = ref.ContactNumber || '';
-                document.getElementById(`contact_ref_relation_${index + 1}`).value = ref.Relation || '';
-            }
-        });
-    }
+  return (
+    <>
+      <Navbar />
+      <section className="bg-gray-50 light:bg-gray">
+        <div className="flex flex-col items-center justify-center lg:py-0">
+          <div className="w-full max-w-9xl bg-white rounded-lg light:border mt-4 light:bg-gray-800 light:border-gray-700">
+            <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
+              <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl light:text-white">
+                Deal Records
+              </h1>
+              <div className="flex justify-between">
+                <Input
+                  name="search"
+                  type="text"
+                  className="w-96"
+                  placeholder="search deal by title..."
+                  onChange={(e) => {
+                    params.search = e.target.value;
+                    fetchDeals(params);
+                  }}
+                />
+                <Button
+                  type="button"
+                  className="w-48 bg-purple-600 text-white p-2 rounded"
+                  onClick={() => setShowForm(true)}
+                >
+                  Register New Deal
+                </Button>
+              </div>
+              <Table<DealInterface>
+                columns={columns}
+                data={deals}
+                actions={(deal) => (
+                  <>
+                    <Button type="button" onClick={() => findDeal(deal.id)}>
+                      <img
+                        alt="edit"
+                        className="px-6 py-4 whitespace-no-wrap"
+                        src="/assets/edit.svg"
+                      />
+                    </Button>
+                    <Button type="button" onClick={() => deleteDeal(deal.id)}>
+                      <img
+                        className="px-6 py-4 whitespace-no-wrap"
+                        src="/assets/delete.svg"
+                        alt="delete"
+                      />
+                    </Button>
+                  </>
+                )}
+              />
+              <Pagination
+                totalPages={totalPages}
+                currentPage={params.page}
+                onPageChange={handlePageChange}
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+      {showForm && (
+        <Modal isOpen={showForm} onClose={() => setShowForm(false)}>
+          <DealForm
+            initialValue={currentDeal || initialValue}
+            onSubmit={handleFormSubmit}
+            update={update}
+          />
+        </Modal>
+      )}
+    </>
+  );
+};
 
-    function populatePreferences(data) {
-        document.getElementById('notice_prd').value = data.result7[0].notice_period || '';
-        document.getElementById('exp_ctc').value = data.result7[0].expected_ctc || '';
-        document.getElementById('cur_ctc').value = data.result7[0].curr_ctc || '';
+export default Deals;
 
-        let departmentOptions = document.getElementById('department').getElementsByTagName('option');
-        for (let option of departmentOptions) {
-            if (option.value === data.result7[0].department) {
-                option.selected = true;
-            }
-        }
-    }
 
-    async function initializeForm() {
-        if (submittype === 'update') {
-            document.getElementById('id').value = id;
-            let data = await fetchData(id);
 
-            populateBasicDetails(data);
-            populateEducationDetails(data);
-            populateWorkExperience(data);
-            populateLanguages(data);
-            populateTechnologies(data);
-            populateReferences(data);
-            populatePreferences(data);
-        }
-    }
 
-    async function submitdata() {
-        validate();
-        if (validate()) {
-            let form = document.getElementById('regForm');
-            const formData = new URLSearchParams(new FormData(form)).toString();
-            let url = submittype === 'insert' ? `${location.origin}/dashboard/job_application_form_main/post_data` : `${location.origin}/dashboard/job_application_form_main/update`;
+// Table.tsx
+import React from 'react';
 
-            try {
-                let response = await fetch(url, {
-                    method: 'POST',
-                    body: formData,
-                    headers: { 'Content-type': 'application/x-www-form-urlencoded' }
-                });
-                let result = await response.json();
+interface TableProps<T> {
+  columns: { header: string, accessor: keyof T }[];
+  data: T[];
+  actions?: (item: T) => React.ReactNode;
+}
 
-                if (result.fail === null) {
-                    form.style.visibility = 'hidden';
-                    document.getElementById('response').innerText = 'ERROR IN YOUR INPUT';
-                } else if (result.fail === 'no') {
-                    form.style.visibility = 'hidden';
-                    document.getElementById('response').innerText = submittype === 'insert' ? 'YOUR RESPONSE HAVE BEEN SUBMITTED' : 'YOUR DATA HAVE BEEN UPDATED';
-                }
-            } catch (error) {
-                console.error('Error submitting data:', error);
-            }
-        }
-    }
+const Table = <T,>({ columns, data, actions }: TableProps<T>) => {
+  return (
+    <table className="min-w-full divide-y divide-gray-200">
+      <thead className="bg-gray-50 dark:bg-gray-700">
+        <tr>
+          {columns.map((column) => (
+            <th
+              key={column.header}
+              className="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase"
+            >
+              {column.header}
+            </th>
+          ))}
+          {actions && <th className="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase">Actions</th>}
+        </tr>
+      </thead>
+      <tbody className="bg-white divide-y divide-gray-200">
+        {data.map((item, index) => (
+          <tr key={index}>
+            {columns.map((column) => (
+              <td
+                key={String(column.accessor)}
+                className="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-900"
+              >
+                {String(item[column.accessor])}
+              </td>
+            ))}
+            {actions && (
+              <td className="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-900">
+                {actions(item)}
+              </td>
+            )}
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+};
 
-    async function state() {
-        try {
-            let response = await fetch(`${location.origin}/dashboard/job_application_form_main/get_state`);
-            let states = await response.json();
+export default Table;
 
-            let stateSelect = document.getElementById('state');
-            for (let key in states) {
-                for (let subKey in states[key]) {
-                    let option = new Option(states[key][subKey].name, states[key][subKey].id);
-                    option.setAttribute('name', 'statename');
-                    stateSelect.appendChild(option);
-                }
-            }
-        } catch (error) {
-            console.error('Error fetching states:', error);
-        }
-    }
 
-    async function selectcity(id) {
-        try {
-            let response = await fetch(`${location.origin}/dashboard/job_application_form_main/get_city/?id=${id}`);
-            let cities = await response.json();
 
-            let citySelect = document.getElementById('city');
-            citySelect.innerHTML = '';
-            for (let key in cities) {
-                for (let subKey in cities[key]) {
-                    let option = new Option(cities[key][subKey].city, cities[key][subKey].city);
-                    option.setAttribute('name', 'cityname[]');
-                    citySelect.appendChild(option);
-                }
-            }
-        } catch (error) {
-            console.error('Error fetching cities:', error);
-        }
-    }
 
-    function enableradio(check) {
-        const radios = check.closest('tr').querySelectorAll('input[type="radio"]');
-        radios.forEach(radio => {
-            radio.disabled = !check.checked;
-        });
-    }
-
-    document.addEventListener('DOMContentLoaded', () => {
-        if (submittype === 'update') {
-            initializeForm();
-        }
-        state();
-    });
-</script>
