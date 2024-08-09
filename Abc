@@ -1,0 +1,93 @@
+Connected App Name
+API Name
+Contact Email
+Under API (Enable OAuth Settings), check the box for Enable OAuth Settings.
+Set the Callback URL (e.g., https://localhost/callback for testing).
+Select the required OAuth Scopes (e.g., Full access (full), Perform requests on your behalf at any time (refresh_token, offline_access)).
+Click Save.
+2. Obtain the Access Token
+You can obtain the access token using OAuth 2.0 by following these steps:
+
+Using Postman:
+Create a New Request:
+Set the request type to POST.
+Use the following URL (replace <domain> with your Salesforce domain, typically login.salesforce.com for production or test.salesforce.com for sandbox):
+bash
+Copy code
+https://<domain>/services/oauth2/token
+Set the Body Parameters:
+Set the request body type to x-www-form-urlencoded.
+Add the following parameters:
+grant_type: password
+client_id: <Consumer Key from Connected App>
+client_secret: <Consumer Secret from Connected App>
+username: <Salesforce Username>
+password: <Salesforce Password + Security Token> (If a security token is required, append it to your password)
+Send the Request:
+Send the request, and if everything is correct, you will receive a JSON response with an access_token.
+Using Code:
+Node.js (Axios example):
+javascript
+Copy code
+const axios = require('axios');
+
+const getToken = async () => {
+  try {
+    const response = await axios.post('https://<domain>/services/oauth2/token', null, {
+      params: {
+        grant_type: 'password',
+        client_id: '<Consumer Key>',
+        client_secret: '<Consumer Secret>',
+        username: '<Salesforce Username>',
+        password: '<Salesforce Password + Security Token>',
+      },
+    });
+
+    const { access_token } = response.data;
+    console.log('Access Token:', access_token);
+    return access_token;
+  } catch (error) {
+    console.error('Error getting access token:', error.response.data);
+  }
+};
+
+getToken();
+3. Using the Access Token with Salesforce APIs
+Once you have the access token, you can make requests to Salesforce APIs.
+Example: Get Account Records
+Endpoint: https://<domain>/services/data/v57.0/sobjects/Account
+
+Method: GET
+
+Headers:
+
+json
+Copy code
+{
+  "Authorization": "Bearer <Access Token>",
+  "Content-Type": "application/json"
+}
+Node.js Example:
+
+javascript
+Copy code
+const getAccounts = async (accessToken) => {
+  try {
+    const response = await axios.get('https://<domain>/services/data/v57.0/sobjects/Account', {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    console.log('Accounts:', response.data);
+  } catch (error) {
+    console.error('Error fetching accounts:', error.response.data);
+  }
+};
+
+getToken().then(getAccounts);
+4. Refreshing the Access Token
+Access tokens expire after a certain period. You can use the refresh token (if you've requested one) to get a new access token.
+To refresh the token, send a POST request to the same token endpoint, but use grant_type=refresh_token and include the refresh_token in the body.
+This process allows you to authenticate and interact with Salesforce APIs securely.
